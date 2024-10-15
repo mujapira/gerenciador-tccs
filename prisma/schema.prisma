@@ -1,0 +1,293 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["views"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model aluno {
+  id                  Int                   @id @default(autoincrement())
+  nome                String                @db.VarChar(100)
+  email               String                @unique(map: "email") @db.VarChar(100)
+  matricula           String                @unique(map: "matricula") @db.VarChar(20)
+  cpf                 String                @unique(map: "cpf") @db.VarChar(11)
+  telefone            String?               @db.VarChar(20)
+  endereco            String?               @db.VarChar(255)
+  cidade              String?               @db.VarChar(100)
+  estado              String?               @db.VarChar(50)
+  data_ingresso       DateTime              @db.Date
+  data_nascimento     DateTime              @db.Date
+  semestre_atual      Int?
+  aluno_turma         aluno_turma[]
+  comunidade          comunidade[]
+  comunidade_post     comunidade_post[]
+  comunidade_seguidor comunidade_seguidor[]
+  tcc_metadata        tcc_metadata[]
+}
+
+model aluno_turma {
+  aluno_id Int
+  turma_id Int
+  aluno    aluno @relation(fields: [aluno_id], references: [id], onUpdate: Restrict, map: "aluno_turma_ibfk_1")
+  turma    turma @relation(fields: [turma_id], references: [id], onUpdate: Restrict, map: "aluno_turma_ibfk_2")
+
+  @@id([aluno_id, turma_id])
+  @@index([turma_id], map: "turma_id")
+}
+
+model comunidade {
+  id                    Int                   @id @default(autoincrement())
+  nome                  String                @db.VarChar(255)
+  descricao             String?               @db.Text
+  criador_aluno_id      Int?
+  criador_orientador_id Int?
+  data_criacao          DateTime              @db.Date
+  aluno                 aluno?                @relation(fields: [criador_aluno_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "comunidade_ibfk_1")
+  orientador            orientador?           @relation(fields: [criador_orientador_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "comunidade_ibfk_2")
+  comunidade_post       comunidade_post[]
+  comunidade_seguidor   comunidade_seguidor[]
+
+  @@index([criador_aluno_id], map: "criador_aluno_id")
+  @@index([criador_orientador_id], map: "criador_orientador_id")
+}
+
+model comunidade_post {
+  id                  Int         @id @default(autoincrement())
+  comunidade_id       Int?
+  autor_aluno_id      Int?
+  autor_orientador_id Int?
+  conteudo            String      @db.Text
+  data_postagem       DateTime    @db.Date
+  comunidade          comunidade? @relation(fields: [comunidade_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "comunidade_post_ibfk_1")
+  aluno               aluno?      @relation(fields: [autor_aluno_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "comunidade_post_ibfk_2")
+  orientador          orientador? @relation(fields: [autor_orientador_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "comunidade_post_ibfk_3")
+
+  @@index([autor_aluno_id], map: "autor_aluno_id")
+  @@index([autor_orientador_id], map: "autor_orientador_id")
+  @@index([comunidade_id], map: "comunidade_id")
+}
+
+model comunidade_seguidor {
+  id                     Int         @id @default(autoincrement())
+  comunidade_id          Int?
+  seguidor_aluno_id      Int?
+  seguidor_orientador_id Int?
+  data_seguimento        DateTime    @db.Date
+  comunidade             comunidade? @relation(fields: [comunidade_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "comunidade_seguidor_ibfk_1")
+  aluno                  aluno?      @relation(fields: [seguidor_aluno_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "comunidade_seguidor_ibfk_2")
+  orientador             orientador? @relation(fields: [seguidor_orientador_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "comunidade_seguidor_ibfk_3")
+
+  @@index([comunidade_id], map: "comunidade_id")
+  @@index([seguidor_aluno_id], map: "seguidor_aluno_id")
+  @@index([seguidor_orientador_id], map: "seguidor_orientador_id")
+}
+
+model orientador {
+  id                   Int                    @id @default(autoincrement())
+  nome                 String                 @db.VarChar(100)
+  email                String                 @unique(map: "email") @db.VarChar(100)
+  cpf                  String                 @unique(map: "cpf") @db.VarChar(11)
+  telefone             String?                @db.VarChar(20)
+  departamento         String                 @db.VarChar(100)
+  titulo_academico     String                 @db.VarChar(50)
+  comunidade           comunidade[]
+  comunidade_post      comunidade_post[]
+  comunidade_seguidor  comunidade_seguidor[]
+  tcc_avaliacao        tcc_avaliacao[]
+  tcc_estado_historico tcc_estado_historico[]
+  tcc_metadata         tcc_metadata[]
+}
+
+model tcc {
+  id                           Int                            @id @default(autoincrement())
+  titulo                       String                         @db.VarChar(255)
+  metadata_id                  Int?
+  status                       Int                            @default(1)
+  tcc_metadata                 tcc_metadata?                  @relation(fields: [metadata_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "tcc_ibfk_1")
+  tcc_estado                   tcc_estado                     @relation(fields: [status], references: [id], onUpdate: Restrict, map: "tcc_ibfk_2")
+  tcc_avaliacao                tcc_avaliacao[]
+  tcc_bibliografia             tcc_bibliografia[]
+  tcc_documento                tcc_documento[]
+  tcc_estado_historico         tcc_estado_historico[]
+  tcc_nota_final               tcc_nota_final[]
+  tcc_palavra_chave_associacao tcc_palavra_chave_associacao[]
+  tcc_relatorio_progresso      tcc_relatorio_progresso[]
+
+  @@index([metadata_id], map: "metadata_id")
+  @@index([status], map: "status")
+}
+
+model tcc_avaliacao {
+  id             Int         @id @default(autoincrement())
+  tcc_id         Int?
+  orientador_id  Int?
+  data_avaliacao DateTime    @db.Date
+  descricao      String      @db.Text
+  nota           Decimal?    @db.Decimal(5, 2)
+  tcc            tcc?        @relation(fields: [tcc_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "tcc_avaliacao_ibfk_1")
+  orientador     orientador? @relation(fields: [orientador_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "tcc_avaliacao_ibfk_2")
+
+  @@index([orientador_id], map: "orientador_id")
+  @@index([tcc_id], map: "tcc_id")
+}
+
+model tcc_bibliografia {
+  id         Int    @id @default(autoincrement())
+  tcc_id     Int?
+  referencia String @db.VarChar(500)
+  tcc        tcc?   @relation(fields: [tcc_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "tcc_bibliografia_ibfk_1")
+
+  @@index([tcc_id], map: "tcc_id")
+}
+
+model tcc_classificacao {
+  id           Int            @id @default(autoincrement())
+  descricao    String         @db.VarChar(255)
+  tcc_metadata tcc_metadata[]
+}
+
+model tcc_documento {
+  id                 Int                @id @default(autoincrement())
+  tcc_id             Int?
+  tipo_documento_id  Int
+  nome_documento     String             @db.VarChar(255)
+  caminho_arquivo    String             @db.VarChar(500)
+  formato_documento  String             @db.VarChar(10)
+  data_envio         DateTime           @db.Date
+  tamanho_arquivo    Int?
+  tcc                tcc?               @relation(fields: [tcc_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "tcc_documento_ibfk_1")
+  tcc_tipo_documento tcc_tipo_documento @relation(fields: [tipo_documento_id], references: [id], onUpdate: Restrict, map: "tcc_documento_ibfk_2")
+
+  @@index([tcc_id], map: "tcc_id")
+  @@index([tipo_documento_id], map: "tipo_documento_id")
+}
+
+model tcc_estado {
+  id                   Int                    @id @default(autoincrement())
+  descricao            String                 @db.VarChar(50)
+  tcc                  tcc[]
+  tcc_estado_historico tcc_estado_historico[]
+}
+
+model tcc_estado_historico {
+  id                        Int         @id @default(autoincrement())
+  tcc_id                    Int
+  status                    Int         @default(1)
+  data_status               DateTime    @db.Date
+  responsavel_orientador_id Int?
+  tcc                       tcc         @relation(fields: [tcc_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "tcc_estado_historico_ibfk_1")
+  tcc_estado                tcc_estado  @relation(fields: [status], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "tcc_estado_historico_ibfk_2")
+  orientador                orientador? @relation(fields: [responsavel_orientador_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "tcc_estado_historico_ibfk_3")
+
+  @@index([responsavel_orientador_id], map: "responsavel_orientador_id")
+  @@index([status], map: "status")
+  @@index([tcc_id], map: "tcc_id")
+}
+
+model tcc_metadata {
+  id                Int               @id @default(autoincrement())
+  tema_id           Int
+  classificacao_id  Int
+  orientador_id     Int
+  turma_id          Int
+  aluno_id          Int
+  tcc               tcc[]
+  tcc_tema          tcc_tema          @relation(fields: [tema_id], references: [id], onUpdate: Restrict, map: "tcc_metadata_ibfk_1")
+  tcc_classificacao tcc_classificacao @relation(fields: [classificacao_id], references: [id], onUpdate: Restrict, map: "tcc_metadata_ibfk_2")
+  orientador        orientador        @relation(fields: [orientador_id], references: [id], onUpdate: Restrict, map: "tcc_metadata_ibfk_3")
+  turma             turma             @relation(fields: [turma_id], references: [id], onUpdate: Restrict, map: "tcc_metadata_ibfk_4")
+  aluno             aluno             @relation(fields: [aluno_id], references: [id], onUpdate: Restrict, map: "tcc_metadata_ibfk_5")
+
+  @@index([aluno_id], map: "aluno_id")
+  @@index([classificacao_id], map: "classificacao_id")
+  @@index([orientador_id], map: "orientador_id")
+  @@index([tema_id], map: "tema_id")
+  @@index([turma_id], map: "turma_id")
+}
+
+model tcc_nota_final {
+  id           Int      @id @default(autoincrement())
+  tcc_id       Int
+  nota_final   Decimal  @db.Decimal(5, 2)
+  data_calculo DateTime @default(dbgenerated("(curdate())")) @db.Date
+  tcc          tcc      @relation(fields: [tcc_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "tcc_nota_final_ibfk_1")
+
+  @@index([tcc_id], map: "tcc_id")
+}
+
+model tcc_palavra_chave {
+  id                           Int                            @id @default(autoincrement())
+  palavra                      String                         @db.VarChar(100)
+  tcc_palavra_chave_associacao tcc_palavra_chave_associacao[]
+}
+
+model tcc_palavra_chave_associacao {
+  tcc_id            Int
+  palavra_id        Int
+  tcc               tcc               @relation(fields: [tcc_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "tcc_palavra_chave_associacao_ibfk_1")
+  tcc_palavra_chave tcc_palavra_chave @relation(fields: [palavra_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "tcc_palavra_chave_associacao_ibfk_2")
+
+  @@id([tcc_id, palavra_id])
+  @@index([palavra_id], map: "palavra_id")
+}
+
+model tcc_relatorio_progresso {
+  id                              Int                               @id @default(autoincrement())
+  tcc_id                          Int?
+  data_entrega                    DateTime                          @db.Date
+  descricao                       String                            @db.Text
+  tcc                             tcc?                              @relation(fields: [tcc_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "tcc_relatorio_progresso_ibfk_1")
+  tcc_relatorio_progresso_arquivo tcc_relatorio_progresso_arquivo[]
+
+  @@index([tcc_id], map: "tcc_id")
+}
+
+model tcc_relatorio_progresso_arquivo {
+  id                      Int                      @id @default(autoincrement())
+  relatorio_id            Int?
+  nome_arquivo            String                   @db.VarChar(255)
+  caminho_arquivo         String                   @db.VarChar(500)
+  formato_documento       String                   @db.VarChar(10)
+  tamanho_arquivo         Int?
+  tcc_relatorio_progresso tcc_relatorio_progresso? @relation(fields: [relatorio_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "tcc_relatorio_progresso_arquivo_ibfk_1")
+
+  @@index([relatorio_id], map: "relatorio_id")
+}
+
+model tcc_tema {
+  id           Int            @id @default(autoincrement())
+  descricao    String         @db.VarChar(255)
+  tcc_metadata tcc_metadata[]
+}
+
+model tcc_tipo_documento {
+  id            Int             @id @default(autoincrement())
+  descricao     String          @db.VarChar(50)
+  tcc_documento tcc_documento[]
+}
+
+model turma {
+  id           Int            @id @default(autoincrement())
+  nome         String         @db.VarChar(100)
+  aluno_turma  aluno_turma[]
+  tcc_metadata tcc_metadata[]
+}
+
+view vw_tcc_detalhado {
+  tcc_id                Int       @unique @default(0)
+  titulo_tcc            String    @db.VarChar(255)
+  nome_aluno            String    @db.VarChar(100)
+  data_ingresso_aluno   DateTime  @db.Date
+  nome_orientador       String    @db.VarChar(100)
+  nome_turma            String    @db.VarChar(100)
+  tema                  String    @db.VarChar(255)
+  classificacao         String    @db.VarChar(255)
+  nota_final            String?   @db.VarChar(7)
+  estado_atual          String?   @db.VarChar(50)
+  numero_avaliacoes     BigInt    @default(0)
+  data_ultima_avaliacao DateTime? @db.Date
+  palavras_chave        String?   @db.MediumText
+}
