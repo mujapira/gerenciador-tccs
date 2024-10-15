@@ -2,8 +2,12 @@
 
 Este é um projeto desenvolvido utilizando **Next.js 14**, **Prisma** como ORM e **MySQL** como banco de dados. O objetivo é gerenciar documentos acadêmicos, como monografias, pôsteres e artigos, oferecendo recursos para acompanhar o progresso dos alunos e relatórios para orientadores.
 
+Documentações
+
 https://ui.shadcn.com/docs
+
 https://nextjs.org/docs
+
 https://tailwindcss.com/docs
 
 ## Instalação
