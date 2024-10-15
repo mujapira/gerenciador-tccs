@@ -1,16 +1,19 @@
+import { Fragment } from "react"
 import prisma from "../lib/prisma"
+import Link from "next/link"
 
 export async function Alunos() {
   const alunos = await prisma.aluno.findMany()
 
   return (
-    <main className="flex  w-full h-full justify-center flex-col gap-8 items-center min-h-[calc(100vh-68px)]">
-      <h1>Alunos</h1>
-      <ul>
+    <Fragment>
+      <ul className="flex flex-col gap-2">
         {alunos.map((aluno) => (
-          <li key={aluno.id}>{aluno.nome}</li>
+          <Link href={`/alunos/${aluno.id}`} key={aluno.id}>
+            <span>{aluno.nome}</span>
+          </Link>
         ))}
       </ul>
-    </main>
+    </Fragment>
   )
 }
