@@ -72,3 +72,19 @@ view vw_tcc_detalhado {
   palavras_chave        String?   @db.MediumText
 }
 ```
+
+### 6. Guias para o desenvolvimento
+
+#### Estrtutura de pastas
+|ráiz <br/>
+__ |app: pasta pai da aplicação <br/>
+____ | lib: pasta para instanciar o prisma <br/>
+____ | components: pasta para abstrair os componentes da aplicação <br/>
+____ | (pages): Rotas da aplicação, no next, as pastas são as rotas * <br/>
+____ | layout.tsx: layout de todas as páginas ** <br/>
+____ | page.tsx: página ráiz da aplicação <br/>
+__ | components: componentes do shadcn <br/>
+__ | prisma: pasta do ORM <br/>
+
+*quando usamos uma pasta com () ela não participa das rotas, vide a documentação do next <br/>
+** estrutura que envolve o {children}, onde todo o resto das rotas é renderizdo 
