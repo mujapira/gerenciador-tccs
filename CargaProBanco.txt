@@ -1,0 +1,707 @@
+-- Tabela de Alunos OK
+CREATE TABLE aluno (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    matricula VARCHAR(20) UNIQUE NOT NULL,
+    cpf VARCHAR(11) UNIQUE NOT NULL,
+    data_nascimento DATE NOT NULL,
+    telefone VARCHAR(20),
+    endereco VARCHAR(255),
+    cidade VARCHAR(100),
+    estado VARCHAR(50),
+    data_ingresso DATE NOT NULL,
+    semestre_atual INT
+);
+
+-- Tabela de Orientadores OK
+CREATE TABLE orientador (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    cpf VARCHAR(11) UNIQUE NOT NULL,
+    telefone VARCHAR(20),
+    departamento VARCHAR(100) NOT NULL,
+    titulo_academico VARCHAR(50) NOT NULL
+);
+
+
+-- Tabela de Turmas OK
+CREATE TABLE turma (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL
+);
+
+
+-- Tabela de Temas de TCC OK
+CREATE TABLE tcc_tema (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    descricao VARCHAR(255) NOT NULL
+);
+
+-- Tabela de Classificações de TCC OK
+CREATE TABLE tcc_classificacao (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    descricao VARCHAR(255) NOT NULL
+);
+
+-- Tabela de Palavras-Chave de TCC OK
+CREATE TABLE tcc_palavra_chave (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    palavra VARCHAR(100) NOT NULL
+);
+
+-- Tabela de Associação entre Alunos e Turmas OK
+CREATE TABLE aluno_turma (
+    aluno_id INT,
+    turma_id INT,
+    PRIMARY KEY (aluno_id, turma_id),
+    FOREIGN KEY (aluno_id) REFERENCES aluno(id),
+    FOREIGN KEY (turma_id) REFERENCES turma(id)
+);
+
+
+-- Tabela de Estados do TCC (ex: Em Andamento, Aprovado) OK
+CREATE TABLE tcc_estado (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    descricao VARCHAR(50) NOT NULL
+);
+
+-- Tabela Metadata de TCC (Ligação entre TCC e Aluno, Orientador, Turma, Tema, Classificação) OK
+CREATE TABLE tcc_metadata (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tema_id INT NOT NULL,
+    classificacao_id INT NOT NULL,
+    orientador_id INT NOT NULL,
+    turma_id INT NOT NULL,
+    aluno_id INT NOT NULL,
+    FOREIGN KEY (tema_id) REFERENCES tcc_tema(id),
+    FOREIGN KEY (classificacao_id) REFERENCES tcc_classificacao(id),
+    FOREIGN KEY (orientador_id) REFERENCES orientador(id),
+    FOREIGN KEY (turma_id) REFERENCES turma(id),
+    FOREIGN KEY (aluno_id) REFERENCES aluno(id)
+);
+
+
+-- Tabela de TCC OK
+CREATE TABLE tcc (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    titulo VARCHAR(255) NOT NULL,
+    metadata_id INT,
+    status INT NOT NULL DEFAULT 1,
+    FOREIGN KEY (metadata_id) REFERENCES tcc_metadata(id),
+    FOREIGN KEY (status) REFERENCES tcc_estado(id)
+);
+
+
+-- Tabela de Documentos Relacionados ao TCC ok
+CREATE TABLE tcc_tipo_documento (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    descricao VARCHAR(50) NOT NULL
+);
+
+-- Tabela de Documentos do TCC ok
+CREATE TABLE tcc_documento (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tcc_id INT,
+    tipo_documento_id INT NOT NULL,
+    nome_documento VARCHAR(255) NOT NULL,
+    caminho_arquivo VARCHAR(500) NOT NULL,
+    formato_documento VARCHAR(10) NOT NULL,
+    data_envio DATE NOT NULL,
+    tamanho_arquivo INT,
+    FOREIGN KEY (tcc_id) REFERENCES tcc(id) ON DELETE CASCADE,
+    FOREIGN KEY (tipo_documento_id) REFERENCES tcc_tipo_documento(id)
+);
+
+
+CREATE TABLE tcc_estado_historico (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tcc_id INT NOT NULL,
+    status INT NOT NULL DEFAULT 1,
+    data_status DATE NOT NULL,
+    responsavel_orientador_id INT,
+    FOREIGN KEY (tcc_id) REFERENCES tcc(id) ON DELETE CASCADE,
+    FOREIGN KEY (status) REFERENCES tcc_estado(id) ON DELETE CASCADE,
+    FOREIGN KEY (responsavel_orientador_id) REFERENCES orientador(id)
+ );
+    
+-- Associação entre TCCs e Palavras-Chave ok
+CREATE TABLE tcc_palavra_chave_associacao (
+    tcc_id INT,
+    palavra_id INT,
+    PRIMARY KEY (tcc_id, palavra_id),
+    FOREIGN KEY (tcc_id) REFERENCES tcc(id) ON DELETE CASCADE,
+    FOREIGN KEY (palavra_id) REFERENCES tcc_palavra_chave(id) ON DELETE CASCADE
+);
+
+CREATE TABLE tcc_bibliografia (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tcc_id INT,
+    referencia VARCHAR(500) NOT NULL,
+    FOREIGN KEY (tcc_id) REFERENCES tcc(id) ON DELETE CASCADE
+);
+
+CREATE TABLE tcc_relatorio_progresso (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tcc_id INT,
+    data_entrega DATE NOT NULL,
+    descricao TEXT NOT NULL,
+    FOREIGN KEY (tcc_id) REFERENCES tcc(id) ON DELETE CASCADE
+);
+
+CREATE TABLE tcc_relatorio_progresso_arquivo (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    relatorio_id INT,
+    nome_arquivo VARCHAR(255) NOT NULL,
+    caminho_arquivo VARCHAR(500) NOT NULL,
+    formato_documento VARCHAR(10) NOT NULL,
+    tamanho_arquivo INT,
+    FOREIGN KEY (relatorio_id) REFERENCES tcc_relatorio_progresso(id) ON DELETE CASCADE
+);
+
+CREATE TABLE tcc_avaliacao (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tcc_id INT,
+    orientador_id INT,
+    data_avaliacao DATE NOT NULL,
+    descricao TEXT NOT NULL,
+    nota DECIMAL(5,2),
+    FOREIGN KEY (tcc_id) REFERENCES tcc(id) ON DELETE CASCADE,
+    FOREIGN KEY (orientador_id) REFERENCES orientador(id)
+);
+
+CREATE TABLE tcc_nota_final (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tcc_id INT NOT NULL,
+    nota_final DECIMAL(5,2) NOT NULL,
+    data_calculo DATE NOT NULL DEFAULT CURRENT_DATE,
+    FOREIGN KEY (tcc_id) REFERENCES tcc(id) ON DELETE CASCADE
+);
+
+-- Tabela de Comunidades
+CREATE TABLE comunidade (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    descricao TEXT,
+    criador_aluno_id INT NULL,
+    criador_orientador_id INT NULL,
+    data_criacao DATE NOT NULL,
+    FOREIGN KEY (criador_aluno_id) REFERENCES aluno(id) ON DELETE CASCADE,
+    FOREIGN KEY (criador_orientador_id) REFERENCES orientador(id) ON DELETE CASCADE
+);
+
+-- Tabela de Seguidores das Comunidades
+CREATE TABLE comunidade_seguidor (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    comunidade_id INT,
+    seguidor_aluno_id INT NULL,
+    seguidor_orientador_id INT NULL,
+    data_seguimento DATE NOT NULL,
+    FOREIGN KEY (comunidade_id) REFERENCES comunidade(id) ON DELETE CASCADE,
+    FOREIGN KEY (seguidor_aluno_id) REFERENCES aluno(id) ON DELETE CASCADE,
+    FOREIGN KEY (seguidor_orientador_id) REFERENCES orientador(id) ON DELETE CASCADE
+);
+
+
+-- Tabela de Posts nas Comunidades
+CREATE TABLE comunidade_post (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    comunidade_id INT,
+    autor_aluno_id INT NULL,
+    autor_orientador_id INT NULL,
+    conteudo TEXT NOT NULL,
+    data_postagem DATE NOT NULL,
+    FOREIGN KEY (comunidade_id) REFERENCES comunidade(id) ON DELETE CASCADE,
+    FOREIGN KEY (autor_aluno_id) REFERENCES aluno(id) ON DELETE CASCADE,
+    FOREIGN KEY (autor_orientador_id) REFERENCES orientador(id) ON DELETE CASCADE
+);
+
+INSERT INTO aluno (nome, email, matricula, cpf, data_nascimento, telefone, endereco, cidade, estado, data_ingresso, semestre_atual) VALUES 
+('João Silva', 'joao.silva@fatecsp.com', '2021001', '12345678901', '2000-05-15', '(11) 91234-5678', 'Rua A, 123', 'São Paulo', 'SP', '2021-02-01', 5),
+('Maria Oliveira', 'maria.oliveira@fatecsp.com', '2021002', '98765432100', '1999-11-22', '(11) 98765-4321', 'Rua B, 456', 'São Paulo', 'SP', '2021-02-01', 5),
+('Carlos Pereira', 'carlos.pereira@fatecsp.com', '2021003', '12312312399', '1998-08-10', '(21) 91234-5678', 'Av. Central, 789', 'Rio de Janeiro', 'RJ', '2021-02-01', 5),
+('Lucas Almeida', 'lucas.almeida@fatecsp.com', '2021004', '55555555555', '2001-01-10', '(11) 91234-9999', 'Rua C, 789', 'São Paulo', 'SP', '2021-02-01', 5),
+('Fernanda Costa', 'fernanda.costa@fatecsp.com', '2021005', '66666666666', '1999-03-12', '(21) 98765-1234', 'Av. Paulista, 400', 'Rio de Janeiro', 'RJ', '2021-02-01', 5),
+('Gabriel Souza', 'gabriel.souza@fatecsp.com', '2021006', '12365478902', '2001-07-19', '(11) 91234-6789', 'Rua D, 910', 'Campinas', 'SP', '2021-02-01', 5),
+('Carla Nunes', 'carla.nunes@fatecsp.com', '2021007', '32145698700', '1999-09-20', '(11) 98765-4320', 'Rua E, 111', 'Sorocaba', 'SP', '2021-02-01', 5),
+('Pedro Lima', 'pedro.lima@fatecsp.com', '2021008', '15975365487', '1997-03-25', '(11) 98765-8765', 'Rua F, 222', 'São Bernardo', 'SP', '2021-02-01', 5),
+('Ana Moreira', 'ana.moreira@fatecsp.com', '2021009', '78945612309', '1998-12-31', '(11) 91234-1111', 'Rua G, 333', 'Guarulhos', 'SP', '2021-02-01', 5),
+('Roberto Lopes', 'roberto.lopes@fatecsp.com', '2021010', '78945632101', '1999-11-15', '(21) 91234-2222', 'Rua H, 444', 'Niterói', 'RJ', '2021-02-01', 5),
+('Juliana Silva', 'juliana.silva@fatecsp.com', '2021011', '11122233344', '2000-04-14', '(11) 91234-3333', 'Rua I, 555', 'São Paulo', 'SP', '2021-02-01', 5),
+('Felipe Costa', 'felipe.costa@fatecsp.com', '2021012', '11122233355', '2001-08-19', '(11) 91234-4444', 'Rua J, 666', 'Santos', 'SP', '2021-02-01', 5),
+('Paula Souza', 'paula.souza@fatecsp.com', '2021013', '11122233366', '2002-03-11', '(11) 91234-5555', 'Rua K, 777', 'São Paulo', 'SP', '2021-02-01', 5),
+('Marcos Dias', 'marcos.dias@fatecsp.com', '2021014', '11122233377', '1999-06-21', '(11) 91234-6666', 'Rua L, 888', 'São Paulo', 'SP', '2021-02-01', 5),
+('Aline Silva', 'aline.silva@fatecsp.com', '2021015', '11122233388', '2000-09-12', '(11) 91234-7777', 'Rua M, 999', 'São Paulo', 'SP', '2021-02-01', 5),
+('Rafael Lima', 'rafael.lima@fatecsp.com', '2021016', '11122233399', '1998-11-22', '(11) 91234-8888', 'Rua N, 1010', 'Campinas', 'SP', '2021-02-01', 5),
+('Fernanda Duarte', 'fernanda.duarte@fatecsp.com', '2021017', '22233344400', '2001-01-30', '(11) 91234-9999', 'Rua O, 1111', 'São Paulo', 'SP', '2021-02-01', 5),
+('Bruno Mendes', 'bruno.mendes@fatecsp.com', '2021018', '33344455500', '1999-02-20', '(11) 91234-1010', 'Rua P, 1212', 'São Paulo', 'SP', '2021-02-01', 5),
+('Carolina Castro', 'carolina.castro@fatecsp.com', '2021019', '44455566600', '2000-05-15', '(11) 91234-1111', 'Rua Q, 1313', 'São Paulo', 'SP', '2021-02-01', 5),
+('Gustavo Neves', 'gustavo.neves@fatecsp.com', '2021020', '55566677700', '2001-12-30', '(11) 91234-1212', 'Rua R, 1414', 'São Paulo', 'SP', '2021-02-01', 5);
+
+
+INSERT INTO orientador (nome, email, cpf, telefone, departamento, titulo_academico) VALUES 
+('Prof. Carlos Andrade', 'carlos.andrade@fatecsp.com', '12345678911', '(11) 99876-5432', 'Ciência da Computação', 'Doutor'),
+('Prof. Ana Souza', 'ana.souza@fatecsp.com', '98765432111', '(11) 91234-8765', 'Engenharia de Software', 'Mestre'),
+('Prof. Marcos Oliveira', 'marcos.oliveira@fatecsp.com', '33333333333', '(11) 99877-5432', 'Sistemas de Informação', 'Doutor'),
+('Prof. Luciana Silva', 'luciana.silva@fatecsp.com', '44444444444', '(11) 91234-4321', 'Engenharia de Software', 'Mestre'),
+('Prof. Rodrigo Santos', 'rodrigo.santos@fatecsp.com', '55555555555', '(11) 98765-1234', 'Redes de Computadores', 'Doutor'),
+('Prof. Camila Rocha', 'camila.rocha@fatecsp.com', '66666666666', '(21) 91234-6543', 'Eventos', 'Mestre');
+
+INSERT INTO turma (nome) VALUES 
+('Análise e Desenvolvimento de Sistemas - Turma A'),
+('Análise e Desenvolvimento de Sistemas - Turma B'),
+('Redes de Computadores - Turma A'),
+('Eventos - Turma A');
+
+INSERT INTO tcc_tema (descricao) VALUES 
+('Inteligência Artificial'),
+('Blockchain'),
+('Segurança da Informação'),
+('Big Data');
+
+INSERT INTO tcc_classificacao (descricao) VALUES 
+('Ciência da Computação'),
+('Engenharia de Software'),
+('Redes de Computadores'),
+('Eventos');
+
+INSERT INTO tcc_palavra_chave (palavra) VALUES 
+('IA'),
+('Machine Learning'),
+('Blockchain'),
+('Segurança da Informação'),
+('Big Data'),
+('Cloud Computing'),
+('Redes Neurais'),
+('IoT'),
+('Sistemas Embarcados'),
+('Realidade Aumentada');
+
+INSERT INTO aluno_turma (aluno_id, turma_id) VALUES 
+(1, 1), 
+(2, 1), 
+(3, 2), 
+(4, 2), 
+(5, 3), 
+(6, 3), 
+(7, 4), 
+(8, 4), 
+(9, 1), 
+(10, 1), 
+(11, 2), 
+(12, 2), 
+(13, 3), 
+(14, 3), 
+(15, 4), 
+(16, 4), 
+(17, 1), 
+(18, 2), 
+(19, 3), 
+(20, 4);
+INSERT INTO tcc_estado (descricao) VALUES 
+('Em Avaliação'),
+('Aprovado'), 
+('Reprovado'), 
+('Pendente de Revisão');
+
+INSERT INTO tcc_metadata (tema_id, classificacao_id, orientador_id, turma_id, aluno_id) VALUES 
+(1, 1, 1, 1, 1), 
+(2, 2, 2, 1, 2), 
+(3, 3, 3, 2, 3), 
+(4, 4, 4, 2, 4), 
+(1, 1, 5, 3, 5), 
+(2, 2, 6, 3, 6), 
+(3, 3, 1, 4, 7), 
+(4, 4, 2, 4, 8), 
+(1, 1, 3, 1, 9), 
+(2, 2, 4, 1, 10);
+
+
+INSERT INTO tcc (titulo, metadata_id, status) VALUES 
+('Estudo sobre IA aplicada à Educação', 1, 1),
+('Aplicação de Blockchain em Segurança de Dados', 2, 1),
+('Análise de Segurança em Redes de Computadores', 3, 4),
+('Uso de Big Data em Marketing Digital', 4, 1),
+('Segurança em Computação em Nuvem', 5, 1),
+('Implementação de Redes Neurais para Diagnóstico Médico', 6, 3),
+('Aplicação de Realidade Aumentada em Treinamento', 7, 2),
+('Sistemas Embarcados na Indústria 4.0', 8, 2),
+('Uso de Big Data para Previsão Climática', 9, 2),
+('Machine Learning aplicado à Detecção de Fraudes', 10, 2);
+
+INSERT INTO tcc_tipo_documento (descricao) VALUES
+('Monografia'),
+('Artigo'),
+('Pôster'),
+('Apresentação'),
+('Relatório Parcial'),
+('Outro');
+
+INSERT INTO tcc_documento (tcc_id, tipo_documento_id, nome_documento, caminho_arquivo, formato_documento, data_envio, tamanho_arquivo) VALUES
+(1, 1, 'Monografia IA', '/caminho/para/arquivo/monografia_ia.pdf', 'PDF', '2024-10-10', 2048),
+(2, 2, 'Artigo Blockchain', '/caminho/para/arquivo/artigo_blockchain.docx', 'DOCX', '2024-10-12', 1024),
+(3, 3, 'Pôster Segurança', '/caminho/para/arquivo/poster_seguranca.pdf', 'PDF', '2024-10-13', 512),
+(4, 4, 'Apresentação Big Data', '/caminho/para/arquivo/apresentacao_bigdata.ppt', 'PPT', '2024-10-14', 3072),
+(5, 1, 'Monografia Computação em Nuvem', '/caminho/para/arquivo/monografia_nuvem.pdf', 'PDF', '2024-10-15', 2500),
+(6, 5, 'Relatório Parcial Redes Neurais', '/caminho/para/arquivo/relatorio_redes_neurais.docx', 'DOCX', '2024-10-16', 1200),
+(7, 1, 'Monografia Realidade Aumentada', '/caminho/para/arquivo/monografia_realidade_aumentada.pdf', 'PDF', '2024-10-17', 2800),
+(8, 1, 'Monografia Sistemas Embarcados', '/caminho/para/arquivo/monografia_sistemas_embarcados.pdf', 'PDF', '2024-10-18', 2600);
+
+INSERT INTO tcc_estado_historico (tcc_id, status, data_status, responsavel_orientador_id) VALUES
+(1, 1, '2024-09-01', 1), 
+(1, 2, '2024-10-10', 2),
+(2, 1, '2024-09-05', 3),
+(2, 2, '2024-10-12', 4),
+(3, 1, '2024-09-10', 5),
+(3, 4, '2024-10-13', 6),
+(3, 3, '2024-10-15', 1),
+(4, 1, '2024-09-12', 2),
+(4, 2, '2024-10-14', 3),
+(5, 1, '2024-09-20', 4),
+(5, 2, '2024-10-16', 5),
+(6, 1, '2024-09-25', 6),
+(6, 3, '2024-10-17', 1),
+(7, 1, '2024-09-28', 2),
+(7, 2, '2024-10-18', 3),
+(8, 1, '2024-09-30', 4),
+(8, 2, '2024-10-19', 5),
+(9, 1, '2024-10-01', 6),
+(9, 2, '2024-10-20', 1),
+(10, 1, '2024-10-03', 2),
+(10, 2, '2024-10-21', 3);
+
+INSERT INTO tcc_palavra_chave_associacao (tcc_id, palavra_id) VALUES
+(1, 1),  -- Estudo sobre IA aplicada à Educação - IA
+(1, 2),  -- Machine Learning
+(2, 3),  -- Aplicação de Blockchain em Segurança de Dados - Blockchain
+(2, 4),  -- Segurança da Informação
+(3, 4),  -- Análise de Segurança em Redes de Computadores - Segurança da Informação
+(3, 6),  -- Cloud Computing
+(4, 5),  -- Uso de Big Data em Marketing Digital - Big Data
+(4, 6),  -- Cloud Computing
+(5, 4),  -- Segurança em Computação em Nuvem - Segurança da Informação
+(5, 6),  -- Cloud Computing
+(6, 7),  -- Implementação de Redes Neurais para Diagnóstico Médico - Redes Neurais
+(6, 2),  -- Machine Learning
+(7, 9),  -- Aplicação de Realidade Aumentada em Treinamento - Sistemas Embarcados
+(7, 10), -- Realidade Aumentada
+(8, 9),  -- Sistemas Embarcados na Indústria 4.0 - Sistemas Embarcados
+(8, 8),  -- IoT
+(9, 5),  -- Uso de Big Data para Previsão Climática - Big Data
+(9, 6),  -- Cloud Computing
+(10, 1), -- Machine Learning aplicado à Detecção de Fraudes - IA
+(10, 2); -- Machine Learning
+
+INSERT INTO tcc_bibliografia (tcc_id, referencia) VALUES
+(1, 'Smith, J. (2023). Artificial Intelligence in Education. Tech Journal.'),
+(1, 'Brown, A. (2022). Machine Learning Approaches. ML Review.'),
+(2, 'Johnson, R. (2024). Blockchain Security Systems. Blockchain World.'),
+(3, 'Taylor, M. (2023). Network Security Fundamentals. Security Press.'),
+(4, 'Walker, P. (2024). Big Data in Digital Marketing. Marketing Insights.'),
+(5, 'Garcia, L. (2023). Cloud Security Overview. Cloud Tech.'),
+(6, 'Rodriguez, F. (2022). Neural Networks in Healthcare. Medical AI Journal.'),
+(7, 'Lopez, S. (2024). Augmented Reality for Training. AR Today.'),
+(8, 'Kumar, V. (2023). Embedded Systems in Industry 4.0. Industry Tech Review.'),
+(9, 'Smith, J. (2024). Big Data in Climate Prediction. Climate Science Today.'),
+(10, 'Martin, K. (2023). Machine Learning in Fraud Detection. Fraud Prevention Journal.');
+
+INSERT INTO tcc_relatorio_progresso (tcc_id, data_entrega, descricao) VALUES
+(1, '2024-09-15', 'Relatório inicial sobre IA aplicada à Educação'),
+(2, '2024-09-20', 'Progresso na aplicação de Blockchain em segurança de dados'),
+(3, '2024-09-25', 'Primeira análise de segurança em redes de computadores'),
+(4, '2024-09-30', 'Progresso no uso de Big Data em marketing digital'),
+(5, '2024-10-05', 'Relatório parcial sobre segurança em computação em nuvem'),
+(6, '2024-10-07', 'Análise do uso de redes neurais em diagnóstico médico'),
+(7, '2024-10-10', 'Aplicação de realidade aumentada no treinamento'),
+(8, '2024-10-12', 'Desenvolvimento de sistemas embarcados na Indústria 4.0'),
+(9, '2024-10-14', 'Previsão climática com Big Data: relatório parcial'),
+(10, '2024-10-16', 'Machine Learning aplicado à detecção de fraudes');
+
+INSERT INTO tcc_relatorio_progresso (tcc_id, data_entrega, descricao) VALUES
+(1, '2024-09-15', 'Relatório inicial sobre IA aplicada à Educação'),
+(1, '2024-10-01', 'Segundo relatório sobre IA aplicada à Educação'),
+(2, '2024-09-20', 'Progresso na aplicação de Blockchain em segurança de dados'),
+(2, '2024-10-05', 'Análise avançada de Blockchain em segurança de dados'),
+(3, '2024-09-25', 'Primeira análise de segurança em redes de computadores'),
+(4, '2024-09-30', 'Progresso no uso de Big Data em marketing digital'),
+(5, '2024-10-05', 'Relatório parcial sobre segurança em computação em nuvem'),
+(6, '2024-10-07', 'Análise do uso de redes neurais em diagnóstico médico'),
+(7, '2024-10-10', 'Aplicação de realidade aumentada no treinamento'),
+(8, '2024-10-12', 'Desenvolvimento de sistemas embarcados na Indústria 4.0'),
+(9, '2024-10-14', 'Previsão climática com Big Data: relatório parcial'),
+(10, '2024-10-16', 'Machine Learning aplicado à detecção de fraudes'),
+(10, '2024-10-30', 'Relatório final sobre detecção de fraudes com Machine Learning');
+
+INSERT INTO tcc_relatorio_progresso_arquivo (relatorio_id, nome_arquivo, caminho_arquivo, formato_documento, tamanho_arquivo) VALUES
+(1, 'Relatório Inicial IA', '/caminho/para/arquivo/relatorio_ia_inicial.pdf', 'PDF', 2048),
+(2, 'Relatório Blockchain', '/caminho/para/arquivo/relatorio_blockchain.pdf', 'PDF', 1024),
+(3, 'Relatório Segurança Redes', '/caminho/para/arquivo/relatorio_seguranca_redes.pdf', 'PDF', 1500),
+(4, 'Relatório Big Data', '/caminho/para/arquivo/relatorio_bigdata_marketing.pdf', 'PDF', 1800),
+(5, 'Relatório Computação em Nuvem', '/caminho/para/arquivo/relatorio_nuvem.pdf', 'DOCX', 1200),
+(6, 'Relatório Redes Neurais', '/caminho/para/arquivo/relatorio_redes_neurais.pdf', 'PDF', 1300),
+(7, 'Relatório Realidade Aumentada', '/caminho/para/arquivo/relatorio_realidade_aumentada.pdf', 'PDF', 1400),
+(8, 'Relatório Sistemas Embarcados', '/caminho/para/arquivo/relatorio_sistemas_embarcados.pdf', 'PDF', 1600),
+(9, 'Relatório Big Data Clima', '/caminho/para/arquivo/relatorio_bigdata_clima.pdf', 'PDF', 1900),
+(10, 'Relatório Machine Learning Fraudes', '/caminho/para/arquivo/relatorio_ml_fraudes.pdf', 'PDF', 2000);
+
+INSERT INTO tcc_relatorio_progresso_arquivo (relatorio_id, nome_arquivo, caminho_arquivo, formato_documento, tamanho_arquivo) VALUES
+(1, 'Relatório Inicial IA', '/caminho/para/arquivo/relatorio_ia_inicial.pdf', 'PDF', 2048),
+(2, 'Segundo Relatório IA', '/caminho/para/arquivo/relatorio_ia_segundo.pdf', 'PDF', 3072),
+(3, 'Relatório Blockchain', '/caminho/para/arquivo/relatorio_blockchain.pdf', 'PDF', 1024),
+(4, 'Análise Avançada Blockchain', '/caminho/para/arquivo/analise_blockchain.pdf', 'PDF', 1200),
+(5, 'Relatório Segurança Redes', '/caminho/para/arquivo/relatorio_seguranca_redes.pdf', 'PDF', 1500),
+(6, 'Relatório Big Data', '/caminho/para/arquivo/relatorio_bigdata_marketing.pdf', 'PDF', 1800),
+(7, 'Relatório Computação em Nuvem', '/caminho/para/arquivo/relatorio_nuvem.pdf', 'DOCX', 1200),
+(8, 'Relatório Redes Neurais', '/caminho/para/arquivo/relatorio_redes_neurais.pdf', 'PDF', 1300),
+(9, 'Relatório Realidade Aumentada', '/caminho/para/arquivo/relatorio_realidade_aumentada.pdf', 'PDF', 1400),
+(10, 'Relatório Sistemas Embarcados', '/caminho/para/arquivo/relatorio_sistemas_embarcados.pdf', 'PDF', 1600),
+(11, 'Relatório Big Data Clima', '/caminho/para/arquivo/relatorio_bigdata_clima.pdf', 'PDF', 1900),
+(12, 'Relatório Machine Learning Fraudes', '/caminho/para/arquivo/relatorio_ml_fraudes.pdf', 'PDF', 2000),
+(13, 'Relatório Final Fraudes', '/caminho/para/arquivo/relatorio_final_ml_fraudes.pdf', 'PDF', 2500);
+
+INSERT INTO tcc_avaliacao (tcc_id, orientador_id, data_avaliacao, descricao, nota) VALUES
+(1, 1, '2024-09-20', 'Avaliação inicial do progresso do TCC sobre IA', 8.5),
+(2, 2, '2024-09-25', 'Revisão da estrutura inicial de Blockchain', 9.0),
+(3, 3, '2024-09-30', 'Primeira avaliação do trabalho sobre segurança em redes', 7.8),
+(4, 4, '2024-10-05', 'Avaliação do progresso do trabalho sobre Big Data', 8.2),
+(5, 5, '2024-10-08', 'Revisão do trabalho sobre segurança em nuvem', 8.0),
+(6, 6, '2024-10-10', 'Avaliação inicial do uso de redes neurais', 8.7),
+(7, 1, '2024-10-12', 'Primeira avaliação do trabalho sobre realidade aumentada', 8.4),
+(8, 2, '2024-10-14', 'Revisão inicial do TCC sobre sistemas embarcados', 8.6),
+(9, 3, '2024-10-16', 'Avaliação do uso de Big Data para previsão climática', 8.9),
+(10, 4, '2024-10-18', 'Avaliação do progresso sobre machine learning e fraudes', 9.2);
+
+INSERT INTO tcc_avaliacao (tcc_id, orientador_id, data_avaliacao, descricao, nota) VALUES
+(1, 1, '2024-09-20', 'Avaliação inicial do progresso do TCC sobre IA', 8.5),
+(1, 1, '2024-10-10', 'Segunda avaliação do progresso do TCC sobre IA', 9.0),
+(2, 2, '2024-09-25', 'Revisão da estrutura inicial de Blockchain', 9.0),
+(2, 2, '2024-10-12', 'Avaliação avançada sobre Blockchain', 9.3),
+(3, 3, '2024-09-30', 'Primeira avaliação do trabalho sobre segurança em redes', 7.8),
+(3, 3, '2024-10-10', 'Avaliação final sobre segurança em redes de computadores', 8.1),
+(4, 4, '2024-10-05', 'Avaliação do progresso do trabalho sobre Big Data', 8.2),
+(5, 5, '2024-10-08', 'Revisão do trabalho sobre segurança em nuvem', 8.0),
+(6, 6, '2024-10-10', 'Avaliação inicial do uso de redes neurais', 8.7),
+(7, 1, '2024-10-12', 'Primeira avaliação do trabalho sobre realidade aumentada', 8.4),
+(8, 2, '2024-10-14', 'Revisão inicial do TCC sobre sistemas embarcados', 8.6),
+(9, 3, '2024-10-16', 'Avaliação do uso de Big Data para previsão climática', 8.9),
+(10, 4, '2024-10-18', 'Avaliação do progresso sobre Machine Learning e fraudes', 9.2),
+(10, 4, '2024-10-31', 'Avaliação final do TCC sobre Machine Learning e fraudes', 9.5);
+
+
+INSERT INTO comunidade (nome, descricao, criador_aluno_id, data_criacao) VALUES
+('Banco de dados é a melhor matéria', 'Discussão sobre bancos de dados e suas aplicações.', 1, '2024-10-14'),
+('Dúvidas em engenharia de software I', 'Discussões sobre conceitos avançados de engenharia de software.', 2, '2024-10-14'),
+('Segurança em Redes', 'Comunidade para discussão sobre segurança em redes de computadores.', 3, '2024-10-14'),
+('Aplicações de Inteligência Artificial', 'Discussões sobre IA e suas implementações práticas.', 4, '2024-10-14');
+
+INSERT INTO comunidade_seguidor (comunidade_id, seguidor_aluno_id, data_seguimento) VALUES
+(1, 2, '2024-10-14'),
+(1, 3, '2024-10-14'),
+(2, 1, '2024-10-14'),
+(2, 4, '2024-10-14'),
+(3, 5, '2024-10-14'),
+(3, 6, '2024-10-14'),
+(4, 7, '2024-10-14'),
+(4, 8, '2024-10-14');
+
+INSERT INTO comunidade_post (comunidade_id, autor_aluno_id, conteudo, data_postagem) VALUES
+(1, 1, 'Acredito que bancos de dados são a espinha dorsal de qualquer aplicação.', '2024-10-14'),
+(1, 2, 'Alguém recomenda bons livros para aprender SQL?', '2024-10-15'),
+(2, 3, 'Quais são as melhores práticas em engenharia de software?', '2024-10-14'),
+(2, 4, 'Como aplicar arquitetura limpa em projetos pequenos?', '2024-10-15'),
+(3, 5, 'Segurança em redes de computadores é crucial para proteger dados.', '2024-10-14'),
+(3, 6, 'Quais ferramentas usar para auditoria de segurança em redes?', '2024-10-15'),
+(4, 7, 'IA tem potencial para transformar diversas indústrias.', '2024-10-14'),
+(4, 8, 'Como implementar aprendizado de máquina em pequenos datasets?', '2024-10-15');
+
+CREATE VIEW vw_tcc_detalhado AS
+SELECT
+    tcc.id AS tcc_id,
+    tcc.titulo AS titulo_tcc,
+    a.nome AS nome_aluno,
+    a.data_ingresso AS data_ingresso_aluno,
+    o.nome AS nome_orientador,
+    turma.nome AS nome_turma,  -- Mudamos o alias para 'turma'
+    tema.descricao AS tema,
+    classif.descricao AS classificacao,
+    COALESCE(nf.nota_final, 'N/A') AS nota_final,  -- Exibe a nota final ou 'N/A' se ainda não calculada
+    es.descricao AS estado_atual,  -- Exibe o estado atual do TCC
+    COUNT(av.id) AS numero_avaliacoes,  -- Conta quantas avaliações o TCC recebeu
+    MAX(av.data_avaliacao) AS data_ultima_avaliacao,  -- Data da última avaliação
+    GROUP_CONCAT(pc.palavra SEPARATOR ', ') AS palavras_chave
+FROM
+    tcc
+JOIN
+    tcc_metadata tm ON tcc.metadata_id = tm.id
+JOIN
+    aluno a ON tm.aluno_id = a.id
+JOIN
+    orientador o ON tm.orientador_id = o.id
+JOIN
+    turma turma ON tm.turma_id = turma.id  -- Usamos o alias 'turma'
+JOIN
+    tcc_tema tema ON tm.tema_id = tema.id
+JOIN
+    tcc_classificacao classif ON tm.classificacao_id = classif.id
+LEFT JOIN
+    tcc_palavra_chave_associacao tpc ON tcc.id = tpc.tcc_id
+LEFT JOIN
+    tcc_palavra_chave pc ON tpc.palavra_id = pc.id
+LEFT JOIN
+    tcc_nota_final nf ON tcc.id = nf.tcc_id  -- Traz a nota final, se existir
+LEFT JOIN
+    tcc_estado es ON tcc.status = es.id  -- Traz a descrição do estado atual do TCC
+LEFT JOIN
+    tcc_avaliacao av ON av.tcc_id = tcc.id  -- Para calcular o número de avaliações e a data da última
+GROUP BY
+    tcc.id, a.nome, a.data_ingresso, o.nome, turma.nome, tema.descricao, classif.descricao, es.descricao, nf.nota_final;
+
+CREATE VIEW vw_tcc_turma AS
+SELECT
+    t.nome AS nome_turma,
+    tcc.titulo AS titulo_tcc,
+    a.nome AS nome_aluno,
+    o.nome AS nome_orientador
+FROM
+    tcc
+JOIN
+    tcc_metadata tm ON tcc.metadata_id = tm.id
+JOIN
+    aluno a ON tm.aluno_id = a.id
+JOIN
+    orientador o ON tm.orientador_id = o.id
+JOIN
+    turma t ON tm.turma_id = t.id;
+
+CREATE VIEW vw_tcc_orientador AS
+SELECT
+    o.nome AS nome_orientador,
+    tcc.titulo AS titulo_tcc,
+    a.nome AS nome_aluno,
+    t.nome AS nome_turma
+FROM
+    tcc
+JOIN
+    tcc_metadata tm ON tcc.metadata_id = tm.id
+JOIN
+    aluno a ON tm.aluno_id = a.id
+JOIN
+    orientador o ON tm.orientador_id = o.id
+JOIN
+    turma t ON tm.turma_id = t.id;
+
+CREATE VIEW vw_tcc_palavra_chave AS
+SELECT
+    pc.palavra AS palavra_chave,
+    tcc.titulo AS titulo_tcc,
+    a.nome AS nome_aluno
+FROM
+    tcc_palavra_chave_associacao tpc
+JOIN
+    tcc ON tpc.tcc_id = tcc.id
+JOIN
+    tcc_palavra_chave pc ON tpc.palavra_id = pc.id
+JOIN
+    tcc_metadata tm ON tcc.metadata_id = tm.id
+JOIN
+    aluno a ON tm.aluno_id = a.id;
+
+CREATE VIEW vw_tcc_avaliacoes AS
+SELECT
+    tcc.id AS tcc_id,
+    tcc.titulo AS titulo_tcc,
+    a.nome AS nome_orientador,
+    av.data_avaliacao AS data_avaliacao,
+    av.descricao AS descricao_avaliacao,
+    av.nota AS nota_avaliacao
+FROM
+    tcc
+JOIN
+    tcc_avaliacao av ON tcc.id = av.tcc_id
+JOIN
+    orientador a ON av.orientador_id = a.id;
+
+CREATE VIEW vw_tcc_relatorios AS
+SELECT
+    tcc.id AS tcc_id,
+    tcc.titulo AS titulo_tcc,
+    rp.data_entrega AS data_entrega,
+    rp.descricao AS descricao_relatorio,
+    ra.nome_arquivo AS nome_arquivo,
+    ra.caminho_arquivo AS caminho_arquivo,
+    ra.formato_documento AS formato_documento,
+    ra.tamanho_arquivo AS tamanho_arquivo
+FROM
+    tcc
+JOIN
+    tcc_relatorio_progresso rp ON tcc.id = rp.tcc_id
+LEFT JOIN
+    tcc_relatorio_progresso_arquivo ra ON rp.id = ra.relatorio_id;
+
+CREATE VIEW vw_comunidade_criadores AS
+SELECT
+    c.nome AS nome_comunidade,
+    c.descricao AS descricao_comunidade,
+    CASE
+        WHEN c.criador_aluno_id IS NOT NULL THEN a.nome
+        ELSE o.nome
+    END AS nome_criador,
+    CASE
+        WHEN c.criador_aluno_id IS NOT NULL THEN 'Aluno'
+        ELSE 'Orientador'
+    END AS tipo_criador,
+    c.data_criacao AS data_criacao
+FROM
+    comunidade c
+LEFT JOIN
+    aluno a ON c.criador_aluno_id = a.id
+LEFT JOIN
+    orientador o ON c.criador_orientador_id = o.id;
+
+CREATE VIEW vw_comunidade_seguidores AS
+SELECT
+    c.nome AS nome_comunidade,
+    CASE
+        WHEN cs.seguidor_aluno_id IS NOT NULL THEN a.nome
+        ELSE o.nome
+    END AS nome_seguidor,
+    CASE
+        WHEN cs.seguidor_aluno_id IS NOT NULL THEN 'Aluno'
+        ELSE 'Orientador'
+    END AS tipo_seguidor,
+    cs.data_seguimento AS data_seguimento
+FROM
+    comunidade_seguidor cs
+JOIN
+    comunidade c ON cs.comunidade_id = c.id
+LEFT JOIN
+    aluno a ON cs.seguidor_aluno_id = a.id
+LEFT JOIN
+    orientador o ON cs.seguidor_orientador_id = o.id;
+
+CREATE VIEW vw_comunidade_posts AS
+SELECT
+    c.nome AS nome_comunidade,
+    cp.conteudo AS conteudo_post,
+    CASE
+        WHEN cp.autor_aluno_id IS NOT NULL THEN a.nome
+        ELSE o.nome
+    END AS nome_autor,
+    CASE
+        WHEN cp.autor_aluno_id IS NOT NULL THEN 'Aluno'
+        ELSE 'Orientador'
+    END AS tipo_autor,
+    cp.data_postagem AS data_postagem
+FROM
+    comunidade_post cp
+JOIN
+    comunidade c ON cp.comunidade_id = c.id
+LEFT JOIN
+    aluno a ON cp.autor_aluno_id = a.id
+LEFT JOIN
+    orientador o ON cp.autor_orientador_id = o.id;
+
+
+
+
