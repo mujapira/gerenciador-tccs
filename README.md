@@ -83,6 +83,8 @@ ____ | components: pasta para abstrair os componentes da aplicação <br/>
 ____ | (pages): Rotas da aplicação, no next, as pastas são as rotas * <br/>
 ____ | layout.tsx: layout de todas as páginas ** <br/>
 ____ | page.tsx: página ráiz da aplicação <br/>
+____ | models: modelos de transição dentre banco e app <br/>
+____ | server-actions: ações que pegam dados do banco <br/>
 __ | components: componentes do shadcn <br/>
 __ | prisma: pasta do ORM <br/>
 
