@@ -1,4 +1,4 @@
-import prisma from "../lib/prisma"
+import prisma from "../../lib/prisma"
 
 export async function Tccs() {
   const tccs = await prisma.vw_tcc_detalhado.findMany()

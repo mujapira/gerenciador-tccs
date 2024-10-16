@@ -1,6 +1,6 @@
-import { AlunoDetalhado } from "@/app/components/aluno-detalhado"
+import { StudentDetails } from "@/app/components/student-related/student-details"
 
-export default async function AlunoPage({
+export default async function StudentPage({
   params,
 }: {
   params: { id: string }
@@ -8,7 +8,7 @@ export default async function AlunoPage({
   return (
     <main className="flex  w-full h-full justify-center flex-col gap-8 items-center min-h-[calc(100vh-68px)]">
       <h1>esta é a página detalhada do aluno</h1>
-      <AlunoDetalhado id={parseInt(params.id)} />
+      <StudentDetails id={parseInt(params.id)} />
     </main>
   )
 }

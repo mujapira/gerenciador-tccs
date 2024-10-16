@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ModeToggle } from "../components/toggle-dark-mode"
+import { ModeToggle } from "../toggle-dark-mode"
 import {
   NavigationMenu,
   NavigationMenuContent,
