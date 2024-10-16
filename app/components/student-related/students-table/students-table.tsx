@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react"
 import { GetStudents } from "../../../server-actions/getStudents"
-import { IUser } from "../../../models/userModel"
+import { IStudent } from "../../../models/studentsModel"
 import { DataTable } from "../../data-table"
 import { studentTableColumns } from "./col-defs"
 
 export function StudentsTable() {
-  const [students, setStudents] = useState<IUser[]>([])
+  const [students, setStudents] = useState<IStudent[]>([])
 
   const handleGetStudents = async () => {
     const response = await GetStudents()
@@ -21,9 +21,5 @@ export function StudentsTable() {
     handleGetStudents()
   }, [])
 
-  return (
-    <div>
-      <DataTable columns={studentTableColumns} data={students} />
-    </div>
-  )
+  return <DataTable columns={studentTableColumns} data={students} />
 }

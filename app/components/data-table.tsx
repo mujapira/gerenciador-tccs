@@ -52,7 +52,7 @@ export function DataTable<TData, TValue>({
   })
 
   return (
-    <div>
+    <div className="w-full">
       <div className="flex items-center py-4 gap-4 w-2/3">
         <Input
           placeholder="Filtrar por nome..."

@@ -8,8 +8,8 @@ export const metadata: Metadata = {
 
 export default function StudentsPage() {
   return (
-    <main className="flex w-full h-full justify-start flex-col gap-8 items-center min-h-[calc(100vh-68px)]">
-      <h1>Esta é a página dos alunos</h1>
+    <main className="flex w-full h-full justify-start flex-col gap-4 items-center p-4 min-h-[calc(100vh-68px)]">
+      <span className="flex w-full items-center justify-start text-3xl font-bold">Alunos</span>
       <StudentsTable />
     </main>
   )

@@ -13,8 +13,10 @@ export default async function StudentPage({
   params: { id: string }
 }) {
   return (
-    <main className="flex  w-full h-full justify-center flex-col gap-8 items-center min-h-[calc(100vh-68px)]">
-      <h1>esta é a página detalhada do aluno</h1>
+    <main className="flex w-full h-full justify-start flex-col gap-4 items-center p-4 min-h-[calc(100vh-68px)]">
+      <span className="flex w-full items-center justify-start text-3xl font-bold">
+        Aluno
+      </span>
       <StudentDetails id={parseInt(params.id)} />
     </main>
   )

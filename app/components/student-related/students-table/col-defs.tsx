@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table"
-import { IUser } from "../../../models/userModel"
+import { IStudent } from "../../../models/studentsModel"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -14,7 +14,7 @@ import { MoreHorizontal } from "lucide-react"
 import { ArrowUpDown } from "lucide-react"
 import { Input } from "@/components/ui/input"
 
-export const studentTableColumns: ColumnDef<IUser>[] = [
+export const studentTableColumns: ColumnDef<IStudent>[] = [
   {
     accessorKey: "nome",
     header: ({ column }) => {
