@@ -1,5 +1,12 @@
 import { StudentDetails } from "@/app/components/student-related/student-details"
 
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Aluno",
+  description: "Página de um aluno",
+}
+
 export default async function StudentPage({
   params,
 }: {
