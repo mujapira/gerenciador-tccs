@@ -9,7 +9,7 @@ SELECT
   `classif`.`descricao` AS `classificacao`,
   coalesce(`nf`.`nota_final`, 'N/A') AS `nota_final`,
   `es`.`descricao` AS `estado_atual`,
-  count(`av`.`id`) AS `numero_avaliacoes`,
+  count(DISTINCT `av`.`id`) AS `numero_avaliacoes`,
   max(`av`.`data_avaliacao`) AS `data_ultima_avaliacao`,
   GROUP_CONCAT(`pc`.`palavra` SEPARATOR ', ') AS `palavras_chave`
 FROM

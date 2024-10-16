@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { GetStudents } from "../../../server-actions/getStudents"
 import { IStudent } from "../../../models/studentsModel"
-import { DataTable } from "../../data-table"
+import { DataTable } from "./data-table"
 import { studentTableColumns } from "./col-defs"
 
 export function StudentsTable() {
