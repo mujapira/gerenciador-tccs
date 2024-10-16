@@ -76,7 +76,7 @@ view vw_tcc_detalhado {
 ### Guias para o desenvolvimento
 
 #### Estrtutura de pastas
-|ráiz <br/>
+|root <br/>
 __ |app: pasta pai da aplicação <br/>
 ____ | lib: pasta para instanciar o prisma <br/>
 ____ | components: pasta para abstrair os componentes da aplicação <br/>
