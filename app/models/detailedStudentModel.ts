@@ -24,12 +24,21 @@ interface ITccDetails {
   tccId: number;
   titulo: string;
   orientador: string;
+  orientadorId: number | null;
   turma: string;
+  turmaId: number | null;
   tema: string;
+  temaId: number | null;
   classificacao: string;
+  classificacaoId: number | null;
   notaFinal: string | null;
   estadoAtual: string | null;
   numeroAvaliacoes: number;
   dataUltimaAvaliacao: Date | null;
-  palavrasChave: string | null;
+  palavrasChave: IKeyWords[];
+}
+
+interface IKeyWords {
+  wordId: number;
+  word: string;
 }

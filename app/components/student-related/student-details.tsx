@@ -11,6 +11,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
 interface GetStudentProps {
   id: number
 }
@@ -104,11 +106,15 @@ export function StudentDetails({ id }: GetStudentProps) {
             <CardDescription>Turmas que o aluno participa</CardDescription>
           </CardHeader>
           <CardContent>
-            <ul className="">
+            <div className="flex flex-col gap-4">
               {student?.turmas.map((turma) => (
-                <li key={turma.id}>{turma.name}</li>
+                <Link href={`/${turma.id}`}>
+                  <Button className="p-0" variant="link" key={turma.id}>
+                    {turma.name}
+                  </Button>
+                </Link>
               ))}
-            </ul>
+            </div>
           </CardContent>
         </Card>
         <Card className="">
@@ -123,19 +129,47 @@ export function StudentDetails({ id }: GetStudentProps) {
               <div className="flex flex-col gap-2 text-sm">
                 <div className="">
                   <span className="font-semibold">Título:</span>{" "}
-                  <span>{student.tcc.titulo}</span>
+                  <Link href={`/${student.tcc.tccId}`}>
+                    <Button
+                      className="p-0 m-0 h-0"
+                      variant="link"
+                      key={student.tcc.tccId}>
+                      {student.tcc.titulo}
+                    </Button>
+                  </Link>
                 </div>
                 <div className="">
                   <span className="font-semibold">Orientador:</span>{" "}
-                  <span>{student.tcc.orientador}</span>
+                  <Link href={`/${student.tcc.orientadorId}`}>
+                    <Button
+                      className="p-0 m-0 h-0"
+                      variant="link"
+                      key={student.tcc.orientadorId}>
+                      {student.tcc.orientador}
+                    </Button>
+                  </Link>
                 </div>
                 <div className="">
                   <span className="font-semibold">Tema:</span>{" "}
-                  <span>{student.tcc.tema}</span>
+                  <Link href={`/${student.tcc.temaId}`}>
+                    <Button
+                      className="p-0 m-0 h-0"
+                      variant="link"
+                      key={student.tcc.temaId}>
+                      <span>{student.tcc.tema}</span>
+                    </Button>
+                  </Link>
                 </div>
                 <div className="">
                   <span className="font-semibold">Classificação:</span>{" "}
-                  <span>{student.tcc.classificacao}</span>
+                  <Link href={`/${student.tcc.classificacaoId}`}>
+                    <Button
+                      className="p-0 m-0 h-0"
+                      variant="link"
+                      key={student.tcc.classificacaoId}>
+                      {student.tcc.classificacao}
+                    </Button>
+                  </Link>
                 </div>
                 <div className="">
                   <span className="font-semibold">Nota Final:</span>{" "}
@@ -158,11 +192,26 @@ export function StudentDetails({ id }: GetStudentProps) {
                       "N/A"}
                   </span>
                 </div>
-                <div className=" max-w-[500px]">
+                <div className=" max-w-[500px] flex gap-1">
                   <span className="font-semibold text-wrap">
                     Palavras-chave:
-                  </span>{" "}
-                  <span>{student.tcc.palavrasChave || "N/A"}</span>
+                  </span>
+                  <div className="flex gap-2">
+                    {student.tcc.palavrasChave.map((keyWord, i) => (
+                      <Link
+                        href={`/${keyWord.wordId}`}
+                        key={keyWord.wordId}
+                        className="">
+                        <Button className="p-0 m-0 h-0" variant="link">
+                          {keyWord.word}
+                          {student.tcc &&
+                          i < student.tcc.palavrasChave.length - 1
+                            ? ","
+                            : ""}
+                        </Button>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               </div>
             ) : (

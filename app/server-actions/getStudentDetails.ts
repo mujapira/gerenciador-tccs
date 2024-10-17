@@ -35,9 +35,28 @@ export async function GetStudentDetails(id: number) {
       },
     })
 
+    const tccKeyWords = await prisma.tcc_palavra_chave_associacao.findMany({
+      where: {
+        tcc_id: tcc?.id,
+      },
+      select: {
+        palavra_id: true,
+        tcc_palavra_chave: {
+          select: {
+            palavra: true,
+          },
+        }
+      }
+    })
+
     if (!studentWithClasses) {
       return null
     }
+
+    const tccKeyWordsParsed = tccKeyWords.map((keyWord) => ({
+      wordId: keyWord.palavra_id,
+      word: keyWord.tcc_palavra_chave.palavra,
+    }))
 
     const studentWithClassesParsed: IDetailedStudent = {
       id: studentWithClasses.id,
@@ -61,14 +80,18 @@ export async function GetStudentDetails(id: number) {
             tccId: tccDetails.tcc_id,
             titulo: tccDetails?.titulo_tcc,
             orientador: tccDetails?.nome_orientador,
+            orientadorId: tcc?.orientador_id ?? null,
             turma: tccDetails?.nome_turma,
+            turmaId: tcc?.turma_id ?? null,
             tema: tccDetails?.tema,
+            temaId: tcc?.tema_id ?? null,
             classificacao: tccDetails?.classificacao,
+            classificacaoId: tcc?.classificacao_id ?? null,
             notaFinal: tccDetails?.nota_final,
             estadoAtual: tccDetails?.estado_atual,
             numeroAvaliacoes: Number(tccDetails?.numero_avaliacoes),
             dataUltimaAvaliacao: tccDetails?.data_ultima_avaliacao,
-            palavrasChave: tccDetails?.palavras_chave,
+            palavrasChave: tccKeyWordsParsed,
           }
         : null,
     }

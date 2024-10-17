@@ -42,6 +42,30 @@ export function AppHeader() {
             </Link>
           </NavigationMenuItem>
           <NavigationMenuItem>
+            <Link href="/classes" legacyBehavior passHref>
+              <NavigationMenuLink
+                className={`${navigationMenuTriggerStyle()} ${
+                  pathname.includes("/classes")
+                    ? "font-bold border-b-2 border-primary"
+                    : ""
+                }`}>
+                Classes
+              </NavigationMenuLink>
+            </Link>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <Link href="/orientadores" legacyBehavior passHref>
+              <NavigationMenuLink
+                className={`${navigationMenuTriggerStyle()} ${
+                  pathname.includes("/orientadores")
+                    ? "font-bold border-b-2 border-primary"
+                    : ""
+                }`}>
+                Orientadores
+              </NavigationMenuLink>
+            </Link>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
             <Link href="/tccs" legacyBehavior passHref>
               <NavigationMenuLink
                 className={`${navigationMenuTriggerStyle()} ${
@@ -50,6 +74,18 @@ export function AppHeader() {
                     : ""
                 }`}>
                 TCCs
+              </NavigationMenuLink>
+            </Link>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <Link href="/comunidades" legacyBehavior passHref>
+              <NavigationMenuLink
+                className={`${navigationMenuTriggerStyle()} ${
+                  pathname.includes("/comunidades")
+                    ? "font-bold border-b-2 border-primary"
+                    : ""
+                }`}>
+                Comunidades
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
