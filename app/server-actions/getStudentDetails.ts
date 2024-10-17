@@ -23,7 +23,7 @@ export async function GetStudentDetails(id: number) {
       return null
     }
 
-    const tcc = await prisma.tcc_metadata.findFirst({
+    const tccMetadata = await prisma.tcc_metadata.findFirst({
       where: {
         aluno_id: studentWithClasses.id,
       },
@@ -31,13 +31,13 @@ export async function GetStudentDetails(id: number) {
 
     const tccDetails = await prisma.vw_tcc_detalhado.findFirst({
       where: {
-        tcc_id: tcc?.id,
+        tcc_id: tccMetadata?.id,
       },
     })
 
     const tccKeyWords = await prisma.tcc_palavra_chave_associacao.findMany({
       where: {
-        tcc_id: tcc?.id,
+        tcc_id: tccMetadata?.id,
       },
       select: {
         palavra_id: true,
@@ -45,8 +45,8 @@ export async function GetStudentDetails(id: number) {
           select: {
             palavra: true,
           },
-        }
-      }
+        },
+      },
     })
 
     if (!studentWithClasses) {
@@ -75,25 +75,26 @@ export async function GetStudentDetails(id: number) {
         id: alunoTurma.turma.id,
         name: alunoTurma.turma.nome,
       })),
-      tcc: tccDetails
-        ? {
-            tccId: tccDetails.tcc_id,
-            titulo: tccDetails?.titulo_tcc,
-            orientador: tccDetails?.nome_orientador,
-            orientadorId: tcc?.orientador_id ?? null,
-            turma: tccDetails?.nome_turma,
-            turmaId: tcc?.turma_id ?? null,
-            tema: tccDetails?.tema,
-            temaId: tcc?.tema_id ?? null,
-            classificacao: tccDetails?.classificacao,
-            classificacaoId: tcc?.classificacao_id ?? null,
-            notaFinal: tccDetails?.nota_final,
-            estadoAtual: tccDetails?.estado_atual,
-            numeroAvaliacoes: Number(tccDetails?.numero_avaliacoes),
-            dataUltimaAvaliacao: tccDetails?.data_ultima_avaliacao,
-            palavrasChave: tccKeyWordsParsed,
-          }
-        : null,
+      tcc:
+        tccMetadata && tccDetails
+          ? {
+              tccId: tccDetails.tcc_id,
+              titulo: tccDetails?.titulo_tcc,
+              orientador: tccDetails?.nome_orientador,
+              orientadorId: tccMetadata?.orientador_id ?? null,
+              turma: tccDetails?.nome_turma,
+              turmaId: tccMetadata?.turma_id ?? null,
+              tema: tccDetails?.tema,
+              temaId: tccMetadata?.tema_id ?? null,
+              classificacao: tccDetails?.classificacao,
+              classificacaoId: tccMetadata?.classificacao_id ?? null,
+              notaFinal: tccDetails?.nota_final,
+              estadoAtual: tccDetails?.estado_atual,
+              numeroAvaliacoes: Number(tccDetails?.numero_avaliacoes),
+              dataUltimaAvaliacao: tccDetails?.data_ultima_avaliacao,
+              palavrasChave: tccKeyWordsParsed,
+            }
+          : null,
     }
 
     return studentWithClassesParsed

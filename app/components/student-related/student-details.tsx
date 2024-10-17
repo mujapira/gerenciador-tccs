@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Fragment, useEffect, useState } from "react"
 import { GetStudentDetails } from "../../server-actions/getStudentDetails"
 import { IDetailedStudent } from "@/app/models/detailedStudentModel"
 import {
@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/card"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { Plus, PlusCircleIcon, PlusIcon } from "lucide-react"
 interface GetStudentProps {
   id: number
 }
@@ -106,15 +107,25 @@ export function StudentDetails({ id }: GetStudentProps) {
             <CardDescription>Turmas que o aluno participa</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col gap-4">
-              {student?.turmas.map((turma) => (
-                <Link href={`/${turma.id}`}>
-                  <Button className="p-0" variant="link" key={turma.id}>
-                    {turma.name}
-                  </Button>
-                </Link>
-              ))}
-            </div>
+            {student?.turmas && student?.turmas.length > 0 && (
+              <div className="flex flex-col gap-4">
+                {student?.turmas.map((turma) => (
+                  <Link href={`/${turma.id}`}>
+                    <Button className="p-0" variant="link" key={turma.id}>
+                      {turma.name}
+                    </Button>
+                  </Link>
+                ))}
+              </div>
+            )}
+            {student?.turmas && student?.turmas.length === 0 && (
+              <Fragment>
+                <p className="text-sm mb-2">
+                  Nenhuma turma cadastrada para este aluno.
+                </p>
+                <Button>Atribuir a uma turma</Button>
+              </Fragment>
+            )}
           </CardContent>
         </Card>
         <Card className="">
@@ -215,7 +226,12 @@ export function StudentDetails({ id }: GetStudentProps) {
                 </div>
               </div>
             ) : (
-              <p>Nenhum TCC registrado para este aluno.</p>
+              <Fragment>
+                <p className="text-sm mb-2">
+                  Nenhum TCC registrado para este aluno.
+                </p>
+                <Button>Cadastrar TCC</Button>
+              </Fragment>
             )}
           </CardContent>
         </Card>
