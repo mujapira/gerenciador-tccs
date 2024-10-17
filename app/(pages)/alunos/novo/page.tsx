@@ -1,11 +1,4 @@
 import NewStudentForm from "@/app/components/student-related/new-student-form/new-student-form"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
 
 export default function NewStudentPage() {
   return (
@@ -13,17 +6,7 @@ export default function NewStudentPage() {
       <span className="flex w-full items-center justify-start text-3xl font-bold">
         Novo aluno
       </span>
-      <Card className="w-[450px]">
-        <CardHeader>
-          <CardTitle>Informações do novo aluno</CardTitle>
-          <CardDescription>
-            Informe os dados do novo aluno para cadastrá-lo no sistema.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <NewStudentForm />
-        </CardContent>
-      </Card>
+      <NewStudentForm />
     </main>
   )
 }
