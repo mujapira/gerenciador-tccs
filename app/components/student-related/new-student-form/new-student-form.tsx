@@ -42,6 +42,9 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { INewStudentFormData } from "@/app/models/createStudentModel"
+import { useToast } from "@/hooks/use-toast"
+import { redirect } from "next/navigation"
+import { showErrorToast } from "@/app/utils/toast-utils"
 
 const FormSchema = z.object({
   nome: z.string().min(2, "Nome é obrigatório"),
@@ -58,6 +61,7 @@ const FormSchema = z.object({
 
 export default function NewStudentForm() {
   const [availableClasses, setAvailableClasses] = useState<IClass[]>([])
+  const { toast } = useToast()
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -83,15 +87,21 @@ export default function NewStudentForm() {
       semestre_atual: 1,
     }
 
-    const response = await createStudent(
-      createStudentFormData,
-      data.turmaId ? parseInt(data.turmaId) : null
-    )
+    try {
+      await createStudent(
+        createStudentFormData,
+        data.turmaId ? parseInt(data.turmaId) : null
+      )
 
-    if (response) {
-      alert("Aluno cadastrado com sucesso!")
-    } else {
-      alert("Erro ao cadastrar aluno.")
+      toast({
+        title: "Aluno cadastrado com sucesso",
+        description: "O aluno foi cadastrado com sucesso.",
+        variant: "default",
+      })
+
+      redirect("/alunos")
+    } catch (error) {
+      showErrorToast(error)
     }
   }
 

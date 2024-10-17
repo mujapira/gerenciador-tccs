@@ -3,6 +3,7 @@
 import { IDetailedStudent } from "../models/detailedStudentModel"
 
 import prisma from "../lib/prisma"
+import { handlePrismaError } from "../utils/handle-error"
 
 export async function GetStudentDetails(id: number) {
   try {
@@ -99,7 +100,6 @@ export async function GetStudentDetails(id: number) {
 
     return studentWithClassesParsed
   } catch (error) {
-    console.error("Erro ao buscar alunos:", error)
-    return []
+    handlePrismaError(error)
   }
 }

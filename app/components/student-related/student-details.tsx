@@ -14,6 +14,7 @@ import {
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Plus, PlusCircleIcon, PlusIcon } from "lucide-react"
+import { showErrorToast } from "@/app/utils/toast-utils"
 interface GetStudentProps {
   id: number
 }
@@ -22,10 +23,14 @@ export function StudentDetails({ id }: GetStudentProps) {
   const [student, setStudent] = useState<IDetailedStudent>()
 
   const handleGetStudents = async () => {
-    const response = await GetStudentDetails(id)
+    try {
+      const response = await GetStudentDetails(id)
 
-    if (response) {
-      setStudent(response as IDetailedStudent)
+      if (response) {
+        setStudent(response as IDetailedStudent)
+      }
+    } catch (error) {
+      showErrorToast(error)
     }
   }
 

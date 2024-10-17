@@ -2,6 +2,7 @@
 
 import prisma from "../lib/prisma"
 import { IClass } from "../models/classModel"
+import { handlePrismaError } from "../utils/handle-error"
 
 export async function GetClasses() {
   try {
@@ -13,10 +14,9 @@ export async function GetClasses() {
         nome: c.nome,
       }))
       .sort((a, b) => a.nome.localeCompare(b.nome))
-      
+
     return parsedClasses
   } catch (error) {
-    console.error("Erro ao buscar alunos:", error)
-    return []
+    handlePrismaError(error)
   }
 }
