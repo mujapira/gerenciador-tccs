@@ -21,6 +21,7 @@ model aluno {
   data_ingresso       DateTime              @db.Date
   data_nascimento     DateTime              @db.Date
   semestre_atual      Int?
+  caminho_foto        String?               @db.VarChar(255)
   aluno_turma         aluno_turma[]
   comunidade          comunidade[]
   comunidade_post     comunidade_post[]

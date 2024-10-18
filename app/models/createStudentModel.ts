@@ -10,4 +10,5 @@ export interface INewStudentFormData {
   data_ingresso: Date
   data_nascimento: Date
   semestre_atual?: number
+  caminho_foto?: string
 }

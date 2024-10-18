@@ -13,6 +13,7 @@ export interface IDetailedStudent {
   semestreAtual: number | null;
   turmas: IStudentTurma[];
   tcc: ITccDetails | null;
+  photoPath: string;
 }
 
 interface IStudentTurma {

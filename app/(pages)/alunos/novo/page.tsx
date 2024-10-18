@@ -1,4 +1,4 @@
-import NewStudentForm from "@/app/components/student-related/new-student-form/new-student-form"
+import NewStudentForm from "@components/student-related/new-student-form/new-student-form"
 
 export default function NewStudentPage() {
   return (

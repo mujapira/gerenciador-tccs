@@ -15,6 +15,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Plus, PlusCircleIcon, PlusIcon } from "lucide-react"
 import { showErrorToast } from "@/app/utils/toast-utils"
+import Image from "next/image"
 interface GetStudentProps {
   id: number
 }
@@ -42,11 +43,20 @@ export function StudentDetails({ id }: GetStudentProps) {
     <div className="flex w-full gap-6 items-start justify-start">
       <div className="flex flex-col gap-6">
         <Card className="w-96">
-          <CardHeader>
-            <CardTitle>Informações Pessoais</CardTitle>
-            <CardDescription>
-              Dados gerais do aluno cadastrados no sistema
-            </CardDescription>
+          <CardHeader className="flex flex-row gap-2 items-center justify-between">
+            <Image
+              alt=""
+              src={`${student?.photoPath ?? "/user-images/placeholder.png"}`}
+              width={24}
+              height={24}
+              className="rounded-full aspect-square w-8"
+            />
+            <div className="flex flex-col">
+              <CardTitle>Informações Pessoais</CardTitle>
+              <CardDescription>
+                Dados gerais do aluno cadastrados no sistema
+              </CardDescription>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col gap-2 text-sm">

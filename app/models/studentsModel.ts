@@ -11,4 +11,5 @@ export interface IStudent {
   data_ingresso: Date
   data_nascimento: Date
   semestre_atual: number | null
+  caminho_foto: string | null
 }

@@ -72,6 +72,7 @@ export async function GetStudentDetails(id: number) {
       dataIngresso: studentWithClasses.data_ingresso,
       dataNascimento: studentWithClasses.data_nascimento,
       semestreAtual: studentWithClasses.semestre_atual,
+      photoPath: studentWithClasses.caminho_foto ?? "/placeholder.png",
       turmas: studentWithClasses.aluno_turma.map((alunoTurma) => ({
         id: alunoTurma.turma.id,
         name: alunoTurma.turma.nome,

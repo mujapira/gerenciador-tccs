@@ -1,5 +1,6 @@
 "use server"
 
+import { redirect } from "next/navigation"
 import prisma from "../lib/prisma"
 import { handlePrismaError } from "../utils/handle-error"
 
@@ -16,6 +17,7 @@ export async function createStudent(
     data_ingresso: Date
     data_nascimento: Date
     semestre_atual?: number
+    caminho_foto?: string
   },
   turmaId?: number | null
 ) {
@@ -34,7 +36,7 @@ export async function createStudent(
       return { novoAluno, turma }
     }
 
-    return novoAluno
+    redirect("/alunos")
   } catch (error) {
     handlePrismaError(error)
   }

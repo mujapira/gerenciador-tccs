@@ -21,6 +21,7 @@ export async function GetStudents() {
         data_ingresso: aluno.data_ingresso,
         data_nascimento: aluno.data_nascimento,
         semestre_atual: aluno.semestre_atual,
+        caminho_foto: aluno.caminho_foto,
       }
     })
 

@@ -43,8 +43,11 @@ import {
 } from "@/components/ui/select"
 import { INewStudentFormData } from "@/app/models/createStudentModel"
 import { useToast } from "@/hooks/use-toast"
-import { redirect } from "next/navigation"
+import { redirect, useRouter } from "next/navigation"
 import { showErrorToast } from "@/app/utils/toast-utils"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
+import { EmptyCard } from "../../empty-card"
+import Image from "next/image"
 
 const FormSchema = z.object({
   nome: z.string().min(2, "Nome é obrigatório"),
@@ -61,7 +64,41 @@ const FormSchema = z.object({
 
 export default function NewStudentForm() {
   const [availableClasses, setAvailableClasses] = useState<IClass[]>([])
+  const router = useRouter()
   const { toast } = useToast()
+
+  const [uploadedFile, setUploadedFile] = useState<{
+    key: string
+    url: string
+    name: string
+  } | null>(null)
+
+  const [file, setFile] = useState<File | null>(null)
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0]
+      const fileExtension = file.name.split(".").pop()
+      const uniqueFileName = `user-images/${Date.now()}.${fileExtension}`
+      const fileUrl = URL.createObjectURL(file)
+      setFile(file)
+
+      setUploadedFile({
+        key: uniqueFileName,
+        url: fileUrl,
+        name: file.name,
+      })
+
+      toast({
+        title: "Upload realizado",
+        description: `O arquivo ${file.name} foi carregado com sucesso.`,
+      })
+    }
+  }
+
+  const handleUploadClick = () => {
+    document.getElementById("fileInput")?.click()
+  }
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -73,6 +110,27 @@ export default function NewStudentForm() {
   }
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
+    let caminho = "/user-images/placeholder.png"
+
+    if (file) {
+      // Post the image to the server
+      const formData = new FormData()
+      formData.append("file", file)
+
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      })
+
+      if (!response.ok) {
+        showErrorToast("Erro ao enviar a imagem")
+        return
+      }
+
+      const result = await response.json()
+      caminho = result.path
+    }
+
     const createStudentFormData: INewStudentFormData = {
       nome: data.nome,
       email: data.email,
@@ -85,7 +143,10 @@ export default function NewStudentForm() {
       data_ingresso: new Date(Date.now()),
       data_nascimento: new Date(data.data_nascimento),
       semestre_atual: 1,
+      caminho_foto: caminho,
     }
+
+    console.log(createStudentFormData)
 
     try {
       await createStudent(
@@ -99,7 +160,7 @@ export default function NewStudentForm() {
         variant: "default",
       })
 
-      redirect("/alunos")
+      router.push("/alunos")
     } catch (error) {
       showErrorToast(error)
     }
@@ -123,6 +184,56 @@ export default function NewStudentForm() {
             <form
               onSubmit={form.handleSubmit(onSubmit)}
               className="w-full gap-2 flex flex-col">
+              <Card className="border-none p-0 m-0">
+                <CardContent className="p-0 pb-4">
+                  <input
+                    type="file"
+                    id="fileInput"
+                    style={{ display: "none" }}
+                    onChange={handleFileChange}
+                  />
+                  {uploadedFile ? (
+                    <ScrollArea className="pb-4 cursor-pointer">
+                      <div className="flex w-max space-x-2.5">
+                        <div className="relative aspect-video w-96">
+                          <Image
+                            src={uploadedFile.url}
+                            alt={uploadedFile.name}
+                            fill
+                            sizes="(min-width: 640px) 640px, 100vw"
+                            loading="lazy"
+                            className="rounded-md object-cover"
+                          />
+                        </div>
+                      </div>
+                      <ScrollBar orientation="horizontal" />
+                    </ScrollArea>
+                  ) : (
+                    <EmptyCard
+                      onClick={handleUploadClick}
+                      title="Nenhuma imagem selecionada"
+                      description="Clique para selecionar a foto do aluno"
+                      className="w-full cursor-pointer"
+                    />
+                  )}
+                  {uploadedFile ? (
+                    <Button
+                      type="button"
+                      onClick={() => setUploadedFile(null)}
+                      variant="destructive"
+                      className="w-full">
+                      Remover foto
+                    </Button>
+                  ) : (
+                    <Button
+                      type="button"
+                      className="mt-4 w-full"
+                      onClick={handleUploadClick}>
+                      Escolher foto
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
               <FormField
                 control={form.control}
                 name="nome"
