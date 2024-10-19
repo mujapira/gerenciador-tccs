@@ -21,7 +21,7 @@ import { Calendar } from "@/components/ui/calendar"
 import { format, set } from "date-fns"
 import { cn } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { createStudent } from "@/app/server-actions/createStudent"
+import { createStudent } from "@/app/server-actions/student/createStudent"
 import { z } from "zod"
 import {
   Card,
@@ -30,9 +30,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { IClass } from "@/app/models/classModel"
+import { IClass } from "@/app/models/classes/classModel"
 import { Fragment, use, useEffect, useState } from "react"
-import { GetClasses } from "@/app/server-actions/getClasses"
+import { GetClasses } from "@/app/server-actions/student/getClasses"
 import { Separator } from "@/components/ui/separator"
 import {
   Select,
@@ -41,17 +41,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { INewStudentFormData } from "@/app/models/createStudentModel"
+import { INewStudentFormData } from "@/app/models/student/createStudentModel"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
 import { showErrorToast } from "@/app/utils/toast-utils"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { EmptyCard } from "../../empty-card"
 import Image from "next/image"
-import { GetStudentDetails } from "@/app/server-actions/getStudentDetails"
-import { IDetailedStudent } from "@/app/models/detailedStudentModel"
-import { IUpdateStudentFormData } from "@/app/models/updateStudentModel"
-import { updateStudent } from "@/app/server-actions/updateStudent"
+import { GetStudentDetails } from "@/app/server-actions/student/getStudentDetails"
+import { IDetailedStudent } from "@/app/models/student/detailedStudentModel"
+import { IUpdateStudentFormData } from "@/app/models/student/updateStudentModel"
+import { updateStudent } from "@/app/server-actions/student/updateStudent"
 
 const FormSchema = z.object({
   nome: z.string().min(2, "Nome é obrigatório"),

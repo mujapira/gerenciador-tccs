@@ -42,14 +42,14 @@ export function AppHeader() {
             </Link>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <Link href="/classes" legacyBehavior passHref>
+            <Link href="/turmas" legacyBehavior passHref>
               <NavigationMenuLink
                 className={`${navigationMenuTriggerStyle()} ${
-                  pathname.includes("/classes")
+                  pathname.includes("/turmas")
                     ? "font-bold border-b-2 border-primary"
                     : ""
                 }`}>
-                Classes
+                Turmas
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>

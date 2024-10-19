@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table"
-import { IStudent } from "../../../models/studentsModel"
+import { IStudent } from "../../../models/student/studentsModel"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,

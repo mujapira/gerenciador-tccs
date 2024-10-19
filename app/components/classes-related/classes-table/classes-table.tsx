@@ -4,11 +4,11 @@ import { useEffect, useState } from "react"
 import { GetStudents } from "../../../server-actions/student/getStudents"
 import { IStudent } from "../../../models/student/studentsModel"
 
-import { studentTableColumns } from "./student-col-defs"
 import { showErrorToast } from "@/app/utils/toast-utils"
-import { StudentDataTable } from "./student-data-table"
+import { ClassesDataTable } from "./classes-data-table"
+import { classesTableColumns } from "./classes-col-defs"
 
-export function StudentsTable() {
+export function ClassesTable() {
   const [students, setStudents] = useState<IStudent[]>([])
 
   const handleGetStudents = async () => {
@@ -27,5 +27,5 @@ export function StudentsTable() {
     handleGetStudents()
   }, [])
 
-  return <StudentDataTable columns={studentTableColumns} data={students} />
+  return <ClassesDataTable columns={classesTableColumns} data={students} />
 }

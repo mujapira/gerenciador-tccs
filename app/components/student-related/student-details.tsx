@@ -1,8 +1,8 @@
 "use client"
 
 import { Fragment, useEffect, useState } from "react"
-import { GetStudentDetails } from "../../server-actions/getStudentDetails"
-import { IDetailedStudent } from "@/app/models/detailedStudentModel"
+import { GetStudentDetails } from "../../server-actions/student/getStudentDetails"
+import { IDetailedStudent } from "@/app/models/student/detailedStudentModel"
 import {
   Card,
   CardContent,

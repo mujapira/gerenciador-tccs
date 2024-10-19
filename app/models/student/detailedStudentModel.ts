@@ -1,4 +1,4 @@
-import { IClass } from "./classModel";
+import { IClass } from "../classes/classModel";
 
 export interface IDetailedStudent {
   id: number;

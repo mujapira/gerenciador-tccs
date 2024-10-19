@@ -24,15 +24,15 @@ import { Button } from "@/components/ui/button"
 import { Fragment, useState } from "react"
 import { Input } from "@/components/ui/input"
 
-interface DataTableProps<TData, TValue> {
+interface ClassesDataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
 }
 
-export function DataTable<TData, TValue>({
+export function ClassesDataTable<TData, TValue>({
   columns,
   data,
-}: DataTableProps<TData, TValue>) {
+}: ClassesDataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 

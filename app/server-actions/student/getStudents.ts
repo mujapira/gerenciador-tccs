@@ -1,7 +1,7 @@
 "use server"
 
-import prisma from "../lib/prisma"
-import { handlePrismaError } from "../utils/handle-error"
+import prisma from "../../lib/prisma"
+import { handlePrismaError } from "../../utils/handle-error"
 
 export async function GetStudents() {
   try {

@@ -1,8 +1,8 @@
 "use server"
 
-import prisma from "../lib/prisma"
-import { IClass } from "../models/classModel"
-import { handlePrismaError } from "../utils/handle-error"
+import prisma from "../../lib/prisma"
+import { IClass } from "../../models/classes/classModel"
+import { handlePrismaError } from "../../utils/handle-error"
 
 export async function UpdateStudentClasses(
   studentId: number,

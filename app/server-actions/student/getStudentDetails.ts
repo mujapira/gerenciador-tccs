@@ -1,9 +1,9 @@
 "use server"
 
-import { IDetailedStudent } from "../models/detailedStudentModel"
+import { IDetailedStudent } from "../../models/student/detailedStudentModel"
 
-import prisma from "../lib/prisma"
-import { handlePrismaError } from "../utils/handle-error"
+import prisma from "../../lib/prisma"
+import { handlePrismaError } from "../../utils/handle-error"
 
 export async function GetStudentDetails(id: number) {
   try {
