@@ -39,6 +39,7 @@ import { GetStudents } from "@/app/server-actions/student/getStudents"
 import { IStudent } from "@/app/models/student/studentsModel"
 import { toast } from "@/hooks/use-toast"
 import { UpdateClassStudents } from "@/app/server-actions/classes/updateClasseStudents"
+import { set } from "date-fns"
 
 function calcularIdade(dataNasc: string) {
   var dataAtual = new Date()
@@ -65,13 +66,19 @@ export function ClassesDetails() {
   const [selectedClass, setSelectedClass] = useState<IClassWithStudents | null>(
     null
   )
+  const [originalClass, setOriginalClass] = useState<IClassWithStudents | null>(
+    null
+  ) // Store original state
   const [students, setStudents] = useState<IStudent[]>()
   const [isEditing, setIsEditing] = useState(false)
+  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(
+    null
+  )
+  const [searchTerm, setSearchTerm] = useState("")
 
   const getStudents = async () => {
     try {
       const response = await GetStudents()
-
       if (response) {
         setStudents(response as IStudent[])
       }
@@ -80,11 +87,16 @@ export function ClassesDetails() {
     }
   }
 
-  const [searchTerm, setSearchTerm] = useState("")
-
-  const filteredStudents = students?.filter((student) =>
-    student.nome.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filteredStudents = students
+    ?.filter(
+      (student) =>
+        student.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.cpf.includes(searchTerm)
+    )
+    .filter(
+      (student) =>
+        !selectedClass?.alunos.some((aluno) => aluno.id === student.id)
+    )
 
   const onSelectStudent = (value: string) => {
     const selectedStudent = students?.find(
@@ -101,18 +113,26 @@ export function ClassesDetails() {
         }
       })
     }
+
+    setSelectedStudentId(null)
+    setSearchTerm("")
   }
 
   const handleGetClasses = async () => {
     try {
       const response = await GetClassesDetails()
-
       if (response) {
         setClasses(response as IClassWithStudents[])
       }
     } catch (error) {
       showErrorToast(error)
     }
+  }
+
+  const handleEditClass = () => {
+    if (!selectedClass) return
+    setOriginalClass({ ...selectedClass })
+    setIsEditing(true)
   }
 
   const handleRemoveStudent = (studentId: number) => {
@@ -129,7 +149,6 @@ export function ClassesDetails() {
   const handleSaveChanges = async () => {
     if (selectedClass) {
       try {
-        // Call your API or function to update the selected class
         await UpdateClassStudents(selectedClass.id, selectedClass.alunos)
         setIsEditing(false)
 
@@ -143,7 +162,9 @@ export function ClassesDetails() {
   }
 
   const handleCancelEdit = () => {
-    handleGetClasses()
+    if (originalClass) {
+      setSelectedClass({ ...originalClass })
+    }
     setIsEditing(false)
   }
 
@@ -183,7 +204,7 @@ export function ClassesDetails() {
 
                   <Button
                     disabled={isEditing}
-                    onClick={() => setIsEditing(true)}>
+                    onClick={() => handleEditClass()}>
                     Gerenciar alunos
                   </Button>
                 </CardHeader>
@@ -197,19 +218,28 @@ export function ClassesDetails() {
                         className="w-1/3"
                       />
 
-                      <Select onValueChange={onSelectStudent}>
+                      <Select
+                        value={selectedStudentId || ""}
+                        onValueChange={(value) => {
+                          onSelectStudent(value)
+                          setSelectedStudentId(null) // Reset to show placeholder after selection
+                          setSearchTerm("") // Clear the search term
+                        }}>
                         <SelectTrigger className="w-full">
                           <SelectValue placeholder="Selecionar aluno" />
                         </SelectTrigger>
                         <SelectContent>
-                          {filteredStudents?.length &&
+                          {filteredStudents && filteredStudents.length > 0 ? (
                             filteredStudents.map((student) => (
                               <SelectItem
                                 key={student.id}
                                 value={student.id.toString()}>
                                 {student.nome} - {student.cpf}
                               </SelectItem>
-                            ))}
+                            ))
+                          ) : (
+                            <span className="text-sm">Nenhum resultado</span>
+                          )}
                         </SelectContent>
                       </Select>
                     </div>
