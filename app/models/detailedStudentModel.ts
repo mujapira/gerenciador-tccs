@@ -1,3 +1,5 @@
+import { IClass } from "./classModel";
+
 export interface IDetailedStudent {
   id: number;
   nome: string;
@@ -11,15 +13,12 @@ export interface IDetailedStudent {
   dataIngresso: Date;
   dataNascimento: Date;
   semestreAtual: number | null;
-  turmas: IStudentTurma[];
+  turmas: IClass[];
   tcc: ITccDetails | null;
   photoPath: string;
 }
 
-interface IStudentTurma {
-  id: number;
-  name: string;
-}
+
 
 interface ITccDetails {
   tccId: number;

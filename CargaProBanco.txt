@@ -219,26 +219,26 @@ CREATE TABLE comunidade_post (
 );
 
 INSERT INTO aluno (nome, email, matricula, cpf, data_nascimento, telefone, endereco, cidade, estado, data_ingresso, semestre_atual, caminho_foto) VALUES 
-('João Silva', 'joao.silva@fatecsp.com', '2021001', '12345678901', '2000-05-15', '(11) 91234-5678', 'Rua A, 123', 'São Paulo', 'SP', '2021-02-01', 5, '/user-images/placeholder.png'),
-('Maria Oliveira', 'maria.oliveira@fatecsp.com', '2021002', '98765432100', '1999-11-22', '(11) 98765-4321', 'Rua B, 456', 'São Paulo', 'SP', '2021-02-01', 5, '/user-images/placeholder.png'),
-('Carlos Pereira', 'carlos.pereira@fatecsp.com', '2021003', '12312312399', '1998-08-10', '(21) 91234-5678', 'Av. Central, 789', 'Rio de Janeiro', 'RJ', '2021-02-01', 5, '/user-images/placeholder.png'),
-('Lucas Almeida', 'lucas.almeida@fatecsp.com', '2021004', '55555555555', '2001-01-10', '(11) 91234-9999', 'Rua C, 789', 'São Paulo', 'SP', '2021-02-01', 5, '/user-images/placeholder.png'),
-('Fernanda Costa', 'fernanda.costa@fatecsp.com', '2021005', '66666666666', '1999-03-12', '(21) 98765-1234', 'Av. Paulista, 400', 'Rio de Janeiro', 'RJ', '2021-02-01', 5, '/user-images/placeholder.png'),
-('Gabriel Souza', 'gabriel.souza@fatecsp.com', '2021006', '12365478902', '2001-07-19', '(11) 91234-6789', 'Rua D, 910', 'Campinas', 'SP', '2021-02-01', 5, '/user-images/placeholder.png'),
-('Carla Nunes', 'carla.nunes@fatecsp.com', '2021007', '32145698700', '1999-09-20', '(11) 98765-4320', 'Rua E, 111', 'Sorocaba', 'SP', '2021-02-01', 5, '/user-images/placeholder.png'),
-('Pedro Lima', 'pedro.lima@fatecsp.com', '2021008', '15975365487', '1997-03-25', '(11) 98765-8765', 'Rua F, 222', 'São Bernardo', 'SP', '2021-02-01', 5, '/user-images/placeholder.png'),
-('Ana Moreira', 'ana.moreira@fatecsp.com', '2021009', '78945612309', '1998-12-31', '(11) 91234-1111', 'Rua G, 333', 'Guarulhos', 'SP', '2021-02-01', 5, '/user-images/placeholder.png'),
-('Roberto Lopes', 'roberto.lopes@fatecsp.com', '2021010', '78945632101', '1999-11-15', '(21) 91234-2222', 'Rua H, 444', 'Niterói', 'RJ', '2021-02-01', 5, '/user-images/placeholder.png'),
-('Juliana Silva', 'juliana.silva@fatecsp.com', '2021011', '11122233344', '2000-04-14', '(11) 91234-3333', 'Rua I, 555', 'São Paulo', 'SP', '2021-02-01', 5, '/user-images/placeholder.png'),
-('Felipe Costa', 'felipe.costa@fatecsp.com', '2021012', '11122233355', '2001-08-19', '(11) 91234-4444', 'Rua J, 666', 'Santos', 'SP', '2021-02-01', 5, '/user-images/placeholder.png'),
-('Paula Souza', 'paula.souza@fatecsp.com', '2021013', '11122233366', '2002-03-11', '(11) 91234-5555', 'Rua K, 777', 'São Paulo', 'SP', '2021-02-01', 5, '/user-images/placeholder.png'),
-('Marcos Dias', 'marcos.dias@fatecsp.com', '2021014', '11122233377', '1999-06-21', '(11) 91234-6666', 'Rua L, 888', 'São Paulo', 'SP', '2021-02-01', 5, '/user-images/placeholder.png'),
-('Aline Silva', 'aline.silva@fatecsp.com', '2021015', '11122233388', '2000-09-12', '(11) 91234-7777', 'Rua M, 999', 'São Paulo', 'SP', '2021-02-01', 5, '/user-images/placeholder.png'),
-('Rafael Lima', 'rafael.lima@fatecsp.com', '2021016', '11122233399', '1998-11-22', '(11) 91234-8888', 'Rua N, 1010', 'Campinas', 'SP', '2021-02-01', 5, '/user-images/placeholder.png'),
-('Fernanda Duarte', 'fernanda.duarte@fatecsp.com', '2021017', '22233344400', '2001-01-30', '(11) 91234-9999', 'Rua O, 1111', 'São Paulo', 'SP', '2021-02-01', 5, '/user-images/placeholder.png'),
-('Bruno Mendes', 'bruno.mendes@fatecsp.com', '2021018', '33344455500', '1999-02-20', '(11) 91234-1010', 'Rua P, 1212', 'São Paulo', 'SP', '2021-02-01', 5, '/user-images/placeholder.png'),
-('Carolina Castro', 'carolina.castro@fatecsp.com', '2021019', '44455566600', '2000-05-15', '(11) 91234-1111', 'Rua Q, 1313', 'São Paulo', 'SP', '2021-02-01', 5, '/user-images/placeholder.png'),
-('Gustavo Neves', 'gustavo.neves@fatecsp.com', '2021020', '55566677700', '2001-12-30', '(11) 91234-1212', 'Rua R, 1414', 'São Paulo', 'SP', '2021-02-01', 5, '/user-images/placeholder.png');
+('João Silva', 'joao.silva@fatecsp.com', '2021001', '12345678901', '2000-05-15', '11912345678', 'Rua A, 123', 'São Paulo', 'SP', '2021-02-01', 5, '/user-images/placeholder.png'),
+('Maria Oliveira', 'maria.oliveira@fatecsp.com', '2021002', '98765432100', '1999-11-22', '11987654321', 'Rua B, 456', 'São Paulo', 'SP', '2021-02-01', 5, '/user-images/placeholder.png'),
+('Carlos Pereira', 'carlos.pereira@fatecsp.com', '2021003', '12312312399', '1998-08-10', '21912345678', 'Av. Central, 789', 'Rio de Janeiro', 'RJ', '2021-02-01', 5, '/user-images/placeholder.png'),
+('Lucas Almeida', 'lucas.almeida@fatecsp.com', '2021004', '55555555555', '2001-01-10', '11912349999', 'Rua C, 789', 'São Paulo', 'SP', '2021-02-01', 5, '/user-images/placeholder.png'),
+('Fernanda Costa', 'fernanda.costa@fatecsp.com', '2021005', '66666666666', '1999-03-12', '21987651234', 'Av. Paulista, 400', 'Rio de Janeiro', 'RJ', '2021-02-01', 5, '/user-images/placeholder.png'),
+('Gabriel Souza', 'gabriel.souza@fatecsp.com', '2021006', '12365478902', '2001-07-19', '11912346789', 'Rua D, 910', 'Campinas', 'SP', '2021-02-01', 5, '/user-images/placeholder.png'),
+('Carla Nunes', 'carla.nunes@fatecsp.com', '2021007', '32145698700', '1999-09-20', '11987654320', 'Rua E, 111', 'Sorocaba', 'SP', '2021-02-01', 5, '/user-images/placeholder.png'),
+('Pedro Lima', 'pedro.lima@fatecsp.com', '2021008', '15975365487', '1997-03-25', '11987658765', 'Rua F, 222', 'São Bernardo', 'SP', '2021-02-01', 5, '/user-images/placeholder.png'),
+('Ana Moreira', 'ana.moreira@fatecsp.com', '2021009', '78945612309', '1998-12-31', '11912341111', 'Rua G, 333', 'Guarulhos', 'SP', '2021-02-01', 5, '/user-images/placeholder.png'),
+('Roberto Lopes', 'roberto.lopes@fatecsp.com', '2021010', '78945632101', '1999-11-15', '21912342222', 'Rua H, 444', 'Niterói', 'RJ', '2021-02-01', 5, '/user-images/placeholder.png'),
+('Juliana Silva', 'juliana.silva@fatecsp.com', '2021011', '11122233344', '2000-04-14', '11912343333', 'Rua I, 555', 'São Paulo', 'SP', '2021-02-01', 5, '/user-images/placeholder.png'),
+('Felipe Costa', 'felipe.costa@fatecsp.com', '2021012', '11122233355', '2001-08-19', '11912344444', 'Rua J, 666', 'Santos', 'SP', '2021-02-01', 5, '/user-images/placeholder.png'),
+('Paula Souza', 'paula.souza@fatecsp.com', '2021013', '11122233366', '2002-03-11', '11912345555', 'Rua K, 777', 'São Paulo', 'SP', '2021-02-01', 5, '/user-images/placeholder.png'),
+('Marcos Dias', 'marcos.dias@fatecsp.com', '2021014', '11122233377', '1999-06-21', '11912346666', 'Rua L, 888', 'São Paulo', 'SP', '2021-02-01', 5, '/user-images/placeholder.png'),
+('Aline Silva', 'aline.silva@fatecsp.com', '2021015', '11122233388', '2000-09-12', '11912347777', 'Rua M, 999', 'São Paulo', 'SP', '2021-02-01', 5, '/user-images/placeholder.png'),
+('Rafael Lima', 'rafael.lima@fatecsp.com', '2021016', '11122233399', '1998-11-22', '11912348888', 'Rua N, 1010', 'Campinas', 'SP', '2021-02-01', 5, '/user-images/placeholder.png'),
+('Fernanda Duarte', 'fernanda.duarte@fatecsp.com', '2021017', '22233344400', '2001-01-30', '11912349999', 'Rua O, 1111', 'São Paulo', 'SP', '2021-02-01', 5, '/user-images/placeholder.png'),
+('Bruno Mendes', 'bruno.mendes@fatecsp.com', '2021018', '33344455500', '1999-02-20', '11912341010', 'Rua P, 1212', 'São Paulo', 'SP', '2021-02-01', 5, '/user-images/placeholder.png'),
+('Carolina Castro', 'carolina.castro@fatecsp.com', '2021019', '44455566600', '2000-05-15', '11912341111', 'Rua Q, 1313', 'São Paulo', 'SP', '2021-02-01', 5, '/user-images/placeholder.png'),
+('Gustavo Neves', 'gustavo.neves@fatecsp.com', '2021020', '55566677700', '2001-12-30', '11912341212', 'Rua R, 1414', 'São Paulo', 'SP', '2021-02-01', 5, '/user-images/placeholder.png');
 
 
 INSERT INTO orientador (nome, email, cpf, telefone, departamento, titulo_academico) VALUES 

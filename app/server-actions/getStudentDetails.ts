@@ -7,26 +7,33 @@ import { handlePrismaError } from "../utils/handle-error"
 
 export async function GetStudentDetails(id: number) {
   try {
-    const studentWithClasses = await prisma.aluno.findUnique({
+    const student = await prisma.aluno.findUnique({
       where: {
         id: id,
       },
-      include: {
-        aluno_turma: {
-          include: {
-            turma: true,
-          },
+    })
+
+    if (!student) {
+      return null
+    }
+
+    const studentClassesRelation = await prisma.aluno_turma.findMany({
+      where: {
+        aluno_id: student.id,
+      },
+    })
+
+    const classes = await prisma.turma.findMany({
+      where: {
+        id: {
+          in: studentClassesRelation.map((relation) => relation.turma_id),
         },
       },
     })
 
-    if (!studentWithClasses) {
-      return null
-    }
-
     const tccMetadata = await prisma.tcc_metadata.findFirst({
       where: {
-        aluno_id: studentWithClasses.id,
+        aluno_id: student.id,
       },
     })
 
@@ -50,7 +57,7 @@ export async function GetStudentDetails(id: number) {
       },
     })
 
-    if (!studentWithClasses) {
+    if (!student) {
       return null
     }
 
@@ -59,24 +66,21 @@ export async function GetStudentDetails(id: number) {
       word: keyWord.tcc_palavra_chave.palavra,
     }))
 
-    const studentWithClassesParsed: IDetailedStudent = {
-      id: studentWithClasses.id,
-      nome: studentWithClasses.nome,
-      email: studentWithClasses.email,
-      matricula: studentWithClasses.matricula,
-      cpf: studentWithClasses.cpf,
-      telefone: studentWithClasses.telefone,
-      endereco: studentWithClasses.endereco,
-      cidade: studentWithClasses.cidade,
-      estado: studentWithClasses.estado,
-      dataIngresso: studentWithClasses.data_ingresso,
-      dataNascimento: studentWithClasses.data_nascimento,
-      semestreAtual: studentWithClasses.semestre_atual,
-      photoPath: studentWithClasses.caminho_foto ?? "/placeholder.png",
-      turmas: studentWithClasses.aluno_turma.map((alunoTurma) => ({
-        id: alunoTurma.turma.id,
-        name: alunoTurma.turma.nome,
-      })),
+    const studentParsed: IDetailedStudent = {
+      id: student.id,
+      nome: student.nome,
+      email: student.email,
+      matricula: student.matricula,
+      cpf: student.cpf,
+      telefone: student.telefone,
+      endereco: student.endereco,
+      cidade: student.cidade,
+      estado: student.estado,
+      dataIngresso: student.data_ingresso,
+      dataNascimento: student.data_nascimento,
+      semestreAtual: student.semestre_atual,
+      photoPath: student.caminho_foto ?? "/placeholder.png",
+      turmas: classes,
       tcc:
         tccMetadata && tccDetails
           ? {
@@ -99,7 +103,7 @@ export async function GetStudentDetails(id: number) {
           : null,
     }
 
-    return studentWithClassesParsed
+    return studentParsed
   } catch (error) {
     handlePrismaError(error)
   }

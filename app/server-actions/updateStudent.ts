@@ -5,7 +5,7 @@ import { IClass } from "../models/classModel"
 import { handlePrismaError } from "../utils/handle-error"
 import { UpdateStudentClasses } from "./UpdateStudentClasses"
 
-export async function createStudent(
+export async function updateStudent(
   alunoData: {
     nome: string
     email: string
@@ -19,16 +19,20 @@ export async function createStudent(
     data_nascimento: Date
     semestre_atual?: number
     caminho_foto?: string
+    id: number
   },
-  classes: IClass[]
+  classes?: IClass[]
 ) {
   try {
-    const novoAluno = await prisma.aluno.create({
+    await prisma.aluno.update({
+      where: {
+        id: alunoData.id,
+      },
       data: alunoData,
     })
 
-    if (classes.length) {
-      UpdateStudentClasses(novoAluno.id, classes)
+    if (classes) {
+      await UpdateStudentClasses(alunoData.id, classes)
     }
   } catch (error) {
     handlePrismaError(error)

@@ -6,7 +6,7 @@ export function showErrorToast(
 ) {
   const description = error instanceof Error ? error.message : defaultMessage
   toast({
-    title: "Erro ao cadastrar aluno",
+    title: "Erro ao realizar a operação",
     description,
     variant: "destructive",
   })

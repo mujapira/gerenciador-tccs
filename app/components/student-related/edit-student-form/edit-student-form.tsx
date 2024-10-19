@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/popover"
 import { CalendarIcon } from "lucide-react"
 import { Calendar } from "@/components/ui/calendar"
-import { format } from "date-fns"
+import { format, set } from "date-fns"
 import { cn } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { createStudent } from "@/app/server-actions/createStudent"
@@ -48,6 +48,10 @@ import { showErrorToast } from "@/app/utils/toast-utils"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { EmptyCard } from "../../empty-card"
 import Image from "next/image"
+import { GetStudentDetails } from "@/app/server-actions/getStudentDetails"
+import { IDetailedStudent } from "@/app/models/detailedStudentModel"
+import { IUpdateStudentFormData } from "@/app/models/updateStudentModel"
+import { updateStudent } from "@/app/server-actions/updateStudent"
 
 const FormSchema = z.object({
   nome: z.string().min(2, "Nome é obrigatório"),
@@ -56,14 +60,12 @@ const FormSchema = z.object({
     .string()
     .transform((value) => value.replace(/\D/g, ""))
     .refine((value) => value.length === 11, {
-      message: "CPF deve conter 11 dígitos",
+      message: "CPF deve conter 11 dígitos numéricos",
     }),
   telefone: z
     .string()
-    .transform((value) => value.replace(/\D/g, ""))
-    .refine((value) => value.length === 11, {
-      message: "Telefone deve conter 11 dígitos",
-    }),
+    .regex(/^\d{11}$/, "Telefone deve conter 11 dígitos numéricos")
+    .transform((value) => value.replace(/\D/g, "")),
   endereco: z.string().optional(),
   cidade: z.string().optional(),
   estado: z.string().optional(),
@@ -75,6 +77,7 @@ function formatCPF(value: string) {
   return value
     .replace(/\D/g, "")
     .replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")
+    .slice(0, 14)
 }
 
 function formatPhoneNumber(value: string) {
@@ -97,18 +100,59 @@ function generateMatricula(): string {
   return matricula
 }
 
-export default function NewStudentForm() {
+export default function EditStudentForm({ id }: { id: number }) {
   const [availableClasses, setAvailableClasses] = useState<IClass[]>([])
   const [studentClasses, setStudentClasses] = useState<IClass[]>([])
+  const [student, setStudent] = useState<IDetailedStudent>()
   const [file, setFile] = useState<File | null>(null)
   const [uploadedFile, setUploadedFile] = useState<{
     key: string
     url: string
     name: string
   } | null>(null)
-
   const router = useRouter()
   const { toast } = useToast()
+
+  const handleGetStudent = async () => {
+    try {
+      const response = await GetStudentDetails(id)
+
+      if (response) {
+        setStudent(response as IDetailedStudent)
+
+        form.setValue("nome", response?.nome)
+        form.setValue("email", response?.email)
+        form.setValue("cpf", response?.cpf)
+        form.setValue("telefone", response?.telefone || "")
+        form.setValue("endereco", response?.endereco || "")
+        form.setValue("cidade", response?.cidade || "")
+        form.setValue("estado", response?.estado || "")
+        form.setValue("data_nascimento", response?.dataNascimento)
+
+        if (response?.photoPath !== "/user-images/placeholder.png") {
+          const responsePhoto = await fetch(
+            `/api/upload?fileName=${encodeURIComponent(response?.photoPath)}`
+          )
+
+          if (responsePhoto.ok) {
+            const blob = await responsePhoto.blob()
+            const url = URL.createObjectURL(blob)
+            setUploadedFile({
+              key: response?.photoPath,
+              url: url,
+              name: response?.photoPath,
+            })
+          } else {
+            showErrorToast("Erro ao carregar a foto do aluno")
+          }
+        }
+
+        setStudentClasses(response?.turmas || [])
+      }
+    } catch (error) {
+      showErrorToast(error)
+    }
+  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -165,7 +209,16 @@ export default function NewStudentForm() {
       caminho = result.path
     }
 
-    const createStudentFormData: INewStudentFormData = {
+    if (student?.photoPath && student?.photoPath !== caminho) {
+      caminho = student?.photoPath
+    }
+
+    if (!student) {
+      return
+    }
+
+    const createStudentFormData: IUpdateStudentFormData = {
+      id: student.id,
       nome: data.nome,
       email: data.email,
       matricula: generateMatricula(),
@@ -181,11 +234,12 @@ export default function NewStudentForm() {
     }
 
     try {
-      await createStudent(createStudentFormData, studentClasses)
+      console.log("studentClasses", studentClasses)
+      await updateStudent(createStudentFormData, studentClasses)
 
       toast({
-        title: "Aluno cadastrado com sucesso",
-        description: "O aluno foi cadastrado com sucesso.",
+        title: "Sucesso",
+        description: "O aluno foi atualizado com sucesso.",
         variant: "default",
       })
 
@@ -208,6 +262,7 @@ export default function NewStudentForm() {
 
   useEffect(() => {
     fetchAvailableClasses()
+    handleGetStudent()
   }, [])
 
   return (
@@ -224,7 +279,7 @@ export default function NewStudentForm() {
             <form
               onSubmit={form.handleSubmit(onSubmit)}
               className="w-full gap-2 flex flex-col">
-              <div className="flex items-end justify-center gap-8">
+              <div className="flex items-center justify-center gap-8">
                 <Card className="border-none p-0 m-0 flex">
                   <CardContent className="p-0">
                     <input
@@ -276,7 +331,7 @@ export default function NewStudentForm() {
                   </CardContent>
                 </Card>
 
-                <div className="flex flex-col">
+                <div className="">
                   <FormField
                     control={form.control}
                     name="nome"
@@ -305,16 +360,8 @@ export default function NewStudentForm() {
                             id="cpf"
                             placeholder="000.000.000-00"
                             {...field}
-                            maxLength={14}
                             value={formatCPF(field.value || "")}
-                            onChange={(e) => {
-                              const digitsOnly = e.target.value.replace(
-                                /\D/g,
-                                ""
-                              )
-                              if (digitsOnly.length <= 11)
-                                field.onChange(digitsOnly)
-                            }}
+                            onChange={(e) => field.onChange(e.target.value)}
                           />
                           <FormMessage />
                         </FormItem>
@@ -455,10 +502,6 @@ export default function NewStudentForm() {
 
               <Separator className="my-4" />
 
-              <CardDescription>
-                Selecione a sala de aula que o aluno será matriculado.
-              </CardDescription>
-
               <FormField
                 control={form.control}
                 name="turmaId"
@@ -522,9 +565,11 @@ export default function NewStudentForm() {
                 )}
               />
 
-              <Button className="mt-8" type="submit">
-                Cadastrar Aluno
-              </Button>
+              <div className="flex w-full items-center justify-end">
+                <Button className="mt-8" type="submit">
+                  Salvar informações
+                </Button>
+              </div>
             </form>
           </Form>
         </CardContent>

@@ -86,6 +86,11 @@ export function StudentDetails({ id }: GetStudentProps) {
                 <span className="font-semibold">Data de Nascimento:</span>{" "}
                 <span>{student?.dataNascimento?.toLocaleDateString()}</span>
               </div>
+              <Button>
+                <Link href={`/alunos/editar/${student?.id}`}>
+                  Editar informações
+                </Link>
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -127,7 +132,7 @@ export function StudentDetails({ id }: GetStudentProps) {
                 {student?.turmas.map((turma) => (
                   <Link href={`/${turma.id}`}>
                     <Button className="p-0" variant="link" key={turma.id}>
-                      {turma.name}
+                      {turma.nome}
                     </Button>
                   </Link>
                 ))}
