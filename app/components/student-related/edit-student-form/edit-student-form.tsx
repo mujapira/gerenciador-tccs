@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/card"
 import { IClass } from "@/app/models/classes/classModel"
 import { Fragment, use, useEffect, useState } from "react"
-import { GetClasses } from "@/app/server-actions/student/getClasses"
+import { GetClasses } from "@/app/server-actions/classes/getClasses"
 import { Separator } from "@/components/ui/separator"
 import {
   Select,

@@ -27,14 +27,17 @@ import { Input } from "@/components/ui/input"
 interface ClassesDataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  onRowClick: (row: TData) => void
 }
 
 export function ClassesDataTable<TData, TValue>({
   columns,
   data,
+  onRowClick,
 }: ClassesDataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [selectedRowId, setSelectedRowId] = useState<string | null>(null)
 
   const table = useReactTable({
     data,
@@ -62,26 +65,8 @@ export function ClassesDataTable<TData, TValue>({
           }
           className="max-w-sm"
         />
-        <Input
-          placeholder="Filtrar por matricula..."
-          value={
-            (table.getColumn("matricula")?.getFilterValue() as string) ?? ""
-          }
-          onChange={(event) =>
-            table.getColumn("matricula")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
-        <Input
-          placeholder="Filtrar por cpf..."
-          value={(table.getColumn("cpf")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("cpf")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
       </div>
-      <div className="rounded-md border p-4 w-full min-h-[600px] min-w-[900px]">
+      <div className="rounded-md border p-4 w-full min-h-[250px] max-h-[500px] min-w-[900px]">
         <Table className="h-full">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -106,7 +91,13 @@ export function ClassesDataTable<TData, TValue>({
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() && "selected"}>
+                  onClick={() => {
+                    setSelectedRowId(row.id)
+                    onRowClick(row.original)
+                  }}
+                  className={`cursor-pointer  ${
+                    row.id === selectedRowId ? "bg-muted/50" : ""
+                  }`}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(

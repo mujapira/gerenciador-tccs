@@ -3,7 +3,7 @@
 import prisma from "../../lib/prisma"
 import { IClass } from "../../models/classes/classModel"
 import { handlePrismaError } from "../../utils/handle-error"
-import { UpdateStudentClasses } from "./UpdateStudentClasses"
+import { UpdateStudentClasses } from "../student/updateStudentClasses"
 
 export async function updateStudent(
   alunoData: {

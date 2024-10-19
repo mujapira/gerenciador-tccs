@@ -1,5 +1,4 @@
 import { ColumnDef } from "@tanstack/react-table"
-import { IStudent } from "../../../models/student/studentsModel"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -12,23 +11,10 @@ import {
 import Link from "next/link"
 import { MoreHorizontal } from "lucide-react"
 import { ArrowUpDown } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import Image from "next/image"
-import { IClass } from "@/app/models/classes/classModel"
+import { IClass, IClassWithStudents } from "@/app/models/classes/classModel"
+import { Checkbox } from "@/components/ui/checkbox"
 
-const formatCPF = (cpf: string) => {
-  return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")
-}
-
-const formatPhone = (phone: string) => {
-  if (phone.length === 11) {
-    return phone.replace(/(\d{2})(\d{1})(\d{4})(\d{4})/, "($1) $2-$3-$4")
-  } else {
-    return phone
-  }
-}
-
-export const classesTableColumns: ColumnDef<IClass>[] = [
+export const classesTableColumns: ColumnDef<IClassWithStudents>[] = [
   {
     accessorKey: "nome",
     header: ({ column }) => {
@@ -42,67 +28,28 @@ export const classesTableColumns: ColumnDef<IClass>[] = [
       )
     },
     cell: ({ row }) => {
-      const student = row.original
+      const turma = row.original
       return (
-        <div className="flex items-center space-x-2">
-          {/* <Image
-            width={24}
-            height={24}
-            src={student?.caminho_foto || "/images/placeholder.png"}
-            alt="Imagem do aluno"
-            className="h-8 w-8 rounded-full object-cover"
-          /> */}
-          <span>{student?.nome}</span>
+        <div
+          className="flex items-center space-x-2 cursor-pointer"
+          onClick={() => row.toggleSelected(!row.getIsSelected())}>
+          <span>{turma?.nome}</span>
         </div>
       )
     },
   },
   {
-    accessorKey: "email",
-    header: "Email",
-  },
-  {
-    accessorKey: "matricula",
-    header: "Matrícula",
-  },
-  {
-    accessorKey: "cpf",
-    header: "CPF",
-    cell: ({ getValue }) => formatCPF(getValue() as string),
-  },
-  {
-    accessorKey: "telefone",
-    header: "Telefone",
-    cell: ({ getValue }) => formatPhone(getValue() as string),
-  },
-  {
-    accessorKey: "cidade",
-    header: "Cidade",
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => {
-      const student = row.original
+    id: "Alunos",
+    header: ({ column }) => {
+      return <span className="flex items-center justify-center">Alunos</span>
+    },
 
+    cell: ({ row }) => {
+      const turma = row.original
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Abrir menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Ações</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <Link href={`/alunos/${student?.id}`}>
-              <DropdownMenuItem>Ver detalhes</DropdownMenuItem>
-            </Link>
-            <Link href={`/alunos/editar/${student?.id}`}>
-              <DropdownMenuItem>Editar</DropdownMenuItem>
-            </Link>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <span className="flex items-center justify-center">
+          {turma.alunos.length}
+        </span>
       )
     },
   },

@@ -1,22 +1,21 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { GetStudents } from "../../../server-actions/student/getStudents"
-import { IStudent } from "../../../models/student/studentsModel"
-
 import { showErrorToast } from "@/app/utils/toast-utils"
 import { ClassesDataTable } from "./classes-data-table"
 import { classesTableColumns } from "./classes-col-defs"
+import { IClassWithStudents } from "@/app/models/classes/classModel"
+import { GetClassesDetails } from "@/app/server-actions/classes/getClassesDetails"
 
-export function ClassesTable() {
-  const [students, setStudents] = useState<IStudent[]>([])
+export function ClassesTable({ onSelectClass }: { onSelectClass: (classData: IClassWithStudents) => void }) {
+  const [classes, setClasses] = useState<IClassWithStudents[]>([])
 
-  const handleGetStudents = async () => {
+  const handleGetClasses = async () => {
     try {
-      const response = await GetStudents()
+      const response = await GetClassesDetails()
 
       if (response) {
-        setStudents(response)
+        setClasses(response)
       }
     } catch (error) {
       showErrorToast(error)
@@ -24,8 +23,8 @@ export function ClassesTable() {
   }
 
   useEffect(() => {
-    handleGetStudents()
+    handleGetClasses()
   }, [])
 
-  return <ClassesDataTable columns={classesTableColumns} data={students} />
+  return <ClassesDataTable columns={classesTableColumns} data={classes} onRowClick={(row) => onSelectClass(row)} />
 }

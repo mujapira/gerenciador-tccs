@@ -1,3 +1,4 @@
+import { ClassesDetails } from "@/app/components/classes-related/classes-details"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -12,8 +13,7 @@ export default function ClassesPage() {
         Turmas
       </span>
 
-      
-      
+      <ClassesDetails />
     </main>
   )
 }
