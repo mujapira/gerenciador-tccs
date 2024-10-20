@@ -53,7 +53,14 @@ npm run dev
 
 altere o arquivo .env com a connection string do xampp
 
-DATABASE_URL="mysql://root:SENHA@localhost:3306/tcc_fatec_v1"
+```
+DB_USER=root
+DB_PASSWORD=
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=tcc_fatec_v1
+DATABASE_URL=mysql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME} 
+```
 
 ### Observações
 
