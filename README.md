@@ -51,6 +51,10 @@ npx prisma studio
 npm run dev
 ```
 
+altere o arquivo .env com a connection string do xampp
+
+DATABASE_URL="mysql://root:SENHA@localhost:3306/tcc_fatec_v1"
+
 ### Observações
 
 Como nem tudo são flores, o prisma não ainda não lida perfeitamente com views, consequentemente, para fazer as views temos que adicionar um identificador único manualmente, por exemplo:
