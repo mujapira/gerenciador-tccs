@@ -97,7 +97,7 @@ export function TccDataTable<TData, TValue>({
           className="max-w-sm"
         />
       </div>
-      <div className="rounded-md border p-4 w-full min-h-[400px] min-w-[900px]">
+      <div className="rounded-md border p-4 w-full min-h-[300px] min-w-[900px]">
         <Table className="h-full">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

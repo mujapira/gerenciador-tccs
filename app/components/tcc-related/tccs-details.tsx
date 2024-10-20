@@ -101,12 +101,14 @@ export function TccsDetails() {
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-col text-sm gap-4">
-                    <div className="flex flex-col gap-2">
-                      <span className="font-semibold">Informações Gerais</span>
+                    <div className="flex flex-col gap-1">
+                      <span className="font-semibold py-4">
+                        Informações Gerais
+                      </span>
                       <div className="flex items-center gap-2">
                         <span>Aluno:</span>
                         <Link href={`/alunos/${selectedTcc.alunoId}`}>
-                          <Button variant="link" className="px-0">
+                          <Button variant="link" className="px-0 py-0 h-5">
                             {selectedTcc.nomeAluno}
                           </Button>
                         </Link>
@@ -115,7 +117,7 @@ export function TccsDetails() {
                         <span>Orientador:</span>
                         <Link
                           href={`/orientadores/${selectedTcc.orientadorId}`}>
-                          <Button variant="link" className="px-0">
+                          <Button variant="link" className="px-0 py-0 h-5">
                             {selectedTcc.nomeOrientador}
                           </Button>
                         </Link>
@@ -123,7 +125,7 @@ export function TccsDetails() {
                       <div className="flex items-center gap-2">
                         <span>Turma:</span>
                         <Link href={`/turmas/${selectedTcc.turmaId}`}>
-                          <Button variant="link" className="px-0">
+                          <Button variant="link" className="px-0 py-0 h-5">
                             {selectedTcc.nomeTurma}
                           </Button>
                         </Link>
@@ -132,12 +134,14 @@ export function TccsDetails() {
 
                     <Separator />
 
-                    <div className="flex flex-col gap-2">
-                      <span className="font-semibold">Detalhes do TCC</span>
-                      <div className="flex items-center gap-2">
+                    <div className="flex flex-col gap-1">
+                      <span className="font-semibold py-4">
+                        Detalhes do TCC
+                      </span>
+                      <div className="flex items-center">
                         <span>Tema:</span>
                         <Link href={`/temas/${selectedTcc.temaId}`}>
-                          <Button variant="link" className="px-0">
+                          <Button variant="link" className="px-0 py-0 h-5">
                             {selectedTcc.tema}
                           </Button>
                         </Link>
@@ -146,7 +150,7 @@ export function TccsDetails() {
                         <span>Classificação:</span>
                         <Link
                           href={`/classificacoes/${selectedTcc.classificacaoId}`}>
-                          <Button variant="link" className="px-0">
+                          <Button variant="link" className="px-0 py-0 h-5">
                             {selectedTcc.classificacao}
                           </Button>
                         </Link>
@@ -155,16 +159,14 @@ export function TccsDetails() {
                         <span>Nota Final:</span>
                         <Button
                           variant="invisible"
-                          className="px-0 hover:bg-transparent cursor-default">
+                          className="px-0 hover:bg-transparent cursor-default py-0 h-5">
                           {selectedTcc.notaFinal}
                         </Button>
                       </div>
                       <div className="flex items-center gap-2">
                         <span>Número de Avaliações:</span>
                         <Link href={`/avaliacoes/${selectedTcc.tccId}`}>
-                          <Button
-                            variant="link"
-                            className="px-0 hover:bg-transparent cursor-default">
+                          <Button variant="link" className="px-0 py-0 h-5">
                             {selectedTcc.numeroAvaliacoes}
                           </Button>
                         </Link>
