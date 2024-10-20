@@ -1,17 +1,24 @@
 SELECT
   `tcc_fatec_v1`.`tcc`.`id` AS `tcc_id`,
   `tcc_fatec_v1`.`tcc`.`titulo` AS `titulo_tcc`,
+  `a`.`id` AS `aluno_id`,
   `a`.`nome` AS `nome_aluno`,
   `a`.`data_ingresso` AS `data_ingresso_aluno`,
+  `o`.`id` AS `orientador_id`,
   `o`.`nome` AS `nome_orientador`,
+  `tcc_fatec_v1`.`turma`.`id` AS `turma_id`,
   `tcc_fatec_v1`.`turma`.`nome` AS `nome_turma`,
+  `tema`.`id` AS `tema_id`,
   `tema`.`descricao` AS `tema`,
+  `classif`.`id` AS `classificacao_id`,
   `classif`.`descricao` AS `classificacao`,
   coalesce(`nf`.`nota_final`, 'N/A') AS `nota_final`,
+  `es`.`id` AS `estado_id`,
   `es`.`descricao` AS `estado_atual`,
   count(DISTINCT `av`.`id`) AS `numero_avaliacoes`,
   max(`av`.`data_avaliacao`) AS `data_ultima_avaliacao`,
-  GROUP_CONCAT(`pc`.`palavra` SEPARATOR ', ') AS `palavras_chave`
+  GROUP_CONCAT(`pc`.`palavra` SEPARATOR ', ') AS `palavras_chave`,
+  GROUP_CONCAT(`pc`.`id` SEPARATOR ', ') AS `palavras_chave_ids`
 FROM
   (
     (
@@ -49,11 +56,17 @@ FROM
   )
 GROUP BY
   `tcc_fatec_v1`.`tcc`.`id`,
+  `a`.`id`,
   `a`.`nome`,
   `a`.`data_ingresso`,
+  `o`.`id`,
   `o`.`nome`,
+  `tcc_fatec_v1`.`turma`.`id`,
   `tcc_fatec_v1`.`turma`.`nome`,
+  `tema`.`id`,
   `tema`.`descricao`,
+  `classif`.`id`,
   `classif`.`descricao`,
+  `es`.`id`,
   `es`.`descricao`,
   `nf`.`nota_final`

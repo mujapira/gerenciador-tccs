@@ -280,15 +280,22 @@ model turma {
 view vw_tcc_detalhado {
   tcc_id                Int       @unique @default(0)
   titulo_tcc            String    @db.VarChar(255)
+  aluno_id              Int       @default(0)
   nome_aluno            String    @db.VarChar(100)
   data_ingresso_aluno   DateTime  @db.Date
+  orientador_id         Int       @default(0)
   nome_orientador       String    @db.VarChar(100)
+  turma_id              Int       @default(0)
   nome_turma            String    @db.VarChar(100)
+  tema_id               Int       @default(0)
   tema                  String    @db.VarChar(255)
+  classificacao_id      Int       @default(0)
   classificacao         String    @db.VarChar(255)
   nota_final            String?   @db.VarChar(7)
+  estado_id             Int?      @default(0)
   estado_atual          String?   @db.VarChar(50)
   numero_avaliacoes     BigInt    @default(0)
   data_ultima_avaliacao DateTime? @db.Date
   palavras_chave        String?   @db.MediumText
+  palavras_chave_ids    String?   @db.MediumText
 }
