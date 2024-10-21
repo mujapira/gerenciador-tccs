@@ -17,7 +17,7 @@ import { showErrorToast } from "@/app/utils/toast-utils"
 
 import { TccTable } from "./tcc-table/tcc-table"
 import { ITccDetalhado } from "@/app/models/tcc/tccModel"
-import { GetTccsDetails } from "@/app/server-actions/tcc/getTccsDetails"
+import { GetTccsDetailsMaurico } from "@/app/server-actions/tcc/getTccsDetailsMaurico"
 import { Separator } from "@/components/ui/separator"
 import { useSearchParams } from "next/navigation"
 
@@ -33,7 +33,7 @@ export function TccsDetails() {
   const fetchTccs = async () => {
     try {
       console.log(searchParams, paramId)
-      const response = await GetTccsDetails()
+      const response = await GetTccsDetailsMaurico()
 
       if (response) {
         setTccs(response as ITccDetalhado[])

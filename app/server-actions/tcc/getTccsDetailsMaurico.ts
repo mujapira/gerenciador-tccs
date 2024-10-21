@@ -3,7 +3,7 @@
 import prisma from "../../lib/prisma"
 import { handlePrismaError } from "../../utils/handle-error"
 
-export async function GetTccsDetails() {
+export async function GetTccsDetailsMaurico() {
   try {
     const result = await prisma.vw_tcc_detalhado.findMany({})
     const palavrasChave = await prisma.tcc_palavra_chave.findMany({})

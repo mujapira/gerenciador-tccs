@@ -6,7 +6,7 @@ import { tccTableColumns } from "./tcc-col-defs"
 import { showErrorToast } from "@/app/utils/toast-utils"
 
 import { ITccDetalhado } from "@/app/models/tcc/tccModel"
-import { GetTccsDetails } from "@/app/server-actions/tcc/getTccsDetails"
+import { GetTccsDetailsMaurico } from "@/app/server-actions/tcc/getTccsDetailsMaurico"
 import { TccDataTable } from "./tcc-data-table"
 
 export function TccTable({ onSelect, selected }: { onSelect: (data: ITccDetalhado) => void, selected: number | null}) {
@@ -14,7 +14,7 @@ export function TccTable({ onSelect, selected }: { onSelect: (data: ITccDetalhad
 
   const handleGetTccs = async () => {
     try {
-      const response = await GetTccsDetails()
+      const response = await GetTccsDetailsMaurico()
 
       if (response) {
         setTccs(response)
