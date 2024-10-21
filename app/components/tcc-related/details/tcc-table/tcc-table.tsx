@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { GetStudents } from "../../../server-actions/student/getStudents"
+import { GetStudents } from "../../../../server-actions/student/getStudents"
 
 import { tccTableColumns } from "./tcc-col-defs"
 import { showErrorToast } from "@/app/utils/toast-utils"

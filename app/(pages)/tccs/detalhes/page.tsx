@@ -1,4 +1,4 @@
-import { TccsDetails } from "@/app/components/tcc-related/tccs-details"
+import { TccsDetails } from "@/app/components/tcc-related/details/tccs-details"
 import { Button } from "@/components/ui/button"
 import { ArrowLeftIcon } from "lucide-react"
 

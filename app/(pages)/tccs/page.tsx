@@ -1,4 +1,4 @@
-import { TccsDetails } from "@/app/components/tcc-related/tccs-details"
+import { TccsDetails } from "@/app/components/tcc-related/details/tccs-details"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -31,12 +31,12 @@ export default function TccsPage() {
     {
       title: "Classificações",
       description: "Visualize as classificações atribuídas aos TCCs",
-      link: "/tccs/classificacoes",
+      link: "/tccs/classificaçoes",
     },
     {
       title: "Avaliações",
       description: "Gerencie as avaliações feitas para os TCCs",
-      link: "/tccs/avaliacoes",
+      link: "/tccs/avaliaçoes",
     },
     {
       title: "Relatórios de Progresso",
