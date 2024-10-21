@@ -5,9 +5,9 @@ import { useEffect, useState } from "react";
 import { tccTableColumns } from "./tcc-col-defs";
 import { showErrorToast } from "@/app/utils/toast-utils";
 
-import { ITccDetalhado } from "@/app/models/tcc/tccModel";
-import { GetTccsDetails } from "@/app/server-actions/tcc/getTccsDetails";
-import { TccDataTable } from "./tcc-data-table";
+import { ITccDetalhado } from "@/app/models/tcc/tccModel"
+import { TccDataTable } from "./tcc-data-table"
+import { GetTccsDetails } from "@/app/server-actions/tcc/getTccsDetails"
 
 export function TccTable({
   onSelect,

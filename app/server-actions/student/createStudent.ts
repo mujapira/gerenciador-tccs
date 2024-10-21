@@ -1,7 +1,8 @@
 "use server"
 
+import { IClass } from "@/app/models/classes/classModel"
 import prisma from "../../lib/prisma"
-import { IClass } from "../../models/classes/classModel"
+
 import { handlePrismaError } from "../../utils/handle-error"
 import { UpdateStudentClasses } from "../student/updateStudentClasses"
 

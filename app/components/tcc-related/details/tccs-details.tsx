@@ -17,9 +17,9 @@ import { showErrorToast } from "@/app/utils/toast-utils"
 
 import { TccTable } from "./tcc-table/tcc-table"
 import { ITccDetalhado } from "@/app/models/tcc/tccModel"
-import { GetTccsDetails } from "@/app/server-actions/tcc/getTccsDetails"
 import { Separator } from "@/components/ui/separator"
 import { useSearchParams } from "next/navigation"
+import { GetTccsDetails } from "@/app/server-actions/tcc/getTccsDetails"
 
 export function TccsDetails() {
   const [tccs, setTccs] = useState<ITccDetalhado[]>()

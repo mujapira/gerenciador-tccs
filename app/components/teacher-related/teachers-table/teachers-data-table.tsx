@@ -21,25 +21,20 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { Fragment, useEffect, useState } from "react"
+import { Fragment, useState } from "react"
 import { Input } from "@/components/ui/input"
 
-interface TccDataTableProps<TData, TValue> {
+interface StudentDataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
-  onRowClick: (row: TData) => void
-  selected: number | null
 }
 
-export function TccDataTable<TData, TValue>({
+export function TeachersDataTable<TData, TValue>({
   columns,
   data,
-  onRowClick,
-  selected,
-}: TccDataTableProps<TData, TValue>) {
+}: StudentDataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-  const [selectedRowId, setSelectedRowId] = useState<string | null>(null)
 
   const table = useReactTable({
     data,
@@ -56,51 +51,19 @@ export function TccDataTable<TData, TValue>({
     },
   })
 
-  useEffect(() => {
-    table.setPageSize(6)
-  }, [])
-
   return (
     <div className="w-full">
-      <div>{}</div>
       <div className="flex items-center py-4 gap-4 w-2/3">
         <Input
-          placeholder="Filtrar por titulo..."
-          value={
-            (table.getColumn("tituloTcc")?.getFilterValue() as string) ?? ""
-          }
+          placeholder="Filtrar por nome..."
+          value={(table.getColumn("nome")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
-            table.getColumn("tituloTcc")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
-
-        <Input
-          placeholder="Filtrar por aluno..."
-          value={
-            (table.getColumn("nomeAluno")?.getFilterValue() as string) ?? ""
-          }
-          onChange={(event) =>
-            table.getColumn("nomeAluno")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
-
-        <Input
-          placeholder="Filtrar por orientador..."
-          value={
-            (table.getColumn("nomeOrientador")?.getFilterValue() as string) ??
-            ""
-          }
-          onChange={(event) =>
-            table
-              .getColumn("nomeOrientador")
-              ?.setFilterValue(event.target.value)
+            table.getColumn("nome")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
       </div>
-      <div className="rounded-md border p-4 w-full min-h-[300px] min-w-[900px]">
+      <div className="rounded-md border p-4 w-full min-h-[600px] min-w-[900px]">
         <Table className="h-full">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -125,13 +88,7 @@ export function TccDataTable<TData, TValue>({
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  onClick={() => {
-                    setSelectedRowId(row.id)
-                    onRowClick(row.original)
-                  }}
-                  className={`cursor-pointer  ${
-                    row.id === selectedRowId ? "bg-muted/50" : ""
-                  }`}>
+                  data-state={row.getIsSelected() && "selected"}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(

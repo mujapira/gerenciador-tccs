@@ -1,4 +1,5 @@
 import { TccsDetails } from "@/app/components/tcc-related/details/tccs-details"
+import NewTccForm from "@/app/components/tcc-related/new-tcc-form/new-tcc"
 import { Button } from "@/components/ui/button"
 import { ArrowLeftIcon } from "lucide-react"
 
@@ -6,15 +7,11 @@ import { Metadata } from "next"
 import Link from "next/link"
 
 export const metadata: Metadata = {
-  title: "TCC's | Detalhes",
-  description: "Página de TCCs detalhados",
+  title: "TCC's | Novo",
+  description: "Novo TCC",
 }
 
-export default function TccsPage({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | string[] | undefined }
-}) {
+export default function NewTccPage() {
   return (
     <main className="flex w-full h-full items-start justify-start flex-col gap-4 p-4 min-h-[calc(100vh-68px)]">
       <div className="flex items-start w-full gap-4">
@@ -28,11 +25,7 @@ export default function TccsPage({
         </span>
       </div>
 
-      <Link href={"/tccs/detalhes/novo"}>
-        <Button>Novo TCC</Button>
-      </Link>
-
-      <TccsDetails />
+      <NewTccForm />
     </main>
   )
 }
