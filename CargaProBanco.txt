@@ -520,17 +520,24 @@ CREATE VIEW vw_tcc_detalhado AS
 SELECT
     tcc.id AS tcc_id,
     tcc.titulo AS titulo_tcc,
+    a.id AS aluno_id,
     a.nome AS nome_aluno,
     a.data_ingresso AS data_ingresso_aluno,
+    o.id AS orientador_id,
     o.nome AS nome_orientador,
-    turma.nome AS nome_turma,  -- Mudamos o alias para 'turma'
+    turma.id AS turma_id,
+    turma.nome AS nome_turma,
+    tema.id AS tema_id,
     tema.descricao AS tema,
+    classif.id AS classificacao_id,
     classif.descricao AS classificacao,
-    COALESCE(nf.nota_final, 'N/A') AS nota_final,  -- Exibe a nota final ou 'N/A' se ainda não calculada
-    es.descricao AS estado_atual,  -- Exibe o estado atual do TCC
-    COUNT(av.id) AS numero_avaliacoes,  -- Conta quantas avaliações o TCC recebeu
-    MAX(av.data_avaliacao) AS data_ultima_avaliacao,  -- Data da última avaliação
-    GROUP_CONCAT(pc.palavra SEPARATOR ', ') AS palavras_chave
+    COALESCE(nf.nota_final, 'N/A') AS nota_final,
+    es.id AS estado_id,
+    es.descricao AS estado_atual,
+    COUNT(DISTINCT av.id) AS numero_avaliacoes,
+    MAX(av.data_avaliacao) AS data_ultima_avaliacao,
+    GROUP_CONCAT(pc.palavra SEPARATOR ', ') AS palavras_chave,
+    GROUP_CONCAT(pc.id SEPARATOR ', ') AS palavras_chave_ids
 FROM
     tcc
 JOIN
@@ -540,7 +547,7 @@ JOIN
 JOIN
     orientador o ON tm.orientador_id = o.id
 JOIN
-    turma turma ON tm.turma_id = turma.id  -- Usamos o alias 'turma'
+    turma turma ON tm.turma_id = turma.id
 JOIN
     tcc_tema tema ON tm.tema_id = tema.id
 JOIN
@@ -550,13 +557,14 @@ LEFT JOIN
 LEFT JOIN
     tcc_palavra_chave pc ON tpc.palavra_id = pc.id
 LEFT JOIN
-    tcc_nota_final nf ON tcc.id = nf.tcc_id  -- Traz a nota final, se existir
+    tcc_nota_final nf ON tcc.id = nf.tcc_id
 LEFT JOIN
-    tcc_estado es ON tcc.status = es.id  -- Traz a descrição do estado atual do TCC
+    tcc_estado es ON tcc.status = es.id
 LEFT JOIN
-    tcc_avaliacao av ON av.tcc_id = tcc.id  -- Para calcular o número de avaliações e a data da última
+    tcc_avaliacao av ON av.tcc_id = tcc.id
 GROUP BY
-    tcc.id, a.nome, a.data_ingresso, o.nome, turma.nome, tema.descricao, classif.descricao, es.descricao, nf.nota_final;
+    tcc.id, a.id, a.nome, a.data_ingresso, o.id, o.nome, turma.id, turma.nome, tema.id, tema.descricao, classif.id, classif.descricao, es.id, es.descricao, nf.nota_final;
+
 
 CREATE VIEW vw_tcc_turma AS
 SELECT

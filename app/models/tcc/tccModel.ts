@@ -19,7 +19,6 @@ export interface ITccDetalhado {
   dataUltimaAvaliacao: Date | null
   palavrasChave: IPalavrasChave[] | null
   palavrasChaveIds: string | null
-
 }
 
 export interface IPalavrasChave {
