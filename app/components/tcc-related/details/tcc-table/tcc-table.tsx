@@ -23,7 +23,7 @@ export function TccTable({
       const response = await GetTccsDetails();
 
       if (response) {
-        setTccs(response);
+        setTccs(response as any);
       }
     } catch (error) {
       showErrorToast(error);

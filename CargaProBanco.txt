@@ -729,3 +729,104 @@ JOIN temp_avaliacao_numero AS temp
 ON ta.id = temp.id
 SET ta.numero_avaliacao = temp.numero_avaliacao;
 
+
+DELIMITER //
+
+CREATE PROCEDURE atualizar_estado_tcc(IN tcc_id_param INT, IN responsavel_orientador_id INT)
+BEGIN
+    DECLARE nota_final DECIMAL(5,2);
+    DECLARE novo_estado INT;
+    DECLARE qtd_avaliacoes INT;
+
+    -- Contar o número de avaliações para o TCC
+    SELECT COUNT(*) INTO qtd_avaliacoes
+    FROM tcc_avaliacao
+    WHERE tcc_id = tcc_id_param;
+
+    -- Se o TCC tiver exatamente 3 avaliações, calcular a média
+    IF qtd_avaliacoes = 3 THEN
+        -- Calcular a média das avaliações
+        SELECT AVG(nota) INTO nota_final
+        FROM tcc_avaliacao
+        WHERE tcc_id = tcc_id_param;
+
+        -- Determinar o novo estado baseado na média da nota final
+        IF nota_final >= 7.0 THEN
+            SET novo_estado = 2;  -- Aprovado
+        ELSE
+            SET novo_estado = 3;  -- Reprovado
+        END IF;
+
+        -- Atualizar a nota final na tabela tcc_nota_final (ou inserir)
+        INSERT INTO tcc_nota_final (tcc_id, nota_final, data_calculo)
+        VALUES (tcc_id_param, nota_final, CURRENT_DATE)
+        ON DUPLICATE KEY UPDATE nota_final = nota_final, data_calculo = CURRENT_DATE;
+
+    ELSE
+        -- Se o TCC não tiver exatamente 3 avaliações, manter o estado "Em Avaliação"
+        SET novo_estado = 1;  -- Em Avaliação
+    END IF;
+
+    -- Atualizar o estado do TCC na tabela tcc
+    UPDATE tcc
+    SET status = novo_estado
+    WHERE id = tcc_id_param;
+
+    -- Inserir o registro de mudança de estado no histórico com o id do orientador
+    INSERT INTO tcc_estado_historico (tcc_id, status, data_status, responsavel_orientador_id)
+    VALUES (tcc_id_param, novo_estado, CURRENT_DATE, responsavel_orientador_id);
+END //
+
+DELIMITER ;
+
+
+DELIMITER //
+
+CREATE PROCEDURE atualizar_estado_todos_tccs(IN responsavel_orientador_id INT)
+BEGIN
+    DECLARE done INT DEFAULT 0;
+    DECLARE tcc_id_param INT;
+    DECLARE cur CURSOR FOR SELECT id FROM tcc;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+
+    -- Abrir o cursor para iterar sobre todos os TCCs
+    OPEN cur;
+
+    read_loop: LOOP
+        FETCH cur INTO tcc_id_param;
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+
+        -- Chamar a procedure que atualiza o estado de um TCC
+        CALL atualizar_estado_tcc(tcc_id_param, responsavel_orientador_id);
+    END LOOP;
+
+    -- Fechar o cursor
+    CLOSE cur;
+END //
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE TRIGGER before_insert_tcc_avaliacao
+BEFORE INSERT ON tcc_avaliacao
+FOR EACH ROW
+BEGIN
+    DECLARE total_avaliacoes INT;
+
+    -- Contar quantas avaliações o TCC já tem
+    SELECT COUNT(*) INTO total_avaliacoes
+    FROM tcc_avaliacao
+    WHERE tcc_id = NEW.tcc_id;
+
+    -- Se o TCC já tiver 3 avaliações, impedir a inserção
+    IF total_avaliacoes >= 3 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Este TCC já possui 3 avaliações';
+    END IF;
+END //
+
+DELIMITER ;
+
+CALL atualizar_estado_todos_tccs(1)

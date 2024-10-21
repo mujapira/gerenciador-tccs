@@ -26,7 +26,6 @@ export function TccsAvaliations() {
     try {
       const response = await GetTccsDetails();
 
-      console.log("AAAAAAA", response);
       if (response) {
         setTccs(response as ITccDetalhado[]);
       }
