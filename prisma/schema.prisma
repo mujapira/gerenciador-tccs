@@ -14,12 +14,12 @@ model aluno {
   email               String                @unique(map: "email") @db.VarChar(100)
   matricula           String                @unique(map: "matricula") @db.VarChar(20)
   cpf                 String                @unique(map: "cpf") @db.VarChar(11)
+  data_nascimento     DateTime              @db.Date
   telefone            String?               @db.VarChar(20)
   endereco            String?               @db.VarChar(255)
   cidade              String?               @db.VarChar(100)
   estado              String?               @db.VarChar(50)
   data_ingresso       DateTime              @db.Date
-  data_nascimento     DateTime              @db.Date
   semestre_atual      Int?
   caminho_foto        String?               @db.VarChar(255)
   aluno_turma         aluno_turma[]
@@ -122,14 +122,15 @@ model tcc {
 }
 
 model tcc_avaliacao {
-  id             Int         @id @default(autoincrement())
-  tcc_id         Int?
-  orientador_id  Int?
-  data_avaliacao DateTime    @db.Date
-  descricao      String      @db.Text
-  nota           Decimal?    @db.Decimal(5, 2)
-  tcc            tcc?        @relation(fields: [tcc_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "tcc_avaliacao_ibfk_1")
-  orientador     orientador? @relation(fields: [orientador_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "tcc_avaliacao_ibfk_2")
+  id               Int         @id @default(autoincrement())
+  tcc_id           Int?
+  orientador_id    Int?
+  data_avaliacao   DateTime    @db.Date
+  descricao        String      @db.Text
+  nota             Decimal?    @db.Decimal(5, 2)
+  numero_avaliacao Int?
+  tcc              tcc?        @relation(fields: [tcc_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "tcc_avaliacao_ibfk_1")
+  orientador       orientador? @relation(fields: [orientador_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "tcc_avaliacao_ibfk_2")
 
   @@index([orientador_id], map: "orientador_id")
   @@index([tcc_id], map: "tcc_id")
@@ -298,4 +299,91 @@ view vw_tcc_detalhado {
   data_ultima_avaliacao DateTime? @db.Date
   palavras_chave        String?   @db.MediumText
   palavras_chave_ids    String?   @db.MediumText
+}
+
+/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+view vw_comunidade_criadores {
+  nome_comunidade      String   @db.VarChar(255)
+  descricao_comunidade String?  @db.Text
+  nome_criador         String?  @db.VarChar(100)
+  tipo_criador         String   @default("") @db.VarChar(10)
+  data_criacao         DateTime @db.Date
+
+  @@ignore
+}
+
+/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+view vw_comunidade_posts {
+  nome_comunidade String   @db.VarChar(255)
+  conteudo_post   String   @db.Text
+  nome_autor      String?  @db.VarChar(100)
+  tipo_autor      String   @default("") @db.VarChar(10)
+  data_postagem   DateTime @db.Date
+
+  @@ignore
+}
+
+/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+view vw_comunidade_seguidores {
+  nome_comunidade String   @db.VarChar(255)
+  nome_seguidor   String?  @db.VarChar(100)
+  tipo_seguidor   String   @default("") @db.VarChar(10)
+  data_seguimento DateTime @db.Date
+
+  @@ignore
+}
+
+/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+view vw_tcc_avaliacoes {
+  tcc_id              Int      @default(0)
+  titulo_tcc          String   @db.VarChar(255)
+  nome_orientador     String   @db.VarChar(100)
+  data_avaliacao      DateTime @db.Date
+  descricao_avaliacao String   @db.Text
+  nota_avaliacao      Decimal? @db.Decimal(5, 2)
+
+  @@ignore
+}
+
+/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+view vw_tcc_orientador {
+  nome_orientador String @db.VarChar(100)
+  titulo_tcc      String @db.VarChar(255)
+  nome_aluno      String @db.VarChar(100)
+  nome_turma      String @db.VarChar(100)
+
+  @@ignore
+}
+
+/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+view vw_tcc_palavra_chave {
+  palavra_chave String @db.VarChar(100)
+  titulo_tcc    String @db.VarChar(255)
+  nome_aluno    String @db.VarChar(100)
+
+  @@ignore
+}
+
+/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+view vw_tcc_relatorios {
+  tcc_id              Int      @default(0)
+  titulo_tcc          String   @db.VarChar(255)
+  data_entrega        DateTime @db.Date
+  descricao_relatorio String   @db.Text
+  nome_arquivo        String?  @db.VarChar(255)
+  caminho_arquivo     String?  @db.VarChar(500)
+  formato_documento   String?  @db.VarChar(10)
+  tamanho_arquivo     Int?
+
+  @@ignore
+}
+
+/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+view vw_tcc_turma {
+  nome_turma      String @db.VarChar(100)
+  titulo_tcc      String @db.VarChar(255)
+  nome_aluno      String @db.VarChar(100)
+  nome_orientador String @db.VarChar(100)
+
+  @@ignore
 }

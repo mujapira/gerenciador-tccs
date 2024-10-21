@@ -1,30 +1,38 @@
-"use server"
+"use server";
 
-import prisma from "../../lib/prisma"
-import { handlePrismaError } from "../../utils/handle-error"
+import prisma from "../../lib/prisma";
+import { handlePrismaError } from "../../utils/handle-error";
 
 export async function GetTccsDetails() {
   try {
-    const result = await prisma.vw_tcc_detalhado.findMany({})
-    const palavrasChave = await prisma.tcc_palavra_chave.findMany({})
+    const result = await prisma.vw_tcc_detalhado.findMany({});
+    const palavrasChave = await prisma.tcc_palavra_chave.findMany({});
+    const tccAvaliacoes = await prisma.tcc_avaliacao.findMany({});
 
     // Função auxiliar para obter palavras-chave pelo ID
     const getPalavrasChave = (ids: string | null) => {
       // Converte os IDs para um array de números únicos
-      if (!ids) return []
-      const uniqueIds = Array.from(new Set(ids.split(",").map(Number)))
+      if (!ids) return [];
+      const uniqueIds = Array.from(new Set(ids.split(",").map(Number)));
 
       // Filtra as palavras-chave com base nos IDs
       return palavrasChave
         .filter((palavra) => uniqueIds.includes(palavra.id))
-        .map((palavra) => palavra)
-    }
+        .map((palavra) => palavra);
+    };
 
     //tire os tccs com ids repetido
 
+    const getAvaliacoes = (id: number | null) => {
+      // Filtra as palavras-chave com base nos IDs
+      return tccAvaliacoes
+        .filter((palavra) => palavra.id === id)
+        .map((palavra) => palavra);
+    };
+
     const cleared = result.filter((tcc, index, self) => {
-      return index === self.findIndex((t) => t.tcc_id === tcc.tcc_id)
-    })
+      return index === self.findIndex((t) => t.tcc_id === tcc.tcc_id);
+    });
 
     const parsedResult = cleared.map((tcc) => ({
       tccId: tcc.tcc_id,
@@ -47,10 +55,11 @@ export async function GetTccsDetails() {
       dataUltimaAvaliacao: tcc.data_ultima_avaliacao,
       palavrasChave: getPalavrasChave(tcc.palavras_chave_ids),
       palavrasChaveIds: tcc.palavras_chave_ids,
-    }))
+      avaliacoes: getAvaliacoes(tcc.tcc_id) ?? null,
+    }));
 
-    return parsedResult
+    return parsedResult;
   } catch (error) {
-    handlePrismaError(error)
+    handlePrismaError(error);
   }
 }

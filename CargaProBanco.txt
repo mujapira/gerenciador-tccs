@@ -703,6 +703,21 @@ LEFT JOIN
 LEFT JOIN
     orientador o ON cp.autor_orientador_id = o.id;
 
+ALTER TABLE tcc_avaliacao
+ADD COLUMN numero_avaliacao int null;
 
+-- Passo 1: Crie uma tabela temporária com a numeração das avaliações
+CREATE TEMPORARY TABLE temp_avaliacao_numero AS
+SELECT 
+    id,
+    tcc_id,
+    ROW_NUMBER() OVER (PARTITION BY tcc_id ORDER BY data_avaliacao) AS numero_avaliacao
+FROM 
+    tcc_avaliacao;
 
+-- Passo 2: Atualize a tabela principal usando a tabela temporária
+UPDATE tcc_avaliacao AS ta
+JOIN temp_avaliacao_numero AS temp
+ON ta.id = temp.id
+SET ta.numero_avaliacao = temp.numero_avaliacao;
 
