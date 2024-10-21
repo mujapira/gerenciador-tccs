@@ -20,7 +20,13 @@ export async function GetTccsDetails() {
         .map((palavra) => palavra)
     }
 
-    const parsedResult = result.map((tcc) => ({
+    //tire os tccs com ids repetido
+
+    const cleared = result.filter((tcc, index, self) => {
+      return index === self.findIndex((t) => t.tcc_id === tcc.tcc_id)
+    })
+
+    const parsedResult = cleared.map((tcc) => ({
       tccId: tcc.tcc_id,
       tituloTcc: tcc.titulo_tcc,
       alunoId: tcc.aluno_id,

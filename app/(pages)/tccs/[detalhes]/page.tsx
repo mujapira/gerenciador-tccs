@@ -10,7 +10,11 @@ export const metadata: Metadata = {
   description: "Página de TCCs detalhados",
 }
 
-export default function TccsPage() {
+export default function TccsPage({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined }
+}) {
   return (
     <main className="flex w-full h-full items-start justify-start flex-col gap-4 p-4 min-h-[calc(100vh-68px)]">
       <div className="flex items-start w-full gap-4">

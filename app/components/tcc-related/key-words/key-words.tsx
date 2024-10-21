@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Toast } from "@/components/ui/toast"
+import Link from "next/link"
 
 export const description = "A horizontal bar chart"
 
@@ -33,7 +34,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function KeyWordsChart() {
+export function KeyWords() {
   const [keywords, setKeywords] = useState<IKeyWord[]>([
     { id: 1, palavra: "Carregando", ocorrencias: 1 },
     { id: 2, palavra: "Carregando", ocorrencias: 1 },
@@ -87,9 +88,11 @@ export function KeyWordsChart() {
         <CardContent className="max-w-[400px] min-w-[400px] ">
           <div className="flex flex-wrap gap-2 items-start">
             {keywords.map((keyword, index) => (
-              <Badge variant={"secondary"} key={index} className="">
-                <span>{keyword.palavra}</span>
-              </Badge>
+              <Link href={`palavras-chave/${keyword.id}`}>
+                <Button variant={"secondary"} key={index} className="">
+                  {keyword.palavra}
+                </Button>
+              </Link>
             ))}
             {keywords.length === 0 && (
               <span className="text-sm text-foreground">

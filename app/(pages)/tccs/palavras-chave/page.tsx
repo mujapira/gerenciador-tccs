@@ -1,5 +1,5 @@
 import { TccsDetails } from "@/app/components/tcc-related/details/tccs-details"
-import { KeyWordsChart } from "@/app/components/tcc-related/key-words/key-words-chart"
+import { KeyWords } from "@/app/components/tcc-related/key-words/key-words"
 import { Button } from "@/components/ui/button"
 import { ArrowLeftIcon } from "lucide-react"
 
@@ -25,7 +25,7 @@ export default function PalavrasChavePage() {
         </span>
       </div>
 
-      <KeyWordsChart />
+      <KeyWords />
     </main>
   )
 }

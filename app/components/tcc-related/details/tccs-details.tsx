@@ -18,8 +18,8 @@ import { showErrorToast } from "@/app/utils/toast-utils"
 import { TccTable } from "./tcc-table/tcc-table"
 import { ITccDetalhado } from "@/app/models/tcc/tccModel"
 import { GetTccsDetails } from "@/app/server-actions/tcc/getTccsDetails"
-import { toast } from "@/hooks/use-toast"
 import { Separator } from "@/components/ui/separator"
+import { useSearchParams } from "next/navigation"
 
 export function TccsDetails() {
   const [tccs, setTccs] = useState<ITccDetalhado[]>()
@@ -27,45 +27,29 @@ export function TccsDetails() {
   const [originalTcc, setOriginalTcc] = useState<ITccDetalhado | null>(null)
   const [isEditing, setIsEditing] = useState(false)
 
+  const searchParams = useSearchParams()
+  const paramId = searchParams.get("id")
+
   const fetchTccs = async () => {
     try {
+      console.log(searchParams, paramId)
       const response = await GetTccsDetails()
 
       if (response) {
         setTccs(response as ITccDetalhado[])
       }
+
+      if (paramId) {
+        console.log("paramId", paramId)
+
+        const selected = response.find((tcc) => tcc.tccId === Number(paramId))
+        if (selected) {
+          setSelectedTcc(selected)
+        }
+      }
     } catch (error) {
       showErrorToast("Erro ao buscar TCCs.")
     }
-  }
-
-  const handleEditTcc = () => {
-    if (!selectedTcc) return
-    setOriginalTcc({ ...selectedTcc })
-    setIsEditing(true)
-  }
-
-  // const handleSaveChanges = async () => {
-  //   if (selectedTcc) {
-  //     try {
-  //       // Suponha que UpdateTccDetails seja uma função para atualizar os detalhes do TCC
-  //       await UpdateTccDetails(selectedTcc.id, selectedTcc)
-  //       setIsEditing(false)
-
-  //       toast({
-  //         title: "TCC atualizado com sucesso.",
-  //       })
-  //     } catch (error) {
-  //       showErrorToast("Erro ao atualizar TCC.")
-  //     }
-  //   }
-  // }
-
-  const handleCancelEdit = () => {
-    if (originalTcc) {
-      setSelectedTcc({ ...originalTcc })
-    }
-    setIsEditing(false)
   }
 
   useEffect(() => {
@@ -85,7 +69,10 @@ export function TccsDetails() {
             </div>
           </CardHeader>
           <CardContent>
-            <TccTable onSelect={(tcc) => setSelectedTcc(tcc)} />
+            <TccTable
+              selected={selectedTcc ? selectedTcc.tccId : null}
+              onSelect={(tcc) => setSelectedTcc(tcc)}
+            />
             {selectedTcc && (
               <Card className="w-auto mt-4">
                 <CardHeader className="flex flex-row gap-2 items-center justify-between">

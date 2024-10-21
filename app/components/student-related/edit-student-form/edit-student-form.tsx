@@ -234,7 +234,6 @@ export default function EditStudentForm({ id }: { id: number }) {
     }
 
     try {
-      console.log("studentClasses", studentClasses)
       await updateStudent(createStudentFormData, studentClasses)
 
       toast({

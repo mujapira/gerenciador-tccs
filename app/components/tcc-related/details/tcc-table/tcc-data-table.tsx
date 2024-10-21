@@ -28,12 +28,14 @@ interface TccDataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   onRowClick: (row: TData) => void
+  selected: number | null
 }
 
 export function TccDataTable<TData, TValue>({
   columns,
   data,
   onRowClick,
+  selected,
 }: TccDataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -56,6 +58,9 @@ export function TccDataTable<TData, TValue>({
 
   useEffect(() => {
     table.setPageSize(6)
+    if (selected) {
+      setSelectedRowId(selected as unknown as string)
+    }
   }, [])
 
   return (
@@ -128,7 +133,7 @@ export function TccDataTable<TData, TValue>({
                   }}
                   className={`cursor-pointer  ${
                     row.id === selectedRowId ? "bg-muted/50" : ""
-                  }`}>
+                  } ${row.id === selected?.toString() ? "bg-muted/50" : ""}`}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(
