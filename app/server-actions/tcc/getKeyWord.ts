@@ -3,7 +3,7 @@
 import { ITccDetalhado } from "@/app/models/tcc/tccModel"
 import prisma from "../../lib/prisma"
 import { handlePrismaError } from "../../utils/handle-error"
-import { GetTccsDetailsMaurico } from "./getTccsDetailsMaurico"
+import { GetTccsDetails } from "./getTccsDetails"
 
 export type IKeyWordDetails = {
   id: number
@@ -35,7 +35,7 @@ export async function GetKeyWord(id: number) {
       (association) => association.tcc_id
     )
 
-    const tccsDetails = await GetTccsDetailsMaurico()
+    const tccsDetails = await GetTccsDetails()
 
     const parsedTccs = tccsDetails.filter((tcc) =>
       tccsIds.includes(tcc.tccId)
