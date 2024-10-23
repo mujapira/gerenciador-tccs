@@ -193,3 +193,19 @@ A combinação dessas tecnologias foi essencial para garantir a eficiência e ag
 
 - **Vinculação de Alunos às Turmas**:
     - Cada aluno pode estar vinculado a uma turma específica, e essa associação é feita na tabela `aluno_turma`. Alunos podem ser associados a mais de uma turma ao longo de seu curso.
+
+<h2 align="center">🐱‍🏍 Galeria</h1>
+
+![image](https://github.com/user-attachments/assets/32f4f886-b18c-4215-ba8f-f5cd3ebb460a)
+
+![image](https://github.com/user-attachments/assets/f3dca992-c071-4209-bc56-1e76ca4913ab)
+
+![image](https://github.com/user-attachments/assets/4d2d8ec6-c43c-4c46-9e3f-2a80dab448b7)
+
+![image](https://github.com/user-attachments/assets/fdda35bc-4191-4a02-b45d-016f5996d022)
+
+![image](https://github.com/user-attachments/assets/da38502e-125a-4286-a650-f7ff17b923d9)
+
+![image](https://github.com/user-attachments/assets/1df0e3fe-5c9e-4660-9025-3808eedc1646)
+
+ 
