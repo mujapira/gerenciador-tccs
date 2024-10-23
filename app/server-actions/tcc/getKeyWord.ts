@@ -1,6 +1,6 @@
 "use server"
 
-import { ITccDetalhado } from "@/app/models/tcc/tccModel"
+import { ITccDetailed } from "@/app/models/tcc/tccModel"
 import prisma from "../../lib/prisma"
 import { handlePrismaError } from "../../utils/handle-error"
 import { GetTccsDetails } from "./getTccsDetails"
@@ -9,7 +9,7 @@ export type IKeyWordDetails = {
   id: number
   palavra: string
   ocorrencias: number
-  tccs: ITccDetalhado[] | null
+  tccs: ITccDetailed[] | null
 }
 
 export async function GetKeyWord(id: number) {

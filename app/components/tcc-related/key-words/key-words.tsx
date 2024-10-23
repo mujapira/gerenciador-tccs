@@ -79,7 +79,7 @@ export function KeyWords() {
   }, [])
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex gap-4">
       <Card>
         <CardHeader>
           <CardTitle>Palavras-Chave</CardTitle>
@@ -117,7 +117,7 @@ export function KeyWords() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="max-h-[300px]">
         <CardHeader>
           <CardTitle>Palavras-Chave</CardTitle>
           <CardDescription>Janeiro - Outubro 2024</CardDescription>

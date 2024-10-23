@@ -489,6 +489,62 @@ INSERT INTO tcc_avaliacao (tcc_id, orientador_id, data_avaliacao, descricao, not
 (10, 4, '2024-10-18', 'Avaliação do progresso sobre Machine Learning e fraudes', 9.2),
 (10, 4, '2024-10-31', 'Avaliação final do TCC sobre Machine Learning e fraudes', 9.5);
 
+UPDATE tcc_avaliacao 
+SET descricao = 'Avaliação inicial do progresso do TCC sobre IA. O aluno demonstrou competência ao explicar os fundamentos da inteligência artificial e seu uso em sistemas inteligentes.'
+WHERE id = 1;
+
+UPDATE tcc_avaliacao 
+SET descricao = 'Segunda avaliação do progresso do TCC sobre IA. O aluno apresentou melhorias significativas na aplicação prática e mostrou domínio dos conceitos avançados.'
+WHERE id = 2;
+
+UPDATE tcc_avaliacao 
+SET descricao = 'Revisão da estrutura inicial do trabalho sobre Blockchain. O aluno explicou os fundamentos do blockchain de forma clara, abordando segurança e eficiência.'
+WHERE id = 3;
+
+UPDATE tcc_avaliacao 
+SET descricao = 'Avaliação avançada sobre Blockchain. O aluno demonstrou conhecimento em contratos inteligentes e integração com plataformas existentes.'
+WHERE id = 4;
+
+UPDATE tcc_avaliacao 
+SET descricao = 'Primeira avaliação sobre segurança em redes. O aluno discutiu as principais ameaças e estratégias de mitigação de forma eficiente.'
+WHERE id = 5;
+
+UPDATE tcc_avaliacao 
+SET descricao = 'Avaliação final sobre segurança em redes de computadores. O aluno mostrou progresso significativo na aplicação de medidas práticas de segurança.'
+WHERE id = 6;
+
+UPDATE tcc_avaliacao 
+SET descricao = 'Avaliação do progresso do trabalho sobre Big Data. O aluno apresentou soluções para gerenciamento e processamento de grandes volumes de dados.'
+WHERE id = 7;
+
+UPDATE tcc_avaliacao 
+SET descricao = 'Revisão do trabalho sobre segurança em nuvem. O aluno abordou a segurança e privacidade de dados com soluções inovadoras.'
+WHERE id = 8;
+
+UPDATE tcc_avaliacao 
+SET descricao = 'Avaliação inicial do uso de redes neurais. O aluno mostrou compreensão do funcionamento e treinamento de redes neurais artificiais.'
+WHERE id = 9;
+
+UPDATE tcc_avaliacao 
+SET descricao = 'Primeira avaliação sobre realidade aumentada. O aluno discutiu aplicações práticas e sua implementação em ambientes móveis.'
+WHERE id = 10;
+
+UPDATE tcc_avaliacao 
+SET descricao = 'Revisão inicial do TCC sobre sistemas embarcados. O aluno abordou a eficiência e o design de sistemas embarcados para a indústria.'
+WHERE id = 11;
+
+UPDATE tcc_avaliacao 
+SET descricao = 'Avaliação sobre o uso de Big Data para previsão climática. O aluno apresentou técnicas inovadoras de análise de dados climáticos.'
+WHERE id = 12;
+
+UPDATE tcc_avaliacao 
+SET descricao = 'Avaliação do progresso sobre Machine Learning e fraudes. O aluno demonstrou aplicação prática de algoritmos de aprendizado para detecção de fraudes.'
+WHERE id = 13;
+
+UPDATE tcc_avaliacao 
+SET descricao = 'Avaliação final do TCC sobre Machine Learning e fraudes. O aluno apresentou um sistema eficiente e comprovou sua eficácia com testes reais.'
+WHERE id = 14;
+
 
 INSERT INTO comunidade (nome, descricao, criador_aluno_id, data_criacao) VALUES
 ('Banco de dados é a melhor matéria', 'Discussão sobre bancos de dados e suas aplicações.', 1, '2024-10-14'),

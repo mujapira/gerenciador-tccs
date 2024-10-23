@@ -13,8 +13,8 @@ CASE
 FROM
   (
     (
-      `fatec_tcc_v1`.`comunidade` `c`
-      LEFT JOIN `fatec_tcc_v1`.`aluno` `a` ON(`c`.`criador_aluno_id` = `a`.`id`)
+      `tcc_fatec_v1`.`comunidade` `c`
+      LEFT JOIN `tcc_fatec_v1`.`aluno` `a` ON(`c`.`criador_aluno_id` = `a`.`id`)
     )
-    LEFT JOIN `fatec_tcc_v1`.`orientador` `o` ON(`c`.`criador_orientador_id` = `o`.`id`)
+    LEFT JOIN `tcc_fatec_v1`.`orientador` `o` ON(`c`.`criador_orientador_id` = `o`.`id`)
   )

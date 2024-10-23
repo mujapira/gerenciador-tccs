@@ -14,10 +14,10 @@ FROM
   (
     (
       (
-        `fatec_tcc_v1`.`comunidade_post` `cp`
-        JOIN `fatec_tcc_v1`.`comunidade` `c` ON(`cp`.`comunidade_id` = `c`.`id`)
+        `tcc_fatec_v1`.`comunidade_post` `cp`
+        JOIN `tcc_fatec_v1`.`comunidade` `c` ON(`cp`.`comunidade_id` = `c`.`id`)
       )
-      LEFT JOIN `fatec_tcc_v1`.`aluno` `a` ON(`cp`.`autor_aluno_id` = `a`.`id`)
+      LEFT JOIN `tcc_fatec_v1`.`aluno` `a` ON(`cp`.`autor_aluno_id` = `a`.`id`)
     )
-    LEFT JOIN `fatec_tcc_v1`.`orientador` `o` ON(`cp`.`autor_orientador_id` = `o`.`id`)
+    LEFT JOIN `tcc_fatec_v1`.`orientador` `o` ON(`cp`.`autor_orientador_id` = `o`.`id`)
   )

@@ -16,15 +16,15 @@ import { Button } from "@/components/ui/button"
 import { showErrorToast } from "@/app/utils/toast-utils"
 
 import { TccTable } from "./tcc-table/tcc-table"
-import { ITccDetalhado } from "@/app/models/tcc/tccModel"
+import { ITccDetailed } from "@/app/models/tcc/tccModel"
 import { Separator } from "@/components/ui/separator"
 import { useSearchParams } from "next/navigation"
 import { GetTccsDetails } from "@/app/server-actions/tcc/getTccsDetails"
 
 export function TccsDetails() {
-  const [tccs, setTccs] = useState<ITccDetalhado[]>()
-  const [selectedTcc, setSelectedTcc] = useState<ITccDetalhado | null>(null)
-  const [originalTcc, setOriginalTcc] = useState<ITccDetalhado | null>(null)
+  const [tccs, setTccs] = useState<ITccDetailed[]>()
+  const [selectedTcc, setSelectedTcc] = useState<ITccDetailed | null>(null)
+  const [originalTcc, setOriginalTcc] = useState<ITccDetailed | null>(null)
   const [isEditing, setIsEditing] = useState(false)
 
   const searchParams = useSearchParams()
@@ -36,7 +36,7 @@ export function TccsDetails() {
       const response = await GetTccsDetails()
 
       if (response) {
-        setTccs(response as ITccDetalhado[])
+        setTccs(response as ITccDetailed[])
       }
 
       if (paramId) {

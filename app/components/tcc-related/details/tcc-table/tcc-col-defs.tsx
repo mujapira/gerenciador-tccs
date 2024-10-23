@@ -10,10 +10,10 @@ import {
 } from "@/components/ui/dropdown-menu"
 import Link from "next/link"
 import { MoreHorizontal, ArrowUpDown } from "lucide-react"
-import { ITccDetalhado } from "@/app/models/tcc/tccModel"
+import { ITccDetailed } from "@/app/models/tcc/tccModel"
 import { Badge } from "@/components/ui/badge"
 
-export const tccTableColumns: ColumnDef<ITccDetalhado>[] = [
+export const tccTableColumns: ColumnDef<ITccDetailed>[] = [
   {
     accessorKey: "tituloTcc",
     header: ({ column }) => {

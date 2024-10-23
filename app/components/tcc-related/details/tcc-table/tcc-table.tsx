@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { tccTableColumns } from "./tcc-col-defs";
 import { showErrorToast } from "@/app/utils/toast-utils";
 
-import { ITccDetalhado } from "@/app/models/tcc/tccModel"
+import { ITccDetailed } from "@/app/models/tcc/tccModel"
 import { TccDataTable } from "./tcc-data-table"
 import { GetTccsDetails } from "@/app/server-actions/tcc/getTccsDetails"
 
@@ -13,10 +13,10 @@ export function TccTable({
   onSelect,
   selected,
 }: {
-  onSelect: (data: ITccDetalhado) => void;
+  onSelect: (data: ITccDetailed) => void;
   selected: number | null;
 }) {
-  const [tccs, setTccs] = useState<ITccDetalhado[]>([]);
+  const [tccs, setTccs] = useState<ITccDetailed[]>([]);
 
   const handleGetTccs = async () => {
     try {

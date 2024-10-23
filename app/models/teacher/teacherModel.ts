@@ -1,4 +1,4 @@
-import { ITccDetalhado } from "../tcc/tccModel"
+import { ITccDetailed } from "../tcc/tccModel"
 
 export interface ITeacher {
   id: number
@@ -12,5 +12,5 @@ export interface ITeacher {
 }
 
 export interface IDetailedTeacher extends ITeacher {
-  tcc: ITccDetalhado[] | null
+  tcc: ITccDetailed[] | null
 }

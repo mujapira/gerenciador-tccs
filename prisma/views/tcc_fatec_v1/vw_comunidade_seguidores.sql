@@ -13,10 +13,10 @@ FROM
   (
     (
       (
-        `fatec_tcc_v1`.`comunidade_seguidor` `cs`
-        JOIN `fatec_tcc_v1`.`comunidade` `c` ON(`cs`.`comunidade_id` = `c`.`id`)
+        `tcc_fatec_v1`.`comunidade_seguidor` `cs`
+        JOIN `tcc_fatec_v1`.`comunidade` `c` ON(`cs`.`comunidade_id` = `c`.`id`)
       )
-      LEFT JOIN `fatec_tcc_v1`.`aluno` `a` ON(`cs`.`seguidor_aluno_id` = `a`.`id`)
+      LEFT JOIN `tcc_fatec_v1`.`aluno` `a` ON(`cs`.`seguidor_aluno_id` = `a`.`id`)
     )
-    LEFT JOIN `fatec_tcc_v1`.`orientador` `o` ON(`cs`.`seguidor_orientador_id` = `o`.`id`)
+    LEFT JOIN `tcc_fatec_v1`.`orientador` `o` ON(`cs`.`seguidor_orientador_id` = `o`.`id`)
   )

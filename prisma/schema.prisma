@@ -14,12 +14,12 @@ model aluno {
   email               String                @unique(map: "email") @db.VarChar(100)
   matricula           String                @unique(map: "matricula") @db.VarChar(20)
   cpf                 String                @unique(map: "cpf") @db.VarChar(11)
-  data_nascimento     DateTime              @db.Date
   telefone            String?               @db.VarChar(20)
   endereco            String?               @db.VarChar(255)
   cidade              String?               @db.VarChar(100)
   estado              String?               @db.VarChar(50)
   data_ingresso       DateTime              @db.Date
+  data_nascimento     DateTime              @db.Date
   semestre_atual      Int?
   caminho_foto        String?               @db.VarChar(255)
   aluno_turma         aluno_turma[]
@@ -295,10 +295,8 @@ view vw_tcc_detalhado {
   nota_final            String?   @db.VarChar(7)
   estado_id             Int?      @default(0)
   estado_atual          String?   @db.VarChar(50)
-  numero_avaliacoes     BigInt    @default(0)
+  numero_avaliacoes     BigInt?
   data_ultima_avaliacao DateTime? @db.Date
-  palavras_chave        String?   @db.MediumText
-  palavras_chave_ids    String?   @db.MediumText
 }
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
