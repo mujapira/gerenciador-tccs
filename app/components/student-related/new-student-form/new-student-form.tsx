@@ -151,7 +151,7 @@ export default function NewStudentForm() {
       const formData = new FormData()
       formData.append("file", file)
 
-      const response = await fetch("/api/upload", {
+      const response = await fetch("/api/images", {
         method: "POST",
         body: formData,
       })

@@ -153,7 +153,7 @@ model tcc_classificacao {
 
 model tcc_documento {
   id                 Int                @id @default(autoincrement())
-  tcc_id             Int?
+  tcc_id             Int
   tipo_documento_id  Int
   nome_documento     String             @db.VarChar(255)
   caminho_arquivo    String             @db.VarChar(500)

@@ -1,6 +1,8 @@
 "use server"
 
-import { IAvaliation, ITccDetailed } from "@/app/models/tcc/tccModel"
+
+
+import { ITccAvaliation } from "@/app/models/tcc/tccModel"
 import prisma from "../../lib/prisma"
 import { handlePrismaError } from "../../utils/handle-error"
 
@@ -15,7 +17,7 @@ export async function GetTccAvaliations(id: number) {
       },
     })
 
-    const parsedAvaliacoes: IAvaliation[] = avaliacoes.map((avaliacao) => ({
+    const parsedAvaliacoes: ITccAvaliation[] = avaliacoes.map((avaliacao) => ({
       id: avaliacao.id,
       tccId: avaliacao.tcc_id || null,
       orientadorId: avaliacao.orientador_id || null,

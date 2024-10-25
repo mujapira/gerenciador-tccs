@@ -20,6 +20,7 @@ import { ITccDetailed } from "@/app/models/tcc/tccModel"
 import { Separator } from "@/components/ui/separator"
 import { useSearchParams } from "next/navigation"
 import { GetTccsDetails } from "@/app/server-actions/tcc/getTccsDetails"
+import { formatDate } from "@/app/utils/date-parser"
 
 export function TccsDetails() {
   const [tccs, setTccs] = useState<ITccDetailed[]>()
@@ -51,6 +52,35 @@ export function TccsDetails() {
       showErrorToast("Erro ao buscar TCCs.")
     }
   }
+
+  const handleDownload = async () => {
+    if (!selectedTcc?.documentos || selectedTcc?.documentos.length === 0) {
+      showErrorToast("TCC não possui documento para download.");
+      return;
+    }
+  
+    const fileName = selectedTcc.documentos[0].caminhoArquivo.split("/").pop();
+  
+    if (!fileName) {
+      showErrorToast("Nome do arquivo inválido.");
+      return;
+    }
+  
+    const response = await fetch(`/api/documents?fileName=${encodeURIComponent(fileName)}`);
+  
+    if (!response.ok) {
+      showErrorToast("Erro ao baixar documento.");
+      return;
+    }
+  
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    window.URL.revokeObjectURL(url);
+  };
 
   useEffect(() => {
     fetchTccs()
@@ -85,6 +115,14 @@ export function TccsDetails() {
                         : "Visualizando detalhes do TCC"}
                     </CardDescription>
                   </div>
+                  {selectedTcc.documentos &&
+                    selectedTcc.documentos.length > 0 && (
+                      <Button
+                        variant={"default"}
+                        onClick={() => handleDownload()}>
+                        Fazer download do TCC
+                      </Button>
+                    )}
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-col text-sm gap-4">
@@ -117,6 +155,23 @@ export function TccsDetails() {
                           </Button>
                         </Link>
                       </div>
+                      <div className="flex items-center">
+                        <span>Tema:&nbsp;</span>
+                        <Link href={`/temas/${selectedTcc.temaId}`}>
+                          <Button variant="link" className="px-0 py-0 h-5">
+                            {selectedTcc.tema}
+                          </Button>
+                        </Link>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span>Classificação:&nbsp;</span>
+                        <Link
+                          href={`/classificacoes/${selectedTcc.classificacaoId}`}>
+                          <Button variant="link" className="px-0 py-0 h-5">
+                            {selectedTcc.classificacao}
+                          </Button>
+                        </Link>
+                      </div>
                     </div>
 
                     <Separator />
@@ -125,23 +180,6 @@ export function TccsDetails() {
                       <span className="font-semibold py-4">
                         Detalhes do TCC
                       </span>
-                      <div className="flex items-center">
-                        <span>Tema:</span>
-                        <Link href={`/temas/${selectedTcc.temaId}`}>
-                          <Button variant="link" className="px-0 py-0 h-5">
-                            {selectedTcc.tema}
-                          </Button>
-                        </Link>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span>Classificação:</span>
-                        <Link
-                          href={`/classificacoes/${selectedTcc.classificacaoId}`}>
-                          <Button variant="link" className="px-0 py-0 h-5">
-                            {selectedTcc.classificacao}
-                          </Button>
-                        </Link>
-                      </div>
                       <div className="flex items-center gap-2">
                         <span>Nota Final:</span>
                         <Button
@@ -150,13 +188,66 @@ export function TccsDetails() {
                           {selectedTcc.notaFinal}
                         </Button>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span>Número de Avaliações:</span>
-                        <Link href={`/avaliacoes/${selectedTcc.tccId}`}>
-                          <Button variant="link" className="px-0 py-0 h-5">
-                            {selectedTcc.numeroAvaliacoes}
-                          </Button>
-                        </Link>
+                      <div className="flex items-start justify-center flex-col">
+                        <span>Avaliações</span>
+                        {selectedTcc.avaliacoes &&
+                          selectedTcc.avaliacoes.length > 0 && (
+                            <ul className="flex flex-col">
+                              {selectedTcc.avaliacoes.map(
+                                (avaliacao, index) => (
+                                  <li key={index}>
+                                    <Link href={`/avaliacoes/${avaliacao.id}`}>
+                                      <Button
+                                        variant="link"
+                                        className="py-0 px-0 h-5">
+                                        {avaliacao.nota &&
+                                          avaliacao.dataAvaliacao && (
+                                            <div className="flex">
+                                              <span>&#8226;&nbsp;</span>
+                                              {avaliacao.numeroAvaliacao ===
+                                                1 && "1ª Avaliação | "}
+                                              {avaliacao.numeroAvaliacao ===
+                                                2 && "2ª Avaliação | "}
+                                              {avaliacao.numeroAvaliacao ===
+                                                3 && "3ª Avaliação | "}
+                                              <span>
+                                                &nbsp; Nota{" "}
+                                                {avaliacao.nota.toFixed(2)}
+                                                &nbsp;
+                                              </span>
+                                              <span>|</span>
+                                              <span>
+                                                &nbsp;
+                                                {formatDate(
+                                                  avaliacao.dataAvaliacao
+                                                )}
+                                              </span>
+                                            </div>
+                                          )}
+                                      </Button>
+                                    </Link>
+                                  </li>
+                                )
+                              )}
+                              {[...Array(3)].map((_, index) => {
+                                const avaliacaoExistente =
+                                  selectedTcc?.avaliacoes?.find(
+                                    (av) => av.numeroAvaliacao === index + 1
+                                  )
+                                return avaliacaoExistente ? null : (
+                                  <Link
+                                    href={`/avaliation/new?tccId=${selectedTcc.tccId}`}>
+                                    <Button
+                                      variant="link"
+                                      className="px-0 py-0 h-5">
+                                      <span>&#8226;&nbsp;</span>
+                                      Avaliação pendente
+                                    </Button>
+                                  </Link>
+                                )
+                              })}
+                            </ul>
+                          )}
                       </div>
                     </div>
 

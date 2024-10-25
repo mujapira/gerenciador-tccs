@@ -131,7 +131,7 @@ export default function EditStudentForm({ id }: { id: number }) {
 
         if (response?.photoPath !== "/user-images/placeholder.png") {
           const responsePhoto = await fetch(
-            `/api/upload?fileName=${encodeURIComponent(response?.photoPath)}`
+            `/api/images?fileName=${encodeURIComponent(response?.photoPath)}`
           )
 
           if (responsePhoto.ok) {
@@ -195,7 +195,7 @@ export default function EditStudentForm({ id }: { id: number }) {
       const formData = new FormData()
       formData.append("file", file)
 
-      const response = await fetch("/api/upload", {
+      const response = await fetch("/api/images", {
         method: "POST",
         body: formData,
       })

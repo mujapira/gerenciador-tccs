@@ -5,6 +5,7 @@ import prisma from "../../lib/prisma"
 import { handlePrismaError } from "../../utils/handle-error"
 import { GetTccAvaliations } from "./getTccAvaliations"
 import { GetTccKeyWords } from "./getTccKeyWords"
+import { GetTccDocument } from "./getTccDocument"
 
 export async function GetTccsDetails() {
   try {
@@ -34,6 +35,7 @@ export async function GetTccsDetails() {
         dataUltimaAvaliacao: tcc.data_ultima_avaliacao,
         palavrasChave: (await GetTccKeyWords(tcc.tcc_id)) || [],
         avaliacoes: (await GetTccAvaliations(tcc.tcc_id)) || [],
+        documentos: (await GetTccDocument(tcc.tcc_id)) || [],
       }))
     )
 

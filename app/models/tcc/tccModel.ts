@@ -19,6 +19,7 @@ export interface ITccDetailed {
   dataUltimaAvaliacao: Date | null
   palavrasChave: ITccKeyWord[] | null
   avaliacoes: ITccAvaliation[] | null
+  documentos: ITccDocument[] | null
 }
 
 export interface ITccKeyWord {
@@ -34,4 +35,15 @@ export interface ITccAvaliation {
   descricao: string
   nota: number | null
   numeroAvaliacao: number | null
+}
+
+export interface ITccDocument {
+  id: number
+  tccId: number
+  tipoDocumentoId: number
+  nomeDocumento: string
+  caminhoArquivo: string
+  formatoDocumento: string
+  dataEnvio: Date
+  tamanhoArquivo: number | null
 }
