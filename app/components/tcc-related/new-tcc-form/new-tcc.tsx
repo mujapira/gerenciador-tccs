@@ -43,9 +43,10 @@ import { IStudent } from "@/app/models/student/studentsModel"
 import { GetStudents } from "@/app/server-actions/student/getStudents"
 import {
   CreateTcc,
-  GetClassifications,
-  GetThemes,
+ 
 } from "@/app/server-actions/tcc/createTcc"
+import { GetThemes, ITheme } from "@/app/server-actions/tcc/getThemes"
+import { GetTccClassifications } from "@/app/server-actions/tcc/getClassifications"
 
 const FormSchema = z.object({
   titulo: z.string(),
@@ -61,10 +62,6 @@ export interface IClassification {
   descricao: string
 }
 
-export interface ITheme {
-  id: number
-  descricao: string
-}
 
 export default function NewTccForm() {
   const { toast } = useToast()
@@ -109,7 +106,7 @@ export default function NewTccForm() {
 
   const fetchAvailableClassifications = async () => {
     try {
-      const classifications = await GetClassifications()
+      const classifications = await GetTccClassifications()
       setAvailableClassifications(classifications)
     } catch (error) {
       showErrorToast(error)
@@ -326,7 +323,7 @@ export default function NewTccForm() {
                           <SelectItem
                             key={theme.id}
                             value={theme.id.toString()}>
-                            {theme.descricao}
+                            {theme.tema}
                           </SelectItem>
                         ))}
                       </SelectContent>

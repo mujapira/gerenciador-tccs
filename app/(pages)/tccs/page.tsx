@@ -1,20 +1,23 @@
-import { TccsDetails } from "@/app/components/tcc-related/details/tccs-details";
-import { Button } from "@/components/ui/button";
+import { TccsDetails } from "@/app/components/tcc-related/details/tccs-details"
+import { KeyWords } from "@/app/components/tcc-related/key-words/key-words"
+import { KeyWordsChart } from "@/app/components/tcc-related/key-words/keyword-chart"
+import { ThemesChart } from "@/app/components/tcc-related/themes/themes-chart"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/components/ui/card"
 
-import { Metadata } from "next";
-import Link from "next/link";
+import { Metadata } from "next"
+import Link from "next/link"
 
 export const metadata: Metadata = {
   title: "TCC's",
   description: "Página de TCCs",
-};
+}
 
 export default function TccsPage() {
   const sections = [
@@ -24,43 +27,31 @@ export default function TccsPage() {
       link: "/tccs/detalhes",
     },
     {
-      title: "Palavras Chave",
-      description: "Gerencie as palavras-chave associadas aos TCCs",
-      link: "/tccs/palavras-chave",
-    },
-    {
-      title: "Avaliações",
-      description: "Gerencie as avaliações feitas para os TCCs",
-      link: "/tccs/avaliacoes",
-    },
-    {
       title: "Relatórios de Progresso",
       description: "Acompanhe o progresso dos TCCs",
       link: "/tccs/relatorios-progresso",
     },
-  ];
+  ]
 
   return (
     <main className="flex w-full h-full items-start justify-start flex-col gap-6 p-4 min-h-[calc(100vh-68px)]">
       <span className="text-3xl font-bold">TCCs</span>
       <div className="flex flex-wrap gap-4">
-        {sections.map((section, index) => (
-          <Card
-            key={index}
-            className="hover:shadow-lg transition-shadow min-w-[300px] max-w-[300px]"
-          >
-            <CardHeader>
-              <CardTitle>{section.title}</CardTitle>
-              <CardDescription>{section.description}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Link href={section.link}>
-                <Button className="mt-2 w-full">Acessar</Button>
-              </Link>
-            </CardContent>
-          </Card>
-        ))}
+        <Card>
+          <CardHeader>
+            <CardTitle>TCCs</CardTitle>
+            <CardDescription>
+              Visualize e gerencie os TCCs cadastrados
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link href="/tccs/detalhes">
+              <Button>Visualizar</Button>
+            </Link>
+          </CardContent>
+        </Card>
       </div>
+     
     </main>
-  );
+  )
 }

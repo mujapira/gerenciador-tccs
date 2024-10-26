@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Toast } from "@/components/ui/toast"
 import Link from "next/link"
+import { KeyWordsChart } from "./keyword-chart"
 
 export const description = "A horizontal bar chart"
 
@@ -43,18 +44,12 @@ export function KeyWords() {
     { id: 5, palavra: "Carregando", ocorrencias: 1 },
     { id: 6, palavra: "Carregando", ocorrencias: 1 },
   ])
-  const [chartData, setChartData] = useState<IKeyWord[]>([])
+
   const [newKeyword, setNewKeyword] = useState("")
 
   const fetchKeywords = async () => {
     const response = await GetKeyWords()
     setKeywords(response)
-
-    //pegar as 5 que mais se repetem e colocar no chartData
-    const data = response
-      .slice(0, 5)
-      .sort((a, b) => b.ocorrencias - a.ocorrencias)
-    setChartData(data)
   }
 
   const handleAddKeyword = async () => {
@@ -79,7 +74,7 @@ export function KeyWords() {
   }, [])
 
   return (
-    <div className="flex flex gap-4">
+    <div className="flex gap-4">
       <Card>
         <CardHeader>
           <CardTitle>Palavras-Chave</CardTitle>
@@ -116,66 +111,7 @@ export function KeyWords() {
           </div>
         </CardContent>
       </Card>
-
-      <Card className="max-h-[300px]">
-        <CardHeader>
-          <CardTitle>Palavras-Chave</CardTitle>
-          <CardDescription>Janeiro - Outubro 2024</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ChartContainer config={chartConfig}>
-            <BarChart
-              accessibilityLayer
-              data={chartData}
-              layout="vertical"
-              margin={{
-                right: 16,
-              }}>
-              <CartesianGrid horizontal={false} />
-              <YAxis
-                dataKey="palavra"
-                type="category"
-                tickLine={false}
-                tickMargin={10}
-                axisLine={false}
-                tickFormatter={(value) => value.slice(0, 3)}
-                hide
-              />
-              <XAxis dataKey="ocorrencias" type="number" hide />
-              <ChartTooltip
-                cursor={false}
-                content={<ChartTooltipContent indicator="line" />}
-              />
-              <Bar
-                dataKey="ocorrencias"
-                layout="vertical"
-                fill="var(--color-desktop)"
-                radius={4}>
-                <LabelList
-                  dataKey="palavra"
-                  position="insideLeft"
-                  offset={8}
-                  className="fill-[--color-label] "
-                  fontSize={12}
-                />
-                <LabelList
-                  dataKey="ocorrencias"
-                  position="right"
-                  offset={8}
-                  className="fill-foreground"
-                  fontSize={12}
-                />
-              </Bar>
-            </BarChart>
-          </ChartContainer>
-        </CardContent>
-        <CardFooter className="flex-col items-start gap-2 text-sm">
-          <div className="flex gap-2 font-medium leading-none">
-            Palavras-Chave mais usadas nesse ano{" "}
-            <TrendingUp className="h-4 w-4" />
-          </div>
-        </CardFooter>
-      </Card>
+      <KeyWordsChart />
     </div>
   )
 }

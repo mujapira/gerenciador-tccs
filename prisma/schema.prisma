@@ -116,6 +116,7 @@ model tcc {
   tcc_nota_final               tcc_nota_final[]
   tcc_palavra_chave_associacao tcc_palavra_chave_associacao[]
   tcc_relatorio_progresso      tcc_relatorio_progresso[]
+  tcc_tema_associacao          tcc_tema_associacao[]
 
   @@index([metadata_id], map: "metadata_id")
   @@index([status], map: "status")
@@ -160,7 +161,7 @@ model tcc_documento {
   formato_documento  String             @db.VarChar(10)
   data_envio         DateTime           @db.Date
   tamanho_arquivo    Int?
-  tcc                tcc?               @relation(fields: [tcc_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "tcc_documento_ibfk_1")
+  tcc                tcc                @relation(fields: [tcc_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "tcc_documento_ibfk_1")
   tcc_tipo_documento tcc_tipo_documento @relation(fields: [tipo_documento_id], references: [id], onUpdate: Restrict, map: "tcc_documento_ibfk_2")
 
   @@index([tcc_id], map: "tcc_id")
@@ -260,9 +261,10 @@ model tcc_relatorio_progresso_arquivo {
 }
 
 model tcc_tema {
-  id           Int            @id @default(autoincrement())
-  descricao    String         @db.VarChar(255)
-  tcc_metadata tcc_metadata[]
+  id                  Int                   @id @default(autoincrement())
+  descricao           String                @db.VarChar(255)
+  tcc_metadata        tcc_metadata[]
+  tcc_tema_associacao tcc_tema_associacao[]
 }
 
 model tcc_tipo_documento {
@@ -276,6 +278,16 @@ model turma {
   nome         String         @db.VarChar(100)
   aluno_turma  aluno_turma[]
   tcc_metadata tcc_metadata[]
+}
+
+model tcc_tema_associacao {
+  tcc_id   Int
+  tema_id  Int
+  tcc      tcc      @relation(fields: [tcc_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "tcc_tema_associacao_ibfk_1")
+  tcc_tema tcc_tema @relation(fields: [tema_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "tcc_tema_associacao_ibfk_2")
+
+  @@id([tcc_id, tema_id])
+  @@index([tema_id], map: "tema_id")
 }
 
 view vw_tcc_detalhado {

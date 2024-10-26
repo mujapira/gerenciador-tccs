@@ -130,16 +130,16 @@ export function TccsDetails() {
                       <span className="font-semibold py-4">
                         Informações Gerais
                       </span>
-                      <div className="flex items-center gap-2">
-                        <span>Aluno:</span>
+                      <div className="flex items-center">
+                        <span>Aluno:&nbsp;</span>
                         <Link href={`/alunos/${selectedTcc.alunoId}`}>
                           <Button variant="link" className="px-0 py-0 h-5">
                             {selectedTcc.nomeAluno}
                           </Button>
                         </Link>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span>Orientador:</span>
+                      <div className="flex items-center">
+                        <span>Orientador:&nbsp;</span>
                         <Link
                           href={`/orientadores/${selectedTcc.orientadorId}`}>
                           <Button variant="link" className="px-0 py-0 h-5">
@@ -147,8 +147,8 @@ export function TccsDetails() {
                           </Button>
                         </Link>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span>Turma:</span>
+                      <div className="flex items-center">
+                        <span>Turma:&nbsp;</span>
                         <Link href={`/turmas/${selectedTcc.turmaId}`}>
                           <Button variant="link" className="px-0 py-0 h-5">
                             {selectedTcc.nomeTurma}
@@ -163,7 +163,7 @@ export function TccsDetails() {
                           </Button>
                         </Link>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center">
                         <span>Classificação:&nbsp;</span>
                         <Link
                           href={`/classificacoes/${selectedTcc.classificacaoId}`}>

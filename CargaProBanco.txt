@@ -886,3 +886,17 @@ END //
 DELIMITER ;
 
 CALL atualizar_estado_todos_tccs(1)
+
+CREATE TABLE tcc_tema_associacao (
+    tcc_id INT,
+    tema_id INT,
+    PRIMARY KEY (tcc_id, tema_id),
+    FOREIGN KEY (tcc_id) REFERENCES tcc(id) ON DELETE CASCADE,
+    FOREIGN KEY (tema_id) REFERENCES tcc_tema(id) ON DELETE CASCADE
+);
+
+INSERT INTO tcc_tema_associacao (tcc_id, tema_id)
+SELECT tcc.id, tm.tema_id
+FROM tcc
+JOIN tcc_metadata tm ON tcc.metadata_id = tm.id;
+

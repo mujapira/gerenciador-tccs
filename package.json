@@ -2,6 +2,7 @@
   "name": "gerenciador-tccs",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -36,6 +37,8 @@
     "date-fns": "^3.6.0",
     "dayjs": "^1.11.13",
     "express": "^4.21.1",
+    "faker-br": "^0.4.1",
+    "faker-brasil": "^1.0.2",
     "formidable": "^3.5.1",
     "lucide-react": "^0.453.0",
     "next": "14.2.15",
@@ -51,6 +54,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@faker-js/faker": "^9.0.3",
     "@types/formidable": "^3.4.5",
     "@types/node": "^20",
     "@types/react": "^18",

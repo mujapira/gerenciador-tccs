@@ -35,6 +35,18 @@ export function StudentDetails({ id }: GetStudentProps) {
     }
   }
 
+  function handleUserImage(photoPath: string | undefined) {
+    if (photoPath) {
+      if (photoPath.includes("http")) {
+        return photoPath
+      } else {
+        return `/user-images/${photoPath}`
+      }
+    } else {
+      return "/user-images/placeholder.png"
+    }
+  }
+
   useEffect(() => {
     handleGetStudents()
   }, [])
@@ -46,7 +58,7 @@ export function StudentDetails({ id }: GetStudentProps) {
           <CardHeader className="flex flex-row gap-2 items-center justify-between">
             <Image
               alt=""
-              src={`${student?.photoPath ?? "/user-images/placeholder.png"}`}
+              src={`${handleUserImage(student?.photoPath)}`}
               width={24}
               height={24}
               className="rounded-full aspect-square w-8"

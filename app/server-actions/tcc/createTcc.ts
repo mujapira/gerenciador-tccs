@@ -39,19 +39,3 @@ export async function CreateTcc(
     handlePrismaError(error)
   }
 }
-
-export async function GetThemes() {
-  try {
-    return await prisma.tcc_tema.findMany()
-  } catch (error) {
-    handlePrismaError(error)
-  }
-}
-
-export async function GetClassifications() {
-  try {
-    return await prisma.tcc_classificacao.findMany()
-  } catch (error) {
-    handlePrismaError(error)
-  }
-}
