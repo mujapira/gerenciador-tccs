@@ -58,13 +58,13 @@ export function ThemesChart() {
   }, [])
 
   return (
-    <Card className="max-h-[300px]">
+    <Card>
       <CardHeader>
         <CardTitle>Temas</CardTitle>
         <CardDescription>Janeiro - Outubro 2024</CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig}>
+        <ChartContainer config={chartConfig} className="min-w-[400px]">
           <BarChart
             accessibilityLayer
             data={chartData}
@@ -96,12 +96,12 @@ export function ThemesChart() {
                 dataKey="tema"
                 position="insideLeft"
                 offset={8}
-                className="fill-background font-medium"
+                className="fill-foreground font-medium"
                 fontSize={12}
               />
               <LabelList
                 dataKey="ocorrencias"
-                position="right"
+                position="insideBottomRight"
                 offset={8}
                 className="fill-foreground"
                 fontSize={12}
@@ -110,12 +110,6 @@ export function ThemesChart() {
           </BarChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="flex gap-2 font-medium leading-none">
-          Palavras-Chave mais usadas nesse ano{" "}
-          <TrendingUp className="h-4 w-4" />
-        </div>
-      </CardFooter>
     </Card>
   )
 }
