@@ -71,6 +71,7 @@ export function GradesChart() {
               content={<ChartTooltipContent hideLabel />}
             />
             <Area
+              name="Ocorrências"
               dataKey="occurrences"
               type="step"
               fill="var(--color-desktop)"

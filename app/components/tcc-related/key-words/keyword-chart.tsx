@@ -85,6 +85,7 @@ export function KeyWordsChart() {
             />
             <Bar
               dataKey="ocorrencias"
+              name="Ocorrências"
               layout="vertical"
               fill="var(--color-desktop)"
               radius={4}>
@@ -96,6 +97,7 @@ export function KeyWordsChart() {
                 fontSize={12}
               />
               <LabelList
+                name="Ocorrências"
                 dataKey="ocorrencias"
                 position="insideBottomRight"
                 offset={8}

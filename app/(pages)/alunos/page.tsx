@@ -14,7 +14,7 @@ export default function StudentsPage() {
       <span className="flex w-full items-center justify-start text-3xl font-bold">
         Alunos
       </span>
-      <Link href="/alunos/novo">
+      <Link prefetch href="/alunos/novo">
         <Button>Cadastrar novo aluno</Button>
       </Link>
       <StudentsTable />

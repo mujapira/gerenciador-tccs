@@ -55,13 +55,14 @@ export function ClassificationChart() {
       <CardContent className="pb-0">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square max-h-[300px]">
+          className="mx-auto aspect-square max-h-[260px]">
           <RadarChart className="overflow-visible" data={chartData}>
             <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
             <PolarAngleAxis dataKey="classification" width={100} />
             <PolarGrid />
             <Radar
               dataKey="occurrences"
+              name="Ocorrências"
               fill="var(--color-tccCount)"
               fillOpacity={0.6}
             />

@@ -91,9 +91,11 @@ export function ThemesChart() {
               dataKey="ocorrencias"
               layout="vertical"
               fill="var(--color-desktop)"
+              name="Ocorrências"
               radius={4}>
               <LabelList
                 dataKey="tema"
+                name="Ocorrências"
                 position="insideLeft"
                 offset={8}
                 className="fill-foreground font-medium"

@@ -11,7 +11,7 @@ export default function TeachersPage() {
       <span className="flex w-full items-center justify-start text-3xl font-bold">
         Orientadores
       </span>
-      <Link href="/alunos/novo" className="w-full items-center">
+      <Link prefetch href="/alunos/novo" className="w-full items-center">
         <Button>Cadastrar novo orientador</Button>
       </Link>
       <TeachersTable />

@@ -1,6 +1,8 @@
 import { ClassesDetails } from "@/app/components/classes-related/classes-details"
 import { NewClass } from "@/app/components/classes-related/new-class/new-class"
+import { Button } from "@/components/ui/button"
 import { Metadata } from "next"
+import Link from "next/link"
 
 export const metadata: Metadata = {
   title: "Turmas",
@@ -14,7 +16,9 @@ export default function ClassesPage() {
         Turmas
       </span>
 
-      <NewClass />
+      <Link prefetch href="/turmas/nova">
+        <Button>Adicionar nova turma</Button>
+      </Link>
 
       <ClassesDetails />
     </main>

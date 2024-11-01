@@ -6,8 +6,11 @@ import { ClassificationChart } from "./components/tcc-related/classificationChar
 
 export default function Home() {
   return (
-    <main className="flex  w-full h-full justify-center flex-col gap-8 items-center min-h-[calc(100vh-68px)]">
-      <div className="flex gap-6">
+    <main className="flex w-full h-full justify-start flex-col gap-4 items-center p-4 min-h-[calc(100vh-68px)]">
+      <span className="flex w-full items-center justify-start text-3xl font-bold">
+        Gerenciador de TCCs da Fatec
+      </span>
+      <div className="flex gap-6 mt-8">
         <div className="flex flex-col gap-6">
           <KeyWordsChart />
           <ThemesChart />
