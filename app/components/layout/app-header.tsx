@@ -20,7 +20,7 @@ export function AppHeader() {
       <NavigationMenu>
         <NavigationMenuList>
           <NavigationMenuItem>
-            <Link href="/" legacyBehavior passHref>
+            <Link prefetch href="/" legacyBehavior passHref>
               <NavigationMenuLink
                 className={`${navigationMenuTriggerStyle()} ${
                   pathname === "/" ? "font-bold border-b-2 border-primary" : ""

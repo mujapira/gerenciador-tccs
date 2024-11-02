@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button"
-import { KeyWordsChart } from "./components/tcc-related/key-words/keyword-chart"
-import { ThemesChart } from "./components/tcc-related/themes/themes-chart"
-import { GradesChart } from "./components/tcc-related/gradesChart"
-import { ClassificationChart } from "./components/tcc-related/classificationChart"
+import { KeyWordsChart } from "./components/charts/keyword-chart"
+import { ThemesChart } from "./components/charts/themes-chart"
+import { GradesChart } from "./components/charts/gradesChart"
+import { ClassificationChart } from "./components/charts/classificationChart"
 
 export default function Home() {
   return (

@@ -18,6 +18,12 @@ export async function CreateTcc(
   }
 ) {
   try {
+
+    const estado = await prisma.tcc_estado.findMany({})
+
+    //encontrar o id do estado chamado "Em Avaliação"
+    const emAvaliacao = estado.find((e) => e.descricao === "Em Avaliação")
+
     const tccMetadataResponse = await prisma.tcc_metadata.create({
       data: {
         tema_id: metadata.tema_id,
@@ -28,10 +34,11 @@ export async function CreateTcc(
       },
     })
 
+
     await prisma.tcc.create({
       data: {
         titulo: tcc.titulo,
-        status: tcc.status,
+        status: emAvaliacao?.id,
         metadata_id: tccMetadataResponse.id,
       },
     })

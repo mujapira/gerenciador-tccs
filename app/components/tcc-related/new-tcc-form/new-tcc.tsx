@@ -22,7 +22,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { IClass } from "@/app/models/classes/classModel"
-import { Fragment, use, useEffect, useState } from "react"
+import { Fragment, use, useCallback, useEffect, useState } from "react"
 import { GetClasses } from "@/app/server-actions/classes/getClasses"
 import { Separator } from "@/components/ui/separator"
 import {
@@ -41,95 +41,96 @@ import { ITeacher } from "@/app/models/teacher/teacherModel"
 import { GetTeachers } from "@/app/server-actions/teachers/getTeachers"
 import { IStudent } from "@/app/models/student/studentsModel"
 import { GetStudents } from "@/app/server-actions/student/getStudents"
-import {
-  CreateTcc,
- 
-} from "@/app/server-actions/tcc/createTcc"
+import { CreateTcc } from "@/app/server-actions/tcc/createTcc"
 import { GetThemes, ITheme } from "@/app/server-actions/tcc/getThemes"
 import { GetTccClassifications } from "@/app/server-actions/tcc/getClassifications"
+import { IClassification } from "@/app/models/classification/classificationModel"
 
 const FormSchema = z.object({
-  titulo: z.string(),
-  aluno_id: z.number().int(),
-  classificacao_id: z.number().int(),
-  orientador_id: z.number().int(),
-  tema_id: z.number().int(),
-  turma_id: z.number().int(),
-})
-
-export interface IClassification {
-  id: number
-  descricao: string
-}
-
+  titulo: z.string().min(1, { message: "Título não pode estar vazio" }),
+  aluno_id: z.number().int().refine((value) => value !== 0, {
+    message: "Selecione um aluno válido",
+  }),
+  classificacao_id: z.number().int().refine((value) => value !== 0, {
+    message: "Selecione uma classificação válida",
+  }),
+  orientador_id: z.number().int().refine((value) => value !== 0, {
+    message: "Selecione um orientador válido",
+  }),
+  tema_id: z.number().int().refine((value) => value !== 0, {
+    message: "Selecione um tema válido",
+  }),
+  turma_id: z.number().int().refine((value) => value !== 0, {
+    message: "Selecione uma turma válida",
+  }),
+});
 
 export default function NewTccForm() {
   const { toast } = useToast()
   const router = useRouter()
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
+    defaultValues: {
+      titulo: "",
+      aluno_id: 0,
+      classificacao_id: 0,
+      orientador_id: 0,
+      tema_id: 0,
+      turma_id: 0,
+    },
   })
 
-  const [availableClasses, setAvailableClasses] = useState<IClass[]>()
-  const [selectedClass, setSelectedClass] = useState<IClass>()
+  const [loading, setLoading] = useState(false)
 
-  const [availableClassifications, setAvailableClassifications] =
-    useState<IClassification[]>()
-  const [selectedClassification, setSelectedClassification] =
-    useState<IClassification>()
+  const [availableData, setAvailableData] = useState<{
+    classes?: IClass[]
+    classifications?: IClassification[]
+    teachers?: ITeacher[]
+    students?: IStudent[]
+    themes?: ITheme[]
+  }>({
+    classes: [],
+    classifications: [],
+    teachers: [],
+    students: [],
+    themes: [],
+  })
 
-  const [availableTeachers, setAvailableTeachers] = useState<ITeacher[]>()
-  const [selectedTeacher, setSelectedTeacher] = useState<ITeacher>()
-  const [availableStudents, setAvailableStudents] = useState<IStudent[]>()
-  const [selectedStudent, setSelectedStudent] = useState<IStudent>()
+  const [selectedData, setSelectedData] = useState<{
+    class?: IClass
+    classification?: IClassification
+    teacher?: ITeacher
+    student?: IStudent
+    theme?: ITheme
+  }>({})
 
-  const [availableThemes, setAvailableThemes] = useState<ITheme[]>()
-  const [selectedTheme, setSelectedTheme] = useState<ITheme>()
-
-  const fetchAvailableThemes = async () => {
+  const fetchAvailableData = useCallback(async () => {
     try {
-      const themes = await GetThemes()
-      setAvailableThemes(themes)
+      setLoading(true)
+
+      const [classes, classifications, teachers, students, themes] =
+        await Promise.all([
+          GetClasses(),
+          GetTccClassifications(),
+          GetTeachers(),
+          GetStudents(),
+          GetThemes(),
+        ])
+
+      setAvailableData({
+        classes,
+        classifications,
+        teachers,
+        students,
+        themes,
+      })
+
+      setLoading(false)
     } catch (error) {
       showErrorToast(error)
+      setLoading(false)
     }
-  }
-
-  const fetchAvailableClasses = async () => {
-    try {
-      const classes = await GetClasses()
-      setAvailableClasses(classes)
-    } catch (error) {
-      showErrorToast(error)
-    }
-  }
-
-  const fetchAvailableClassifications = async () => {
-    try {
-      const classifications = await GetTccClassifications()
-      setAvailableClassifications(classifications)
-    } catch (error) {
-      showErrorToast(error)
-    }
-  }
-
-  const fetchAvailableTeachers = async () => {
-    try {
-      const teachers = await GetTeachers()
-      setAvailableTeachers(teachers)
-    } catch (error) {
-      showErrorToast(error)
-    }
-  }
-
-  const fetchAvailableStudents = async () => {
-    try {
-      const students = await GetStudents()
-      setAvailableStudents(students)
-    } catch (error) {
-      showErrorToast(error)
-    }
-  }
+  }, [])
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     const createTcc: INewTccFormData = {
@@ -158,17 +159,17 @@ export default function NewTccForm() {
 
       router.push("/tccs")
     } catch (error) {
+      console.log("onSubmit", error)
       showErrorToast(error)
     }
   }
 
+  
+
   useEffect(() => {
-    fetchAvailableClasses()
-    fetchAvailableClassifications()
-    fetchAvailableTeachers()
-    fetchAvailableStudents()
-    fetchAvailableThemes()
-  }, [])
+    fetchAvailableData()
+    router.prefetch("/tccs")
+  }, [fetchAvailableData])
 
   return (
     <div>
@@ -190,150 +191,177 @@ export default function NewTccForm() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel htmlFor="titulo">Título do TCC</FormLabel>
-                    <Input id="titulo" placeholder="Título do TCC" {...field} />
+                    <Input
+                      id="titulo"
+                      placeholder="Título do TCC"
+                      {...field}
+                    />
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
               <Separator className="my-4" />
+              {loading && <span>Carregando...</span>}
+              {!loading && availableData && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="aluno_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Aluno</FormLabel>
+                        <Select
+                          onValueChange={(value) =>
+                            field.onChange(Number(value))
+                          }
+                          value={field.value ? field.value.toString() : ""}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Selecione um aluno" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {availableData.students?.map((student) => (
+                              <SelectItem
+                                key={student.id}
+                                value={student.id.toString()}>
+                                {student.nome}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              <FormField
-                control={form.control}
-                name="aluno_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Aluno</FormLabel>
-                    <Select
-                      onValueChange={(value) => field.onChange(Number(value))}
-                      value={field.value ? field.value.toString() : ""}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Selecione um aluno" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {availableStudents?.map((student) => (
-                          <SelectItem
-                            key={student.id}
-                            value={student.id.toString()}>
-                            {student.nome}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  <FormField
+                    control={form.control}
+                    name="turma_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Turma</FormLabel>
+                        <Select
+                          onValueChange={(value) =>
+                            field.onChange(Number(value))
+                          }
+                          value={field.value ? field.value.toString() : ""}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Selecione uma turma" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {availableData.classes?.map((classe) => (
+                              <SelectItem
+                                key={classe.id}
+                                value={classe.id.toString()}>
+                                {classe.nome}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              <FormField
-                control={form.control}
-                name="turma_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Turma</FormLabel>
-                    <Select
-                      onValueChange={(value) => field.onChange(Number(value))}
-                      value={field.value ? field.value.toString() : ""}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Selecione uma turma" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {availableClasses?.map((classe) => (
-                          <SelectItem
-                            key={classe.id}
-                            value={classe.id.toString()}>
-                            {classe.nome}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  <FormField
+                    control={form.control}
+                    name="orientador_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Orientador</FormLabel>
+                        <Select
+                          onValueChange={(value) =>
+                            field.onChange(Number(value))
+                          }
+                          value={field.value ? field.value.toString() : ""}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Selecione um orientador" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {availableData.teachers?.map((teacher) => (
+                              <SelectItem
+                                key={teacher.id}
+                                value={teacher.id.toString()}>
+                                {teacher.nome}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              <FormField
-                control={form.control}
-                name="orientador_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Orientador</FormLabel>
-                    <Select
-                      onValueChange={(value) => field.onChange(Number(value))}
-                      value={field.value ? field.value.toString() : ""}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Selecione um orientador" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {availableTeachers?.map((teacher) => (
-                          <SelectItem
-                            key={teacher.id}
-                            value={teacher.id.toString()}>
-                            {teacher.nome}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  <FormField
+                    control={form.control}
+                    name="classificacao_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Classificação</FormLabel>
+                        <Select
+                          onValueChange={(value) =>
+                            field.onChange(Number(value))
+                          }
+                          value={field.value ? field.value.toString() : ""}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Selecione uma classificação" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {availableData.classifications?.map(
+                              (classification) => (
+                                <SelectItem
+                                  key={classification.id}
+                                  value={classification.id.toString()}>
+                                  {classification.descricao}
+                                </SelectItem>
+                              )
+                            )}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              <FormField
-                control={form.control}
-                name="classificacao_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Classificação</FormLabel>
-                    <Select
-                      onValueChange={(value) => field.onChange(Number(value))}
-                      value={field.value ? field.value.toString() : ""}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Selecione uma classificação" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {availableClassifications?.map((classification) => (
-                          <SelectItem
-                            key={classification.id}
-                            value={classification.id.toString()}>
-                            {classification.descricao}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  <FormField
+                    control={form.control}
+                    name="tema_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tema</FormLabel>
+                        <Select
+                          onValueChange={(value) =>
+                            field.onChange(Number(value))
+                          }
+                          value={field.value ? field.value.toString() : ""}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Selecione um tema" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {availableData.themes?.map((theme) => (
+                              <SelectItem
+                                key={theme.id}
+                                value={theme.id.toString()}>
+                                {theme.tema}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
 
-              <FormField
-                control={form.control}
-                name="tema_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tema</FormLabel>
-                    <Select
-                      onValueChange={(value) => field.onChange(Number(value))}
-                      value={field.value ? field.value.toString() : ""}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Selecione um tema" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {availableThemes?.map((theme) => (
-                          <SelectItem
-                            key={theme.id}
-                            value={theme.id.toString()}>
-                            {theme.tema}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <Button className="mt-8" type="submit">
+              <Button
+                disabled={
+                  loading ||
+                  form.formState.isSubmitting ||
+                  !form.formState.isValid
+                }
+                className="mt-8"
+                type="submit">
                 Cadastrar TCC
               </Button>
             </form>

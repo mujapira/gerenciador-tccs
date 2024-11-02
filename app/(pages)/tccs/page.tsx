@@ -1,7 +1,7 @@
 import { TccsDetails } from "@/app/components/tcc-related/details/tccs-details"
 import { KeyWords } from "@/app/components/tcc-related/key-words/key-words"
-import { KeyWordsChart } from "@/app/components/tcc-related/key-words/keyword-chart"
-import { ThemesChart } from "@/app/components/tcc-related/themes/themes-chart"
+import { KeyWordsChart } from "@/app/components/charts/keyword-chart"
+import { ThemesChart } from "@/app/components/charts/themes-chart"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -20,18 +20,6 @@ export const metadata: Metadata = {
 }
 
 export default function TccsPage() {
-  const sections = [
-    {
-      title: "TCCs",
-      description: "Visualize e gerencie os TCCs cadastrados",
-      link: "/tccs/detalhes",
-    },
-    {
-      title: "Relatórios de Progresso",
-      description: "Acompanhe o progresso dos TCCs",
-      link: "/tccs/relatorios-progresso",
-    },
-  ]
 
   return (
     <main className="flex w-full h-full items-start justify-start flex-col gap-6 p-4 min-h-[calc(100vh-68px)]">
@@ -39,19 +27,32 @@ export default function TccsPage() {
       <div className="flex flex-wrap gap-4">
         <Card>
           <CardHeader>
-            <CardTitle>TCCs</CardTitle>
+            <CardTitle>Ver todos</CardTitle>
             <CardDescription>
               Visualize e gerencie os TCCs cadastrados
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Link href="/tccs/detalhes">
+            <Link prefetch href="/tccs/detalhes">
               <Button>Visualizar</Button>
             </Link>
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Novo</CardTitle>
+            <CardDescription>
+              Cadastre um novo TCC no sistema
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link prefetch href="/tccs/novo">
+              <Button>Cadastrar</Button>
+            </Link>
+          </CardContent>
+        </Card>
       </div>
-     
     </main>
   )
 }

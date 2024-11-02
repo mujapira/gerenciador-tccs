@@ -3,18 +3,17 @@ import { Button } from "@/components/ui/button"
 import { Metadata } from "next"
 import Link from "next/link"
 
-export const metadata: Metadata = {}
+export const metadata: Metadata = {
+  title: "Comunidades",
+  description: "Comunidades",
+}
 
-export default function TeachersPage() {
+export default function Communities() {
   return (
     <main className="flex w-full h-full justify-start flex-col gap-4 items-center p-4 min-h-[calc(100vh-68px)]">
       <span className="flex w-full items-center justify-start text-3xl font-bold">
-        Orientadores
+        Comunidades
       </span>
-      <Link prefetch href="/orientadores/novo" className="w-full items-center">
-        <Button>Cadastrar novo orientador</Button>
-      </Link>
-      <TeachersTable />
     </main>
   )
 }

@@ -55,32 +55,34 @@ export function TccsDetails() {
 
   const handleDownload = async () => {
     if (!selectedTcc?.documentos || selectedTcc?.documentos.length === 0) {
-      showErrorToast("TCC não possui documento para download.");
-      return;
+      showErrorToast("TCC não possui documento para download.")
+      return
     }
-  
-    const fileName = selectedTcc.documentos[0].caminhoArquivo.split("/").pop();
-  
+
+    const fileName = selectedTcc.documentos[0].caminhoArquivo.split("/").pop()
+
     if (!fileName) {
-      showErrorToast("Nome do arquivo inválido.");
-      return;
+      showErrorToast("Nome do arquivo inválido.")
+      return
     }
-  
-    const response = await fetch(`/api/documents?fileName=${encodeURIComponent(fileName)}`);
-  
+
+    const response = await fetch(
+      `/api/documents?fileName=${encodeURIComponent(fileName)}`
+    )
+
     if (!response.ok) {
-      showErrorToast("Erro ao baixar documento.");
-      return;
+      showErrorToast("Erro ao baixar documento.")
+      return
     }
-  
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = fileName;
-    link.click();
-    window.URL.revokeObjectURL(url);
-  };
+
+    const blob = await response.blob()
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = url
+    link.download = fileName
+    link.click()
+    window.URL.revokeObjectURL(url)
+  }
 
   useEffect(() => {
     fetchTccs()
@@ -189,7 +191,12 @@ export function TccsDetails() {
                         </Button>
                       </div>
                       <div className="flex items-start justify-center flex-col">
-                        <span>Avaliações</span>
+                        <span>
+                          {selectedTcc.avaliacoes &&
+                          selectedTcc.avaliacoes.length > 0
+                            ? "Avaliações"
+                            : "Não há avaliações"}
+                        </span>
                         {selectedTcc.avaliacoes &&
                           selectedTcc.avaliacoes.length > 0 && (
                             <ul className="flex flex-col">

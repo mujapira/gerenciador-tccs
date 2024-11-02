@@ -21,7 +21,7 @@ export default function NewTccPage() {
           </Link>
         </Button>
         <span className="flex w-full items-center justify-start text-3xl font-bold">
-          TCCs - Detalhes
+          TCCs - Novo
         </span>
       </div>
 

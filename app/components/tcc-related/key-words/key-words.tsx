@@ -24,7 +24,7 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Toast } from "@/components/ui/toast"
 import Link from "next/link"
-import { KeyWordsChart } from "./keyword-chart"
+import { KeyWordsChart } from "../../charts/keyword-chart"
 
 export const description = "A horizontal bar chart"
 
