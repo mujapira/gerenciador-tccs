@@ -900,3 +900,29 @@ SELECT tcc.id, tm.tema_id
 FROM tcc
 JOIN tcc_metadata tm ON tcc.metadata_id = tm.id;
 
+-- Alterando a tabela `comunidade` para incluir uma imagem de capa e padronizar nomes
+ALTER TABLE comunidade
+ADD COLUMN imagem_capa VARCHAR(500) NULL AFTER descricao,
+CHANGE COLUMN criador_aluno_id criador_aluno_id INT NULL,
+CHANGE COLUMN criador_orientador_id criador_orientador_id INT NULL;
+
+-- Ajustando a tabela `comunidade_seguidor` para melhorar a padronização
+ALTER TABLE comunidade_seguidor
+CHANGE COLUMN comunidade_id comunidade_id INT NOT NULL,
+CHANGE COLUMN seguidor_aluno_id seguidor_aluno_id INT NULL,
+CHANGE COLUMN seguidor_orientador_id seguidor_orientador_id INT NULL;
+
+-- Adicionando um índice para comunidade_id para melhorar a performance em consultas
+CREATE INDEX idx_comunidade_id ON comunidade_seguidor (comunidade_id);
+
+-- Ajustando a tabela `comunidade_post` para padronização e adicionar índice
+ALTER TABLE comunidade_post
+CHANGE COLUMN comunidade_id comunidade_id INT NOT NULL,
+CHANGE COLUMN autor_aluno_id autor_aluno_id INT NULL,
+CHANGE COLUMN autor_orientador_id autor_orientador_id INT NULL;
+
+-- Adicionando um índice para comunidade_id para melhorar a performance em consultas
+CREATE INDEX idx_comunidade_id_post ON comunidade_post (comunidade_id);
+
+ALTER TABLE comunidade
+ADD COLUMN quantidade_seguidores INT DEFAULT 0;

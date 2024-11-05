@@ -6,9 +6,26 @@ import SuperFakerBrasil from "faker-brasil"
 const prisma = new PrismaClient()
 
 async function seedDatabase() {
-  const fakerBrasil = new SuperFakerBrasil()
-
   await clearDatabase()
+  await seedTccs()
+  await updateAllTccStates()
+  await clearComunidadesData()
+  await seedComunidades()
+  await updateCommunityFollowersCount()
+}
+
+seedDatabase()
+  .then(() => {
+    console.log("Database seeded successfully!")
+    prisma.$disconnect()
+  })
+  .catch((error) => {
+    console.error("Error seeding database:", error)
+    prisma.$disconnect()
+  })
+
+async function seedTccs() {
+  const fakerBrasil = new SuperFakerBrasil()
 
   // CLASSIFICAÇÕES
   const classificacoes = [
@@ -321,19 +338,7 @@ async function seedDatabase() {
       })
     }
   }
-
-  updateAllTccStates()
 }
-
-seedDatabase()
-  .then(() => {
-    console.log("Database seeded successfully!")
-    prisma.$disconnect()
-  })
-  .catch((error) => {
-    console.error("Error seeding database:", error)
-    prisma.$disconnect()
-  })
 
 async function clearDatabase() {
   // Limpeza de dados
@@ -361,6 +366,104 @@ async function clearDatabase() {
   await prisma.tcc_palavra_chave.deleteMany()
   await prisma.tcc_estado.deleteMany()
   await prisma.tcc_tipo_documento.deleteMany()
+}
+
+async function clearComunidadesData() {
+  await prisma.comunidade_post.deleteMany()
+  await prisma.comunidade_seguidor.deleteMany()
+  await prisma.comunidade.deleteMany()
+
+  console.log("Dados de comunidades, posts e seguidores apagados com sucesso!")
+}
+
+async function seedComunidades() {
+  const alunos = await prisma.aluno.findMany()
+  const orientadores = await prisma.orientador.findMany()
+
+  let imageCounter = 1
+
+  const comunidadesData = Array.from({ length: 50 }, () => {
+    const isAlunoCreator = Math.random() > 0.5
+
+    const imagemCapa =
+      imageCounter <= 15
+        ? `/community-images/community-${imageCounter++}.jpg`
+        : "/community-images/community-placeholder.png"
+
+    return {
+      nome: faker.company.name(),
+      descricao: faker.lorem.paragraph(),
+      imagem_capa: imagemCapa,
+      data_criacao: faker.date.past(),
+      criador_aluno_id: isAlunoCreator
+        ? alunos[Math.floor(Math.random() * alunos.length)].id
+        : null,
+      criador_orientador_id: !isAlunoCreator
+        ? orientadores[Math.floor(Math.random() * orientadores.length)].id
+        : null,
+    }
+  })
+
+  for (const comunidadeData of comunidadesData) {
+    const comunidade = await prisma.comunidade.create({
+      data: comunidadeData,
+    })
+
+    // Criar posts para cada comunidade
+    const numPosts = faker.number.int({ min: 3, max: 10 })
+    for (let i = 0; i < numPosts; i++) {
+      const autor = faker.helpers.arrayElement([...alunos, ...orientadores])
+      await prisma.comunidade_post.create({
+        data: {
+          comunidade_id: comunidade.id,
+          autor_aluno_id: autor.hasOwnProperty("matricula") ? autor.id : null,
+          autor_orientador_id: autor.hasOwnProperty("titulo_academico")
+            ? autor.id
+            : null,
+          conteudo: faker.lorem.paragraph(),
+          data_postagem: faker.date.past(),
+        },
+      })
+    }
+
+    // Criar seguidores para cada comunidade
+    const numSeguidores = faker.number.int({ min: 1, max: 400 })
+    for (let j = 0; j < numSeguidores; j++) {
+      const seguidor = faker.helpers.arrayElement([...alunos, ...orientadores])
+
+      await prisma.comunidade_seguidor.create({
+        data: {
+          comunidade_id: comunidade.id,
+          seguidor_aluno_id: seguidor.hasOwnProperty("matricula")
+            ? seguidor.id
+            : null,
+          seguidor_orientador_id: seguidor.hasOwnProperty("titulo_academico")
+            ? seguidor.id
+            : null,
+          data_seguimento: faker.date.past(),
+        },
+      })
+    }
+  }
+
+  console.log("Comunidades, posts e seguidores populados com sucesso!")
+}
+
+async function updateCommunityFollowersCount() {
+  const comunidades = await prisma.comunidade.findMany()
+
+  for (const comunidade of comunidades) {
+    const numSeguidores = await prisma.comunidade_seguidor.count({
+      where: { comunidade_id: comunidade.id },
+    })
+
+    await prisma.comunidade.update({
+      where: { id: comunidade.id },
+      data: { quantidade_seguidores: numSeguidores },
+    })
+  }
+
+  console.log("Contagem de seguidores das comunidades atualizada com sucesso!")
 }
 
 async function updateAllTccStates() {
@@ -443,3 +546,5 @@ async function updateAllTccStates() {
     console.log("Erro ao atualizar os estados:", error)
   }
 }
+
+

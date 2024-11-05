@@ -43,9 +43,11 @@ model comunidade {
   id                    Int                   @id @default(autoincrement())
   nome                  String                @db.VarChar(255)
   descricao             String?               @db.Text
+  imagem_capa           String?               @db.VarChar(500)
   criador_aluno_id      Int?
   criador_orientador_id Int?
   data_criacao          DateTime              @db.Date
+  quantidade_seguidores Int?                  @default(0)
   aluno                 aluno?                @relation(fields: [criador_aluno_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "comunidade_ibfk_1")
   orientador            orientador?           @relation(fields: [criador_orientador_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "comunidade_ibfk_2")
   comunidade_post       comunidade_post[]
@@ -57,33 +59,35 @@ model comunidade {
 
 model comunidade_post {
   id                  Int         @id @default(autoincrement())
-  comunidade_id       Int?
+  comunidade_id       Int
   autor_aluno_id      Int?
   autor_orientador_id Int?
   conteudo            String      @db.Text
   data_postagem       DateTime    @db.Date
-  comunidade          comunidade? @relation(fields: [comunidade_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "comunidade_post_ibfk_1")
+  comunidade          comunidade  @relation(fields: [comunidade_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "comunidade_post_ibfk_1")
   aluno               aluno?      @relation(fields: [autor_aluno_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "comunidade_post_ibfk_2")
   orientador          orientador? @relation(fields: [autor_orientador_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "comunidade_post_ibfk_3")
 
   @@index([autor_aluno_id], map: "autor_aluno_id")
   @@index([autor_orientador_id], map: "autor_orientador_id")
   @@index([comunidade_id], map: "comunidade_id")
+  @@index([comunidade_id], map: "idx_comunidade_id_post")
 }
 
 model comunidade_seguidor {
   id                     Int         @id @default(autoincrement())
-  comunidade_id          Int?
+  comunidade_id          Int
   seguidor_aluno_id      Int?
   seguidor_orientador_id Int?
   data_seguimento        DateTime    @db.Date
-  comunidade             comunidade? @relation(fields: [comunidade_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "comunidade_seguidor_ibfk_1")
+  comunidade             comunidade  @relation(fields: [comunidade_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "comunidade_seguidor_ibfk_1")
   aluno                  aluno?      @relation(fields: [seguidor_aluno_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "comunidade_seguidor_ibfk_2")
   orientador             orientador? @relation(fields: [seguidor_orientador_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "comunidade_seguidor_ibfk_3")
 
   @@index([comunidade_id], map: "comunidade_id")
   @@index([seguidor_aluno_id], map: "seguidor_aluno_id")
   @@index([seguidor_orientador_id], map: "seguidor_orientador_id")
+  @@index([comunidade_id], map: "idx_comunidade_id")
 }
 
 model orientador {
