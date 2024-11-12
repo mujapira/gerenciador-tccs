@@ -6,7 +6,7 @@ import {
 } from "@/app/components/community-related/community-list"
 import prisma from "../../lib/prisma"
 import { handlePrismaError } from "../../utils/handle-error"
-import { CommunityOverview } from "@/app/models/community/communityModel"
+import { ICommunityOverview } from "@/app/models/community/communityModel"
 
 type props = {
   page: number
@@ -60,24 +60,26 @@ export async function GetCommunityOverview({
         criador_aluno_id: true,
         descricao: true,
         criador_orientador_id: true,
-        aluno: { select: { id: true, nome: true } },
+        aluno: { select: { id: true, nome: true, caminho_foto: true } },
         orientador: { select: { id: true, nome: true } },
         quantidade_seguidores: true,
       },
     })
 
-    const communityOverviews: CommunityOverview[] = communities.map(
+    const communityOverviews: ICommunityOverview[] = communities.map(
       (community) => {
         const criador = community.aluno
           ? {
               id: community.aluno.id,
               nome: community.aluno.nome,
               tipo: "Aluno" as const,
+              img: community.aluno.caminho_foto ?? "/user-images/placeholder.png",
             }
           : {
               id: community.orientador?.id!,
               nome: community.orientador?.nome!,
               tipo: "Orientador" as const,
+              img: "/user-images/placeholder.png"
             }
 
         return {

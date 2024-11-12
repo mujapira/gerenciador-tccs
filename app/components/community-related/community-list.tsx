@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 
-import { CommunityOverview } from "@/app/models/community/communityModel"
+import { ICommunityOverview } from "@/app/models/community/communityModel"
 import { GetCommunityOverview } from "@/app/server-actions/community/getCommunityOverview"
 import { CommunityCard } from "./community-card"
 
@@ -40,9 +40,9 @@ export enum FilterFollowers {
 }
 
 export function Communities() {
-  const [pageSubject, setPageSubject] = useState<CommunityOverview[]>([])
+  const [pageSubject, setPageSubject] = useState<ICommunityOverview[]>([])
   const [filteredCommunities, setFilteredCommunities] = useState<
-    CommunityOverview[]
+    ICommunityOverview[]
   >([])
   const [totalItems, setTotalItems] = useState(0)
 

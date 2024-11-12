@@ -1,4 +1,4 @@
-export interface CommunityOverview {
+export interface ICommunityOverview {
   id: number
   nome: string
   imagemCapa: string | null
@@ -7,11 +7,12 @@ export interface CommunityOverview {
   criador: {
     id: number
     nome: string
+    img: string
     tipo: "Aluno" | "Orientador"
   }
 }
 
-export interface CommunityDetails extends CommunityOverview {
+export interface ICommunityDetails extends ICommunityOverview {
   descricao: string | null
   dataCriacao: Date
   posts: {
@@ -21,12 +22,14 @@ export interface CommunityDetails extends CommunityOverview {
     autor: {
       id: number
       nome: string
+      img: string
       tipo: "Aluno" | "Orientador"
     }
   }[]
   seguidores: {
     id: number
     nome: string
+    img: string
     tipo: "Aluno" | "Orientador"
   }[]
 }

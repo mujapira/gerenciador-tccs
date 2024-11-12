@@ -28,10 +28,6 @@ export default function TccsPage({
         </span>
       </div>
 
-      <Link prefetch href={"/tccs/detalhes/novo"}>
-        <Button>Novo TCC</Button>
-      </Link>
-
       <TccsDetails />
     </main>
   )

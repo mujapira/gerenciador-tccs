@@ -10,13 +10,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { CommunityOverview } from "@/app/models/community/communityModel"
+import { ICommunityOverview } from "@/app/models/community/communityModel"
 import Image from "next/image"
 import { UsersIcon } from "lucide-react"
 import Link from "next/link"
 
 interface PageProps {
-  data: CommunityOverview
+  data: ICommunityOverview
 }
 
 export function CommunityCard({ data }: PageProps) {
