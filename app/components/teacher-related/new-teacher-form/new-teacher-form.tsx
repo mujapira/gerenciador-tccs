@@ -11,17 +11,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useForm } from "react-hook-form"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import { CalendarIcon } from "lucide-react"
-import { Calendar } from "@/components/ui/calendar"
-import { format } from "date-fns"
-import { cn } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { createStudent } from "@/app/server-actions/student/createStudent"
 import { z } from "zod"
 import {
   Card,
@@ -31,25 +21,15 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Fragment, use, useEffect, useState } from "react"
-import { GetClasses } from "@/app/server-actions/classes/getClasses"
 import { Separator } from "@/components/ui/separator"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { INewStudentFormData } from "@/app/models/student/createStudentModel"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
 import { showErrorToast } from "@/app/utils/toast-utils"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { EmptyCard } from "../../empty-card"
 import Image from "next/image"
-import { IClass } from "@/app/models/classes/classModel"
-import { INewTeacherFormData } from "@/app/models/teacher/createTeacherModel"
-import { createTeacher } from "@/app/server-actions/teachers/createTeacher"
+import { IClass, ICreateTeacherFormData } from "@/app/models/mongoModels"
+import { createOrientador, getClasses } from "@/app/server-actions/mongoActions"
 
 const FormSchema = z.object({
   nome: z.string().min(2, "Nome é obrigatório"),
@@ -126,7 +106,7 @@ export default function NewTeacherForm() {
   })
 
   const fetchAvailableClasses = async () => {
-    const classes = await GetClasses()
+    const classes = await getClasses()
     setAvailableClasses(classes)
   }
 
@@ -151,17 +131,18 @@ export default function NewTeacherForm() {
       caminho = result.path
     }
 
-    const createStudentFormData: INewTeacherFormData = {
+    const createStudentFormData: ICreateTeacherFormData = {
       nome: data.nome,
       email: data.email,
       cpf: data.cpf,
       telefone: data.telefone,
       departamento: data.departamento,
       titulo_academico: data.titulo_academico,
+      caminho_foto: caminho,
     }
 
     try {
-      await createTeacher(createStudentFormData)
+      await createOrientador(createStudentFormData)
 
       toast({
         title: "Orientador cadastrado com sucesso",

@@ -40,6 +40,7 @@ export function StudentDetails({ id }: GetStudentProps) {
     if (!photoPath)
       return "/user-images/placeholder.png"
 
+
     const forbiddenWords = ["http", "https", "www", "github"]
     const isForbidden = forbiddenWords.some((word) =>
       photoPath.includes(word)
@@ -49,9 +50,8 @@ export function StudentDetails({ id }: GetStudentProps) {
       return photoPath
 
     } else {
-      return `/user-images/${photoPath}`
+      return `${photoPath}`
     }
-
   }
 
   useEffect(() => {
@@ -60,104 +60,107 @@ export function StudentDetails({ id }: GetStudentProps) {
 
   return (
     <div className="flex w-full gap-6 items-start justify-start">
-      <div className="flex flex-col gap-6">
-        <Card className="w-96">
-          <CardHeader className="flex flex-row gap-2 items-center justify-between">
-            <Image
-              alt=""
-              src={`${handleUserImage(student?.caminho_foto)}`}
-              width={24}
-              height={24}
-              className="rounded-full aspect-square w-8"
-            />
-            <div className="flex flex-col">
-              <CardTitle>Informações Pessoais</CardTitle>
-              <CardDescription>
-                Dados gerais do aluno cadastrados no sistema
-              </CardDescription>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col gap-2 text-sm">
-              <div className="">
-                <span className="font-semibold">Nome:</span>{" "}
-                <span>{student?.nome}</span>
+      {student && (
+        <div className="flex flex-col gap-6">
+          <Card className="w-96">
+            <CardHeader className="flex flex-row gap-2 items-center justify-between">
+              <Image
+                alt=""
+                src={`${handleUserImage(student?.caminho_foto)}`}
+                width={24}
+                height={24}
+                className="rounded-full aspect-square w-8"
+              />
+              <div className="flex flex-col">
+                <CardTitle>Informações Pessoais</CardTitle>
+                <CardDescription>
+                  Dados gerais do aluno cadastrados no sistema
+                </CardDescription>
               </div>
-              <div className="">
-                <span className="font-semibold">Email:</span>{" "}
-                <span>{student?.email}</span>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col gap-2 text-sm">
+                <div className="">
+                  <span className="font-semibold">Nome:</span>{" "}
+                  <span>{student.nome}</span>
+                </div>
+                <div className="">
+                  <span className="font-semibold">Email:</span>{" "}
+                  <span>{student.email}</span>
+                </div>
+                <div className="">
+                  <span className="font-semibold">CPF:</span>{" "}
+                  <span>{formatCPF(student.cpf)}</span>
+                </div>
+                <div className="">
+                  <span className="font-semibold">Telefone:</span>{" "}
+                  <span>{formatPhoneNumber(student.telefone)}</span>
+                </div>
+                <div className="">
+                  <span className="font-semibold">Endereço:</span>{" "}
+                  <span>
+                    {student.endereco}, {student.cidade}, {student.estado}
+                  </span>
+                </div>
+                <div className="">
+                  <span className="font-semibold">Data de Nascimento:</span>{" "}
+                  <span>{student.data_nascimento?.toLocaleDateString()}</span>
+                </div>
+                <Button>
+                  <Link href={`/alunos/editar/${student.id}`}>
+                    Editar informações
+                  </Link>
+                </Button>
               </div>
-              <div className="">
-                <span className="font-semibold">CPF:</span>{" "}
-                <span>{formatCPF(student?.cpf)}</span>
-              </div>
-              <div className="">
-                <span className="font-semibold">Telefone:</span>{" "}
-                <span>{formatPhoneNumber(student?.telefone)}</span>
-              </div>
-              <div className="">
-                <span className="font-semibold">Endereço:</span>{" "}
-                <span>
-                  {student?.endereco}, {student?.cidade}, {student?.estado}
-                </span>
-              </div>
-              <div className="">
-                <span className="font-semibold">Data de Nascimento:</span>{" "}
-                <span>{student?.data_nascimento?.toLocaleDateString()}</span>
-              </div>
-              <Button>
-                <Link href={`/alunos/editar/${student?.id}`}>
-                  Editar informações
-                </Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        <Card className="w-96">
-          <CardHeader>
-            <CardTitle>Informações Acadêmicas</CardTitle>
-            <CardDescription>
-              Dados acadêmicos do aluno cadastrados no sistema
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col gap-2 text-sm">
-              <div className="">
-                <span className="font-semibold">Matrícula:</span>{" "}
-                <span>{student?.matricula}</span>
+          <Card className="w-96">
+            <CardHeader>
+              <CardTitle>Informações Acadêmicas</CardTitle>
+              <CardDescription>
+                Dados acadêmicos do aluno cadastrados no sistema
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col gap-2 text-sm">
+                <div className="">
+                  <span className="font-semibold">Matrícula:</span>{" "}
+                  <span>{student.matricula}</span>
+                </div>
+                <div className="">
+                  <span className="font-semibold">Data de Ingresso:</span>{" "}
+                  <span>{student.data_ingresso?.toLocaleDateString()}</span>
+                </div>
+                <div className="">
+                  <span className="font-semibold">Semestre Atual:</span>{" "}
+                  <span>{student.semestre_atual}</span>
+                </div>
               </div>
-              <div className="">
-                <span className="font-semibold">Data de Ingresso:</span>{" "}
-                <span>{student?.data_ingresso?.toLocaleDateString()}</span>
-              </div>
-              <div className="">
-                <span className="font-semibold">Semestre Atual:</span>{" "}
-                <span>{student?.semestre_atual}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       <div className="flex flex-col gap-6">
         <Card className="">
           <CardHeader>
-            <CardTitle>Classe</CardTitle>
+            <CardTitle>Turma</CardTitle>
             <CardDescription>Turma que o aluno participa</CardDescription>
           </CardHeader>
           <CardContent>
 
-            <div className="flex flex-col gap-4">
-
-              <Link href={`/${student?.turma_id}`}>
-                <Button className="p-0" variant="link" key={student?.turma_id}>
-                  {student?.turma_nome}
-                </Button>
-              </Link>
-
-            </div>
-
             {student?.turma_id !== null && (
+              <div className="flex flex-col gap-4">
+                <Link href={`/turmas/${student?.turma_id}`}>
+                  <Button className="p-0" variant="link" key={student?.turma_id}>
+                    {student?.turma_nome}
+                  </Button>
+                </Link>
+              </div>
+            )}
+
+            {student?.turma_id === null && (
               <Fragment>
                 <p className="text-sm mb-2">
                   Nenhuma turma cadastrada para este aluno.

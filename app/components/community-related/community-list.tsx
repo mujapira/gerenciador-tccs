@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from "react"
 
-import { ICommunityOverview } from "@/app/models/community/communityModel"
-import { GetCommunityOverview } from "@/app/server-actions/community/getCommunityOverview"
 import { CommunityCard } from "./community-card"
 
 import {
@@ -25,6 +23,8 @@ import {
 } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { ICommunity, ICommunityFromBase } from "@/app/models/mongoModels"
+import { getAllComunidades } from "@/app/server-actions/mongoActions"
 
 export enum FilterCreator {
   Aluno = "Aluno",
@@ -40,101 +40,67 @@ export enum FilterFollowers {
 }
 
 export function Communities() {
-  const [pageSubject, setPageSubject] = useState<ICommunityOverview[]>([])
-  const [filteredCommunities, setFilteredCommunities] = useState<
-    ICommunityOverview[]
-  >([])
-  const [totalItems, setTotalItems] = useState(0)
+  const [pageSubject, setPageSubject] = useState<ICommunityFromBase[]>([]);
+  const [totalItems, setTotalItems] = useState(0);
+  const itemsPerPage = 12;
 
-  const itemsPerPage = 12
-  const router = useRouter()
-  const searchParams = useSearchParams()
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const currentPage = Number(searchParams.get("page") || 1)
-  const filterCreator =
-    (searchParams.get("filterCreator") as FilterCreator) || "Todos"
-  const filterFollowers =
-    (searchParams.get("filterFollowers") as FilterFollowers) || "Todos"
-  const totalPages = Math.ceil(totalItems / itemsPerPage)
+  const fetchPageSubject = async () => {
+    const currentPage = Number(searchParams.get("page")) || 1;
+    const filterCreator = searchParams.get("filterCreator") || "Todos";
+    const filterFollowers = searchParams.get("filterFollowers") || "Todos";
 
-  const fetchPageSubject = async (
-    page: number,
-    creatorFilter: FilterCreator,
-    followersFilter: FilterFollowers
-  ) => {
-    const methodResponse = await GetCommunityOverview({
-      page,
+    const methodResponse = await getAllComunidades({
+      page: currentPage,
       itemsPerPage,
-      creatorFilter,
-      followersFilter,
-    })
-    if (methodResponse?.data) {
-      setPageSubject(methodResponse.data)
-      setTotalItems(methodResponse.total)
-      setFilteredCommunities(methodResponse.data)
-    }
-  }
+      creatorFilter: filterCreator,
+      followersFilter: filterFollowers,
+    });
 
-  const applyFilters = () => {
-    let filtered = [...pageSubject]
-    if (filterCreator !== "Todos") {
-      filtered = filtered.filter((community) =>
-        filterCreator === "Aluno"
-          ? community.criador.tipo === "Aluno"
-          : community.criador.tipo === "Orientador"
-      )
+    if (methodResponse) {
+      const formattedResponse = methodResponse.data.map((community) => ({
+        ...community,
+        seguidores: community.seguidores.map((seguidor) => ({
+          id: seguidor.id,
+          tipo: seguidor.tipo,
+          data_seguimento: seguidor.data_seguimento,
+        })),
+      }));
+
+      setPageSubject(formattedResponse);
+      setTotalItems(methodResponse.total);
     }
-    if (filterFollowers !== "Todos") {
-      filtered = filtered.filter((community) => {
-        switch (filterFollowers) {
-          case "0-50":
-            return community.quantidadeSeguidores <= 50
-          case "50-100":
-            return (
-              community.quantidadeSeguidores > 50 &&
-              community.quantidadeSeguidores <= 100
-            )
-          case "100+":
-            return community.quantidadeSeguidores > 100
-          default:
-            return true
-        }
-      })
-    }
-    setFilteredCommunities(filtered)
-  }
+  };
 
   const clearFilters = () => {
-    const params = new URLSearchParams(searchParams.toString())
-    params.delete("filterCreator")
-    params.delete("filterFollowers")
-    router.push(`?${params.toString()}`)
-  }
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("filterCreator");
+    params.delete("filterFollowers");
+    router.push(`?${params.toString()}`);
+  };
 
   useEffect(() => {
-    fetchPageSubject(currentPage, filterCreator, filterFollowers)
-  }, [currentPage, filterCreator, filterFollowers])
-
-  useEffect(() => {
-    applyFilters()
-  }, [pageSubject])
+    fetchPageSubject();
+  }, [searchParams]);
 
   const handleFilterChange = (
     newFilterCreator: string,
     newFilterFollowers: string
   ) => {
-    const params = new URLSearchParams(searchParams.toString())
-    params.set("page", "1")
-    params.set("filterCreator", newFilterCreator)
-    params.set("filterFollowers", newFilterFollowers)
-    router.push(`?${params.toString()}`)
-  }
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", "1");
+    params.set("filterCreator", newFilterCreator);
+    params.set("filterFollowers", newFilterFollowers);
+    router.push(`?${params.toString()}`);
+  };
 
   const paginate = (page: number) => {
-    const params = new URLSearchParams(searchParams.toString())
-    params.set("page", page.toString())
-    router.push(`?${params.toString()}`)
-  }
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", page.toString());
+    router.push(`?${params.toString()}`);
+  };
 
   return (
     <div className="flex w-full gap-6 items-start justify-start">
@@ -149,10 +115,11 @@ export function Communities() {
         <div className="flex flex-col gap-2 items-start justify-center">
           <span className="text-sm font-semibold">Criador</span>
           <Select
-            value={filterCreator}
+            value={searchParams.get("filterCreator") || "Todos"}
             onValueChange={(value) =>
-              handleFilterChange(value, filterFollowers)
-            }>
+              handleFilterChange(value, searchParams.get("filterFollowers") || "Todos")
+            }
+          >
             <SelectTrigger>
               <SelectValue placeholder="Filtrar por Criador" />
             </SelectTrigger>
@@ -167,8 +134,11 @@ export function Communities() {
         <div className="flex flex-col gap-2 items-start justify-center">
           <span className="text-sm font-semibold">Quantidade</span>
           <Select
-            value={filterFollowers}
-            onValueChange={(value) => handleFilterChange(filterCreator, value)}>
+            value={searchParams.get("filterFollowers") || "Todos"}
+            onValueChange={(value) =>
+              handleFilterChange(searchParams.get("filterCreator") || "Todos", value)
+            }
+          >
             <SelectTrigger>
               <SelectValue placeholder="Filtrar por Seguidores" />
             </SelectTrigger>
@@ -184,7 +154,7 @@ export function Communities() {
 
       <div className="w-full flex flex-col gap-12 max-w-screen-xl">
         <div className="grid grid-cols-3 justify-between gap-6">
-          {filteredCommunities.map((subject) => (
+          {pageSubject.map((subject) => (
             <CommunityCard key={subject.id} data={subject} />
           ))}
         </div>
@@ -195,30 +165,37 @@ export function Communities() {
               <PaginationPrevious
                 href="#"
                 onClick={(e) => {
-                  e.preventDefault()
-                  if (currentPage > 1) paginate(currentPage - 1)
+                  e.preventDefault();
+                  const currentPage = Number(searchParams.get("page")) || 1;
+                  if (currentPage > 1) paginate(currentPage - 1);
                 }}
               />
             </PaginationItem>
-            {Array.from({ length: totalPages }, (_, index) => (
-              <PaginationItem key={index}>
-                <PaginationLink
-                  href="#"
-                  isActive={currentPage === index + 1}
-                  onClick={(e) => {
-                    e.preventDefault()
-                    paginate(index + 1)
-                  }}>
-                  {index + 1}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
+            {Array.from(
+              { length: Math.ceil(totalItems / itemsPerPage) },
+              (_, index) => (
+                <PaginationItem key={index}>
+                  <PaginationLink
+                    href="#"
+                    isActive={Number(searchParams.get("page")) === index + 1}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      paginate(index + 1);
+                    }}
+                  >
+                    {index + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              )
+            )}
             <PaginationItem>
               <PaginationNext
                 href="#"
                 onClick={(e) => {
-                  e.preventDefault()
-                  if (currentPage < totalPages) paginate(currentPage + 1)
+                  e.preventDefault();
+                  const currentPage = Number(searchParams.get("page")) || 1;
+                  const totalPages = Math.ceil(totalItems / itemsPerPage);
+                  if (currentPage < totalPages) paginate(currentPage + 1);
                 }}
               />
             </PaginationItem>
@@ -226,5 +203,5 @@ export function Communities() {
         </Pagination>
       </div>
     </div>
-  )
+  );
 }

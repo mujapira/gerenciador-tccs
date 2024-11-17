@@ -11,21 +11,9 @@ import {
 import Link from "next/link"
 import { MoreHorizontal } from "lucide-react"
 import { ArrowUpDown } from "lucide-react"
-import { Input } from "@/components/ui/input"
 import Image from "next/image"
 import { IStudent } from "@/app/models/mongoModels"
-
-const formatCPF = (cpf: string) => {
-  return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")
-}
-
-const formatPhone = (phone: string) => {
-  if (phone.length === 11) {
-    return phone.replace(/(\d{2})(\d{1})(\d{4})(\d{4})/, "($1) $2-$3-$4")
-  } else {
-    return phone
-  }
-}
+import { formatCPF, formatPhoneNumber } from "@/app/utils/formatters"
 
 export const studentTableColumns: ColumnDef<IStudent>[] = [
   {
@@ -72,7 +60,7 @@ export const studentTableColumns: ColumnDef<IStudent>[] = [
   {
     accessorKey: "telefone",
     header: "Telefone",
-    cell: ({ getValue }) => formatPhone(getValue() as string),
+    cell: ({ getValue }) => formatPhoneNumber(getValue() as string),
   },
   {
     accessorKey: "cidade",

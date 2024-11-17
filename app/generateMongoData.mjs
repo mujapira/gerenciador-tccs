@@ -2,7 +2,8 @@ import { faker } from "@faker-js/faker"
 import SuperFakerBrasil from "faker-brasil"
 import { MongoClient, ObjectId, Double } from "mongodb"
 
-const mongoUrl = "mongodb+srv://malmasmello2:SENHA@gerenciador.rf7b5.mongodb.net/gerenciador?retryWrites=true&w=majority&appName=gerenciador"
+const mongoUrl =
+  "mongodb+srv://malmasmello2:SENHA@gerenciador.rf7b5.mongodb.net/gerenciador?retryWrites=true&w=majority&appName=gerenciador"
 const dbName = "gerenciador"
 const fakerBrasil = new SuperFakerBrasil()
 
@@ -165,8 +166,7 @@ async function populateDatabase() {
         const alunosNaTurma = alunoIds
           .filter((aluno) => aluno.turma_id.equals(turmaId))
           .map((aluno) => ({
-            _id: aluno._id,
-            nome: aluno.nome,
+            aluno,
           }))
 
         await db.collection("turma").updateOne(
@@ -187,6 +187,7 @@ async function populateDatabase() {
       cpf: fakerBrasil.cpf(),
       telefone: generateBrCellNumber(),
       departamento: faker.commerce.department(),
+      caminho_foto: faker.image.avatar(),
       titulo_academico: faker.helpers.arrayElement([
         "Doutor",
         "Mestre",

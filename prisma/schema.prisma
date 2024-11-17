@@ -99,12 +99,25 @@ type TccTema {
 }
 
 type TurmaAlunos {
-  id   String @map("_id") @db.ObjectId
-  nome String
+  aluno TurmaAlunosAluno
 }
 
-model a {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
+type TurmaAlunosAluno {
+  id              String   @map("_id") @db.ObjectId
+  caminho_foto    String
+  cidade          String
+  cpf             String
+  data_ingresso   DateTime @db.Date
+  data_nascimento DateTime @db.Date
+  email           String
+  endereco        String
+  estado          String
+  matricula       String
+  nome            String
+  semestre_atual  Int
+  telefone        String
+  turma_id        String   @db.ObjectId
+  turma_nome      String
 }
 
 model aluno {
@@ -138,6 +151,7 @@ model comunidade {
 
 model orientador {
   id               String @id @default(auto()) @map("_id") @db.ObjectId
+  caminho_foto     String
   cpf              String
   departamento     String
   email            String

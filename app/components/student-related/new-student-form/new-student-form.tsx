@@ -44,8 +44,8 @@ import { showErrorToast } from "@/app/utils/toast-utils"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { EmptyCard } from "../../empty-card"
 import Image from "next/image"
-import { IClass } from "@/app/models/mongoModels"
-import { createStudent, getClasses, ICreateStudentFormData } from "@/app/server-actions/mongoActions"
+import { IClass, ICreateStudentFormData } from "@/app/models/mongoModels"
+import { createStudent, getClasses } from "@/app/server-actions/mongoActions"
 import { DatePicker } from "@/components/ui/date-picker"
 
 const FormSchema = z.object({

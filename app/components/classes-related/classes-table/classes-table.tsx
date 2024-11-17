@@ -4,16 +4,17 @@ import { useEffect, useState } from "react"
 import { showErrorToast } from "@/app/utils/toast-utils"
 import { ClassesDataTable } from "./classes-data-table"
 import { classesTableColumns } from "./classes-col-defs"
-import { IClassWithStudents } from "@/app/models/classes/classModel"
-import { GetClassesDetails } from "@/app/server-actions/classes/getClassesDetails"
+import { IClass } from "@/app/models/mongoModels"
+import { getClasses } from "@/app/server-actions/mongoActions"
 
-export function ClassesTable({ onSelectClass }: { onSelectClass: (classData: IClassWithStudents) => void }) {
-  const [classes, setClasses] = useState<IClassWithStudents[]>([])
+
+export function ClassesTable({ onSelectClass }: { onSelectClass: (classData: IClass) => void }) {
+  const [classes, setClasses] = useState<IClass[]>([])
 
   const handleGetClasses = async () => {
     try {
-      const response = await GetClassesDetails()
-
+      const response = await getClasses()
+      console.log(response)
       if (response) {
         setClasses(response)
       }

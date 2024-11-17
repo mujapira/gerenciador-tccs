@@ -10,30 +10,31 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { GetCommunityDetails } from "@/app/server-actions/community/getCommunityDetails"
-import { ICommunityDetails } from "@/app/models/community/communityModel"
 import { Cake, Crown, User, User2, Users2 } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
+import { ICommunity, IStudent, ITeacher } from "@/app/models/mongoModels"
+import { getCommunity } from "@/app/server-actions/mongoActions"
 
 interface PageProps {
-  id: number
+  id: string
 }
 
 export function CommunityDetails({ id }: PageProps) {
-  const [data, setData] = useState<ICommunityDetails>()
+  const [data, setData] = useState<ICommunity>()
   const [loading, setLoading] = useState(true)
-  const [topFollowers, setTopFollowers] = useState<ICommunityDetails["seguidores"]>()
+  const [topFollowers, setTopFollowers] = useState<ICommunity["seguidores"]>()
+  const [creator, setCreator] = useState<IStudent | ITeacher>()
 
   async function fetchPageData() {
-    const response = await GetCommunityDetails(id)
+    const response = await getCommunity(id)
+    console.log(response)
     if (response) {
       setData(response)
       const topFollowers = response.seguidores.slice(0, 15)
       setTopFollowers(topFollowers)
-      console.log(topFollowers)
     }
   }
 
@@ -59,7 +60,7 @@ export function CommunityDetails({ id }: PageProps) {
                     rounded-t-lg
                     "
               style={{
-                backgroundImage: `url(${data.imagemCapa ||
+                backgroundImage: `url(${data.imagem_capa ||
                   "/community-images/community-placeholder.png"
                   })`,
               }}></div>
@@ -72,35 +73,32 @@ export function CommunityDetails({ id }: PageProps) {
             <CardContent>
               <CardDescription>
                 <div className="flex flex-col items-start">
-                  <Link href={`alunos/${data.criador.id}`} className="flex items-center gap-1">
-                    <Crown className="w-4" /> {data.criador.nome}
+                  <Link href={`alunos/${data.criador.info.id}`} className="flex items-center gap-1">
+                    <Crown className="w-4" /> {data.criador.info.nome}
                   </Link>
 
                   <span className="flex items-center gap-5">
                     <span className="flex items-center gap-1
                     ">
-                      <Cake className="w-4" /> {parseDate(data.dataCriacao)}
+                      <Cake className="w-4" /> {parseDate(data.data_criacao)}
                     </span>
                     <span className="flex items-center gap-1">
-                      <Users2 className="w-4" /> {data.quantidadeSeguidores}
+                      <Users2 className="w-4" /> {data.seguidores.length}
                     </span>
                   </span>
 
                   <Separator className="my-2" />
 
-
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-3">
                     {topFollowers?.map((follower) => (
-                      <Link href={`alunos/${follower.id}`} key={follower.id} className="flex items-center gap-1">
-                        <Image src={follower.img} width={24} height={24} className="rounded-full" alt="" /> {follower.nome}
+                      <Link href={`alunos/${follower.info.id}`} key={follower.info.id} className="flex items-center gap-2">
+                        <Image src={follower.info.caminho_foto} width={24} height={24} className="rounded-full" alt="" /> {follower.info.nome}
                       </Link>
                     ))}
                     <Button variant={"secondary"} className="mt-2">
                       <Link href={`comunidades/${id}/seguidores`}>Ver todos</Link>
                     </Button>
                   </div>
-
-
                 </div>
               </CardDescription>
             </CardContent>
@@ -116,14 +114,14 @@ export function CommunityDetails({ id }: PageProps) {
               <CardDescription>
                 <div className="flex flex-col gap-2">
                   {data.posts.map((post) => (
-                    <div key={post.id} className="flex flex-col gap-2">
+                    <div key={post.data_postagem.toLocaleTimeString()} className="flex flex-col gap-2">
                       <div className="flex flex-row gap-2 items-center justify-between">
                         <Button variant={'link'} className="m-0 p-0">
-                          <Link href={`alunos/${post.autor.id}`} className="flex items-center gap-2">
-                            <Image src={post.autor.img} width={24} height={24} className="rounded-full" alt="" /> {post.autor.nome}
+                          <Link href={`alunos/${post.autor.info.id}`} className="flex items-center gap-2">
+                            <Image src={post.autor.info.caminho_foto} width={24} height={24} className="rounded-full" alt="" /> {post.autor.info.nome}
                           </Link>
                         </Button>
-                        <span className="text-muted-foreground">{parseDate(post.dataPostagem)}</span>
+                        <span className="text-muted-foreground">{parseDate(post.data_postagem)}</span>
                       </div>
                       <p>{post.conteudo}</p>
                       <Separator className="my-2" />

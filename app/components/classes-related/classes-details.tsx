@@ -1,29 +1,17 @@
 "use client"
 
 import { Fragment, useEffect, useState } from "react"
-import { GetStudentDetails } from "../../server-actions/student/getStudentDetails"
-import { IDetailedStudent } from "@/app/models/student/detailedStudentModel"
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Plus, PlusCircleIcon, PlusIcon } from "lucide-react"
 import { showErrorToast } from "@/app/utils/toast-utils"
 import Image from "next/image"
-import { IClassWithStudents } from "@/app/models/classes/classModel"
-import { GetClassesDetails } from "@/app/server-actions/classes/getClassesDetails"
-import {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-} from "@/components/ui/accordion"
 import {
   Select,
   SelectTrigger,
@@ -35,38 +23,18 @@ import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 
 import { ClassesTable } from "./classes-table/classes-table"
-import { GetStudents } from "@/app/server-actions/student/getStudents"
-import { IStudent } from "@/app/models/student/studentsModel"
 import { toast } from "@/hooks/use-toast"
-import { UpdateClassStudents } from "@/app/server-actions/classes/updateClasseStudents"
-import { set } from "date-fns"
+import { IClass, IStudent } from "@/app/models/mongoModels"
+import { calcularIdade } from "@/app/utils/age"
+import { getAllStudents, getClasses, updateClassStudents } from "@/app/server-actions/mongoActions"
 
-function calcularIdade(dataNasc: string) {
-  var dataAtual = new Date()
-  var anoAtual = dataAtual.getFullYear()
-  var mesAtual = dataAtual.getMonth() + 1
-  var diaAtual = dataAtual.getDate()
-
-  var dataNascimento = new Date(dataNasc)
-  var anoNasc = dataNascimento.getFullYear()
-  var mesNasc = dataNascimento.getMonth() + 1
-  var diaNasc = dataNascimento.getDate()
-
-  var idade = anoAtual - anoNasc
-
-  if (mesAtual < mesNasc || (mesAtual == mesNasc && diaAtual < diaNasc)) {
-    idade--
-  }
-
-  return idade
-}
 
 export function ClassesDetails() {
-  const [classes, setClasses] = useState<IClassWithStudents[]>()
-  const [selectedClass, setSelectedClass] = useState<IClassWithStudents | null>(
+  const [classes, setClasses] = useState<IClass[]>()
+  const [selectedClass, setSelectedClass] = useState<IClass | null>(
     null
   )
-  const [originalClass, setOriginalClass] = useState<IClassWithStudents | null>(
+  const [originalClass, setOriginalClass] = useState<IClass | null>(
     null
   ) // Store original state
   const [students, setStudents] = useState<IStudent[]>()
@@ -78,7 +46,7 @@ export function ClassesDetails() {
 
   const getStudents = async () => {
     try {
-      const response = await GetStudents()
+      const response = await getAllStudents()
       if (response) {
         setStudents(response as IStudent[])
       }
@@ -100,7 +68,7 @@ export function ClassesDetails() {
 
   const onSelectStudent = (value: string) => {
     const selectedStudent = students?.find(
-      (student) => student.id === Number(value)
+      (student) => student.id === value
     )
 
     if (selectedStudent) {
@@ -120,9 +88,9 @@ export function ClassesDetails() {
 
   const handleGetClasses = async () => {
     try {
-      const response = await GetClassesDetails()
+      const response = await getClasses()
       if (response) {
-        setClasses(response as IClassWithStudents[])
+        setClasses(response as IClass[])
       }
     } catch (error) {
       showErrorToast(error)
@@ -135,7 +103,7 @@ export function ClassesDetails() {
     setIsEditing(true)
   }
 
-  const handleRemoveStudent = (studentId: number) => {
+  const handleRemoveStudent = (studentId: string) => {
     setSelectedClass((prev) => {
       if (!prev) return null
 
@@ -149,7 +117,8 @@ export function ClassesDetails() {
   const handleSaveChanges = async () => {
     if (selectedClass) {
       try {
-        await UpdateClassStudents(selectedClass.id, selectedClass.alunos)
+        await updateClassStudents(selectedClass.id, selectedClass.alunos)
+        
         setIsEditing(false)
 
         toast({

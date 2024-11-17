@@ -1,5 +1,4 @@
 import { ColumnDef } from "@tanstack/react-table"
-import { IStudent } from "../../../models/student/studentsModel"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -14,19 +13,8 @@ import { MoreHorizontal } from "lucide-react"
 import { ArrowUpDown } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import Image from "next/image"
-import { ITeacher } from "@/app/models/teacher/teacherModel"
-
-const formatCPF = (cpf: string) => {
-  return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")
-}
-
-const formatPhone = (phone: string) => {
-  if (phone.length === 11) {
-    return phone.replace(/(\d{2})(\d{1})(\d{4})(\d{4})/, "($1) $2-$3-$4")
-  } else {
-    return phone
-  }
-}
+import { ITeacher } from "@/app/models/mongoModels"
+import { formatCPF, formatPhoneNumber } from "@/app/utils/formatters"
 
 export const teacherTableColumns: ColumnDef<ITeacher>[] = [
   {
@@ -48,7 +36,7 @@ export const teacherTableColumns: ColumnDef<ITeacher>[] = [
           <Image
             width={24}
             height={24}
-            src={student?.caminhoFoto || "/images/placeholder.png"}
+            src={student?.caminho_foto || "/images/placeholder.png"}
             alt="Imagem do aluno"
             className="h-8 w-8 rounded-full object-cover"
           />
@@ -69,7 +57,7 @@ export const teacherTableColumns: ColumnDef<ITeacher>[] = [
   {
     accessorKey: "telefone",
     header: "Telefone",
-    cell: ({ getValue }) => formatPhone(getValue() as string),
+    cell: ({ getValue }) => formatPhoneNumber(getValue() as string),
   },
   {
     accessorKey: "tituloAcademico",
@@ -98,7 +86,7 @@ export const teacherTableColumns: ColumnDef<ITeacher>[] = [
             <Link href={`/orientadores/${student?.id}`}>
               <DropdownMenuItem>Ver detalhes</DropdownMenuItem>
             </Link>
-            <Link href={`/alunos/editar/${student?.id}`}>
+            <Link href={`/orientadores/editar/${student?.id}`}>
               <DropdownMenuItem>Editar</DropdownMenuItem>
             </Link>
           </DropdownMenuContent>

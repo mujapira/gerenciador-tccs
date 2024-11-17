@@ -27,7 +27,7 @@ export default async function StudentPage({
           Comunidade
         </span>
       </div>
-     <CommunityDetails id={parseInt(params.id)} />
+     <CommunityDetails id={params.id} />
     </main>
   )
 }

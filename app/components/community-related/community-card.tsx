@@ -10,13 +10,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { ICommunityOverview } from "@/app/models/community/communityModel"
 import Image from "next/image"
 import { UsersIcon } from "lucide-react"
 import Link from "next/link"
+import { ICommunityFromBase } from "@/app/models/mongoModels"
 
 interface PageProps {
-  data: ICommunityOverview
+  data: ICommunityFromBase
 }
 
 export function CommunityCard({ data }: PageProps) {
@@ -31,7 +31,7 @@ export function CommunityCard({ data }: PageProps) {
                     "
         style={{
           backgroundImage: `url(${
-            data.imagemCapa || "/community-images/community-placeholder.png"
+            data.imagem_capa || "/community-images/community-placeholder.png"
           })`,
         }}>
         <div className="absolute inset-0 bg-black opacity-50 rounded-md" />
@@ -43,7 +43,7 @@ export function CommunityCard({ data }: PageProps) {
           <CardTitle className="text-white line-clamp-2">{data.nome}</CardTitle>
           <div className="flex items-center justify-center gap-1 !mt-0">
             <UsersIcon className="text-white h-5" />
-            <span>{data.quantidadeSeguidores}</span>
+            <span>{data.seguidores.length}</span>
           </div>
         </CardHeader>
 

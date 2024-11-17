@@ -44,8 +44,8 @@ import { showErrorToast } from "@/app/utils/toast-utils"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { EmptyCard } from "../../empty-card"
 import Image from "next/image"
-import { IClass, IStudent } from "@/app/models/mongoModels"
-import { getClasses, getStudent, IUpdateStudentFormData, updateStudent } from "@/app/server-actions/mongoActions"
+import { IClass, IStudent, IUpdateStudentFormData } from "@/app/models/mongoModels"
+import { getClasses, getStudent, updateStudent } from "@/app/server-actions/mongoActions"
 import { formatCPF, formatPhoneNumber } from "@/app/utils/formatters"
 
 
@@ -561,7 +561,7 @@ export default function EditStudentForm({ id }: { id: string }) {
               />
 
               <div className="flex w-full items-center justify-end">
-                <Button className="mt-8" type="submit">
+                <Button className="mt-8" type="submit" disabled={!form.formState.isValid}>
                   Salvar informações
                 </Button>
               </div>

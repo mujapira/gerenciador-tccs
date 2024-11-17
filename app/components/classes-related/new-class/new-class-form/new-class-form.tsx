@@ -19,7 +19,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { createStudent } from "@/app/server-actions/student/createStudent"
+
 import { z } from "zod"
 
 import { Fragment, use, useEffect, useState } from "react"
@@ -27,9 +27,7 @@ import { Fragment, use, useEffect, useState } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
 import { showErrorToast } from "@/app/utils/toast-utils"
-import { createClass } from "@/app/server-actions/classes/createClass"
-import { IStudent } from "@/app/models/student/studentsModel"
-import { GetStudents } from "@/app/server-actions/student/getStudents"
+
 import {
   Select,
   SelectContent,
@@ -39,6 +37,8 @@ import {
 } from "@/components/ui/select"
 import Link from "next/link"
 import Image from "next/image"
+import { IStudent } from "@/app/models/mongoModels"
+import { createClass, getAllStudents } from "@/app/server-actions/mongoActions"
 
 const FormSchema = z.object({
   nome: z.string().min(1, "O nome da turma é obrigatório"),
@@ -72,7 +72,7 @@ export default function NewClassForm() {
 
   async function onSubmit(data: z.infer<typeof FormSchema>): Promise<void> {
     try {
-      await createClass(data, selectedStudents)
+      await createClass(data.nome, selectedStudents)
       toast({ title: "Turma criada com sucesso!" })
       router.push("/turmas")
     } catch (error) {
@@ -81,13 +81,13 @@ export default function NewClassForm() {
   }
 
   async function fetchStudents() {
-    const students = await GetStudents()
+    const students = await getAllStudents()
     setStudents(students)
   }
 
   const onSelectStudent = (value: string) => {
     const selectedStudent = students?.find(
-      (student) => student.id === Number(value)
+      (student) => student.id === value
     )
 
     if (selectedStudent) {
@@ -97,7 +97,7 @@ export default function NewClassForm() {
     setSearchTerm("")
   }
 
-  const handleRemoveStudent = (studentId: number) => {
+  const handleRemoveStudent = (studentId: string) => {
     const updatedStudents = selectedStudents.filter(
       (student) => student.id !== studentId
     )

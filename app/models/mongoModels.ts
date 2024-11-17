@@ -1,6 +1,4 @@
-import { ObjectId } from "mongodb"
 
-// Representa as informações de um TCC
 export interface ITcc {
   id: string // ID único do TCC
   titulo: string // Título do TCC
@@ -46,8 +44,7 @@ export interface ITcc {
   status: string // Status do TCC
 }
 
-// Representa uma comunidade
-export interface ICommunity {
+export interface ICommunityFromBase {
   id: string // ID único da comunidade
   nome: string // Nome da comunidade
   descricao: string // Descrição da comunidade
@@ -55,31 +52,53 @@ export interface ICommunity {
   data_criacao: Date // Data de criação
   criador: {
     id: string
-    tipo: "aluno" | "orientador"
+    tipo: "aluno" | "orientador" | string
   } // Criador da comunidade
   posts: {
     autor: {
       id: string
-      tipo: "aluno" | "orientador"
+      tipo: "aluno" | "orientador" | string
     }
     conteudo: string
     data_postagem: Date
   }[] // Lista de posts
   seguidores: {
     id: string
-    tipo: "aluno" | "orientador"
+    tipo: "aluno" | "orientador" | string
     data_seguimento: Date
   }[] // Lista de seguidores
+}
+
+export interface ICommunity {
+  id: string 
+  nome: string
+  descricao: string
+  imagem_capa: string
+  data_criacao: Date
+  criador: {
+    info: IStudent | ITeacher
+    tipo: "aluno" | "orientador"
+  }
+  posts: {
+    autor: {
+      info: IStudent | ITeacher
+      tipo: "aluno" | "orientador"
+    }
+    conteudo: string
+    data_postagem: Date
+  }[]
+  seguidores: {
+    info: IStudent | ITeacher
+    tipo: "aluno" | "orientador"
+    data_seguimento: Date
+  }[]
 }
 
 // Representa uma turma
 export interface IClass {
   id: string // ID único da turma
   nome: string // Nome da turma
-  alunos: {
-    id: string
-    nome: string
-  }[] // Lista de alunos
+  alunos: IStudent[] // Lista de alunos da turma
 }
 
 export interface IOccurrencesChartData {
@@ -90,12 +109,12 @@ export interface IOccurrencesChartData {
 export interface IStudent {
   id: string
   nome: string
-  email: string 
-  matricula: string 
-  cpf: string 
+  email: string
+  matricula: string
+  cpf: string
   telefone: string
   endereco: string
-  cidade: string 
+  cidade: string
   estado: string
   data_ingresso: Date
   data_nascimento: Date
@@ -114,4 +133,61 @@ export interface ITeacher {
   telefone: string
   departamento: string
   titulo_academico: string
+  caminho_foto: string
+}
+
+export interface IUpdateStudentFormData {
+  data: {
+    nome: string
+    email: string
+    matricula: string
+    cpf: string
+    telefone: string
+    endereco: string
+    cidade: string
+    estado: string
+    data_nascimento: Date
+    semestre_atual: number
+    caminho_foto: string
+  }
+  id: string
+}
+
+export interface ICreateStudentFormData {
+  nome: string
+  email: string
+  matricula: string
+  cpf: string
+  telefone: string
+  endereco: string
+  cidade: string
+  estado: string
+  data_nascimento: Date
+  semestre_atual: number
+  caminho_foto: string
+  turma_id: string
+  turma_nome: string
+}
+
+export interface ICreateTeacherFormData {
+  nome: string
+  email: string
+  cpf: string
+  telefone: string
+  departamento: string
+  titulo_academico: string
+  caminho_foto: string
+}
+
+export interface IUpdateTeacherFormData {
+  data: {
+    nome: string
+    email: string
+    cpf: string
+    telefone: string
+    departamento: string
+    titulo_academico: string
+    caminho_foto: string
+  }
+  id: string
 }
