@@ -21,7 +21,6 @@ import { Calendar } from "@/components/ui/calendar"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { createStudent } from "@/app/server-actions/student/createStudent"
 import { z } from "zod"
 import {
   Card,
@@ -30,9 +29,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { IClass } from "@/app/models/classes/classModel"
 import { Fragment, use, useEffect, useState } from "react"
-import { GetClasses } from "@/app/server-actions/classes/getClasses"
 import { Separator } from "@/components/ui/separator"
 import {
   Select,
@@ -41,13 +38,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { INewStudentFormData } from "@/app/models/student/createStudentModel"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
 import { showErrorToast } from "@/app/utils/toast-utils"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { EmptyCard } from "../../empty-card"
 import Image from "next/image"
+import { IClass } from "@/app/models/mongoModels"
+import { createStudent, getClasses, ICreateStudentFormData } from "@/app/server-actions/mongoActions"
+import { DatePicker } from "@/components/ui/date-picker"
 
 const FormSchema = z.object({
   nome: z.string().min(2, "Nome é obrigatório"),
@@ -64,12 +63,16 @@ const FormSchema = z.object({
     .refine((value) => value.length === 11, {
       message: "Telefone deve conter 11 dígitos",
     }),
-  endereco: z.string().optional(),
-  cidade: z.string().optional(),
-  estado: z.string().optional(),
-  data_nascimento: z.date(),
-  turmaId: z.string().optional(),
-})
+  endereco: z.string().min(3, "Endereço é obrigatório"),
+  cidade: z.string().min(3, "Cidade é obrigatória"),
+  estado: z.string().min(2, "Estado é obrigatório"),
+  data_nascimento: z.date({
+    required_error: "Data de nascimento é obrigatória",
+    invalid_type_error: "Data de nascimento inválida",
+  }),
+  turmaId: z.string().min(1, "Turma é obrigatória"),
+  turmaNome: z.string().min(1, "Turma é obrigatória"),
+});
 
 function formatCPF(value: string) {
   return value
@@ -99,7 +102,7 @@ function generateMatricula(): string {
 
 export default function NewStudentForm() {
   const [availableClasses, setAvailableClasses] = useState<IClass[]>([])
-  const [studentClasses, setStudentClasses] = useState<IClass[]>([])
+  const [studentClass, setStudentClass] = useState<IClass | null>(null)
   const [file, setFile] = useState<File | null>(null)
   const [uploadedFile, setUploadedFile] = useState<{
     key: string
@@ -140,7 +143,7 @@ export default function NewStudentForm() {
   })
 
   const fetchAvailableClasses = async () => {
-    const classes = await GetClasses()
+    const classes = await getClasses()
     setAvailableClasses(classes)
   }
 
@@ -165,23 +168,24 @@ export default function NewStudentForm() {
       caminho = result.path
     }
 
-    const createStudentFormData: INewStudentFormData = {
+    const createStudentFormData: ICreateStudentFormData = {
       nome: data.nome,
       email: data.email,
       matricula: generateMatricula(),
       cpf: data.cpf,
       telefone: data.telefone,
-      endereco: data.endereco,
-      cidade: data.cidade,
-      estado: data.estado,
-      data_ingresso: new Date(Date.now()),
+      endereco: data.endereco as string,
+      cidade: data.cidade as string,
+      estado: data.estado as string,
       data_nascimento: new Date(data.data_nascimento),
       semestre_atual: 1,
       caminho_foto: caminho,
+      turma_id: data.turmaId as string,
+      turma_nome: availableClasses.find((c) => c.id === data.turmaId)?.nome as string,
     }
 
     try {
-      await createStudent(createStudentFormData, studentClasses)
+      await createStudent(createStudentFormData,)
 
       toast({
         title: "Aluno cadastrado com sucesso",
@@ -196,14 +200,22 @@ export default function NewStudentForm() {
   }
 
   const handleAddClass = async (classId: string) => {
-    setStudentClasses([
-      ...studentClasses,
-      availableClasses.find((c) => c.id === parseInt(classId))!,
-    ])
+    setStudentClass(
+      availableClasses.find((c) => c.id === classId)!,
+    )
+    form.setValue("turmaId", classId)
+    form.setValue("turmaNome", availableClasses.find((c) => c.id === classId)?.nome || "")
+
+    await form.trigger(["turmaId", "turmaNome"]);
   }
 
-  const handleRemoveClass = async (classId: number) => {
-    setStudentClasses(studentClasses.filter((c) => c.id !== classId))
+  const handleRemoveClass = async (classId: string) => {
+    setStudentClass(null)
+    form.setValue("turmaId", "")
+    form.setValue("turmaNome", "")
+
+    await form.trigger(["turmaId", "turmaNome"]);
+
   }
 
   useEffect(() => {
@@ -219,6 +231,7 @@ export default function NewStudentForm() {
             Informe os dados do novo aluno para cadastrá-lo no sistema.
           </CardDescription>
         </CardHeader>
+
         <CardContent>
           <Form {...form}>
             <form
@@ -348,8 +361,17 @@ export default function NewStudentForm() {
                             id="telefone"
                             placeholder="(00) 00000-0000"
                             {...field}
+                            maxLength={15} // Restringe a entrada visual
                             value={formatPhoneNumber(field.value || "")}
-                            onChange={(e) => field.onChange(e.target.value)}
+                            onChange={(e) => {
+                              // Remove caracteres não numéricos
+                              const digitsOnly = e.target.value.replace(/\D/g, "");
+
+                              // Limita o valor a 11 dígitos
+                              if (digitsOnly.length <= 11) {
+                                field.onChange(digitsOnly);
+                              }
+                            }}
                           />
                           <FormMessage />
                         </FormItem>
@@ -363,38 +385,13 @@ export default function NewStudentForm() {
                           <FormLabel htmlFor="data_nascimento">
                             Data de Nascimento
                           </FormLabel>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <FormControl>
-                                <Button
-                                  id="data_nascimento"
-                                  variant={"outline"}
-                                  className={cn(
-                                    "w-full pl-3 text-left font-normal",
-                                    !field.value && "text-muted-foreground"
-                                  )}>
-                                  {field.value ? (
-                                    format(field.value, "PPP")
-                                  ) : (
-                                    <span>Selecione</span>
-                                  )}
-                                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                </Button>
-                              </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent
-                              className="w-auto p-0"
-                              align="start">
-                              <Calendar
-                                mode="single"
-                                selected={field.value}
-                                onSelect={field.onChange}
-                                disabled={(date) => date > new Date()}
-                                fromYear={2000}
-                                initialFocus
-                              />
-                            </PopoverContent>
-                          </Popover>
+                          <DatePicker
+                            {...field}
+                            onChange={(date) => {
+                              field.onChange(date);
+                              field.onBlur();
+                            }}
+                          />
                           <FormMessage />
                         </FormItem>
                       )}
@@ -465,65 +462,70 @@ export default function NewStudentForm() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel htmlFor="turma">Turmas</FormLabel>
-                    {studentClasses && studentClasses.length === 0 && (
+                    {!studentClass && (
                       <CardDescription>
                         Aluno não está matriculado em nenhuma turma
                       </CardDescription>
                     )}
-                    <div className="flex items-center justify-start gap-4">
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value || ""}>
-                        <SelectTrigger className="w-2/3">
-                          <SelectValue placeholder="Selecione uma nova Turma" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {availableClasses.map((c) => (
-                            <SelectItem key={c.id} value={c.id.toString()}>
-                              {c.nome}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Button
-                        className=""
-                        disabled={
-                          !field.value ||
-                          studentClasses.some(
-                            (c) => c.id === parseInt(field.value!)
-                          )
-                        }
-                        type="button"
-                        onClick={() => handleAddClass(field.value!)}>
-                        Adicionar
-                      </Button>
-                    </div>
+                    {!studentClass && (
+                      <div className="flex items-center justify-start gap-4">
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value || ""}>
+                          <SelectTrigger className="w-2/3">
+                            <SelectValue placeholder="Selecione uma nova Turma" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {availableClasses.map((c) => (
+                              <SelectItem key={c.id} value={c.id.toString()}>
+                                {c.nome}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Button
+                          className=""
+                          disabled={
+                            !field.value || studentClass !== null
+                          }
+                          type="button"
+                          onClick={() => handleAddClass(field.value!)}>
+                          Adicionar
+                        </Button>
+
+                      </div>
+                    )}
                     <div className="flex items-start flex-col justify-start w-full">
-                      {studentClasses && studentClasses.length > 0 && (
+                      {studentClass && (
                         <Fragment>
-                          {studentClasses.map((turma) => (
-                            <div
-                              key={turma.id}
-                              className="flex items-center justify-start gap-4 mt-4 w-full">
-                              <span className="flex w-2/3 justify-between items-center p-2 border rounded text-sm">
-                                {turma.nome}
-                              </span>
-                              <Button
-                                variant="destructive"
-                                onClick={() => handleRemoveClass(turma.id)}>
-                                Remover
-                              </Button>
-                            </div>
-                          ))}
+
+                          <div
+                            key={studentClass.id}
+                            className="flex items-center justify-start gap-4 mt-4 w-full">
+                            <span className="flex w-2/3 justify-between items-center p-2 border rounded text-sm">
+                              {studentClass.nome}
+                            </span>
+                            <Button
+                              variant="destructive"
+                              onClick={() => handleRemoveClass(studentClass.id)}>
+                              Remover
+                            </Button>
+                          </div>
+
                         </Fragment>
                       )}
                     </div>
                   </FormItem>
                 )}
               />
-
-              <Button className="mt-8" type="submit">
-                Cadastrar Aluno
+              <Button
+                className="mt-8"
+                type="submit"
+                disabled={
+                  !form.formState.isValid ||
+                  Object.keys(form.formState.touchedFields).length === 0
+                }
+              >  Cadastrar Aluno
               </Button>
             </form>
           </Form>

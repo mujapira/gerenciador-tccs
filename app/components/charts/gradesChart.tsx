@@ -18,7 +18,8 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 import { useEffect, useState } from "react"
-import { GetTccGradesChartData, ITccGradeChart } from "@/app/server-actions/tcc/getTccGradesChartData"
+import { getTccGradesChartData } from "@/app/server-actions/mongoActions"
+import { IOccurrencesChartData } from "@/app/models/mongoModels"
 
 export const description = "Nota final dos TCCs"
 
@@ -31,11 +32,12 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export function GradesChart() {
-  const [chartData, setChartData] = useState<ITccGradeChart[]>([])
+  const [chartData, setChartData] = useState<IOccurrencesChartData[]>([])
 
   async function fetchChartData() {
-    const response = await GetTccGradesChartData()
-    setChartData(response)
+    const response = await getTccGradesChartData()
+    if (response)
+      setChartData(response)
   }
 
   useEffect(() => {
@@ -61,7 +63,8 @@ export function GradesChart() {
             }}>
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey="grade"
+              dataKey="name"
+              name="Nota"
               tickLine={false}
               axisLine={false}
               tickMargin={8}

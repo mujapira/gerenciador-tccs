@@ -15,8 +15,10 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import { GetKeyWords, IKeyWord } from "@/app/server-actions/tcc/getKeyWords"
+
 import { useEffect, useState } from "react"
+import { IOccurrencesChartData } from "@/app/models/mongoModels"
+import { getTccKeywordsChartData } from "@/app/server-actions/mongoActions"
 
 export const description = "A horizontal bar chart"
 
@@ -28,25 +30,15 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export function KeyWordsChart() {
-  const [keywords, setKeywords] = useState<IKeyWord[]>([
-    { id: 1, palavra: "Carregando", ocorrencias: 1 },
-    { id: 2, palavra: "Carregando", ocorrencias: 1 },
-    { id: 3, palavra: "Carregando", ocorrencias: 1 },
-    { id: 4, palavra: "Carregando", ocorrencias: 1 },
-    { id: 5, palavra: "Carregando", ocorrencias: 1 },
-    { id: 6, palavra: "Carregando", ocorrencias: 1 },
-  ])
-  const [chartData, setChartData] = useState<IKeyWord[]>([])
+  const [keywords, setKeywords] = useState<IOccurrencesChartData[]>([])
+  const [chartData, setChartData] = useState<IOccurrencesChartData[]>([])
 
   const fetchKeywords = async () => {
-    const response = await GetKeyWords()
-    setKeywords(response)
-
-    //pegar as 5 que mais se repetem e colocar no chartData
-    const data = response
-      .slice(0, 5)
-      .sort((a, b) => b.ocorrencias - a.ocorrencias)
-    setChartData(data)
+    const response = await getTccKeywordsChartData()
+    if (response) {
+      setKeywords(response)
+      setChartData(response)
+    }
   }
 
   useEffect(() => {
@@ -70,7 +62,7 @@ export function KeyWordsChart() {
             }}>
             <CartesianGrid horizontal={false} />
             <YAxis
-              dataKey="palavra"
+              dataKey="name"
               type="category"
               tickLine={false}
               tickMargin={10}
@@ -78,19 +70,19 @@ export function KeyWordsChart() {
               tickFormatter={(value) => value.slice(0, 3)}
               hide
             />
-            <XAxis dataKey="ocorrencias" type="number" hide />
+            <XAxis dataKey="occurrences" type="number" hide />
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent indicator="line" />}
             />
             <Bar
-              dataKey="ocorrencias"
+              dataKey="occurrences"
               name="Ocorrências"
               layout="vertical"
               fill="var(--color-desktop)"
               radius={4}>
               <LabelList
-                dataKey="palavra"
+                dataKey="name"
                 position="insideLeft"
                 offset={8}
                 className="fill-primary-foreground font-medium"
@@ -98,7 +90,7 @@ export function KeyWordsChart() {
               />
               <LabelList
                 name="Ocorrências"
-                dataKey="ocorrencias"
+                dataKey="occurrences"
                 position="insideBottomRight"
                 offset={8}
                 className="fill-foreground"

@@ -20,7 +20,7 @@ export default function EditStudentPage({
           Editar informações do aluno
         </span>
       </div>
-      <EditStudentForm id={parseInt(params.id)} />
+      <EditStudentForm id={params.id} />
     </main>
   )
 }

@@ -1,0 +1,1 @@
+export const isMongoDB = process.env.DATABASE_TYPE === "mongo";

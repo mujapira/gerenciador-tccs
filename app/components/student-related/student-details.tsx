@@ -1,8 +1,6 @@
 "use client"
 
 import { Fragment, useEffect, useState } from "react"
-import { GetStudentDetails } from "../../server-actions/student/getStudentDetails"
-import { IDetailedStudent } from "@/app/models/student/detailedStudentModel"
 import {
   Card,
   CardContent,
@@ -16,19 +14,22 @@ import { Button } from "@/components/ui/button"
 import { Plus, PlusCircleIcon, PlusIcon } from "lucide-react"
 import { showErrorToast } from "@/app/utils/toast-utils"
 import Image from "next/image"
+import { IStudent } from "@/app/models/mongoModels"
+import { getAllStudents, getStudent } from "@/app/server-actions/mongoActions"
+import { formatCPF, formatPhoneNumber } from "@/app/utils/formatters"
 interface GetStudentProps {
-  id: number
+  id: string
 }
 
 export function StudentDetails({ id }: GetStudentProps) {
-  const [student, setStudent] = useState<IDetailedStudent>()
+  const [student, setStudent] = useState<IStudent>()
 
   const handleGetStudents = async () => {
     try {
-      const response = await GetStudentDetails(id)
+      const response = await getStudent(id)
 
       if (response) {
-        setStudent(response as IDetailedStudent)
+        setStudent(response as IStudent)
       }
     } catch (error) {
       showErrorToast(error)
@@ -36,15 +37,21 @@ export function StudentDetails({ id }: GetStudentProps) {
   }
 
   function handleUserImage(photoPath: string | undefined) {
-    if (photoPath) {
-      if (photoPath.includes("http")) {
-        return photoPath
-      } else {
-        return `/user-images/${photoPath}`
-      }
-    } else {
+    if (!photoPath)
       return "/user-images/placeholder.png"
+
+    const forbiddenWords = ["http", "https", "www", "github"]
+    const isForbidden = forbiddenWords.some((word) =>
+      photoPath.includes(word)
+    )
+
+    if (isForbidden) {
+      return photoPath
+
+    } else {
+      return `/user-images/${photoPath}`
     }
+
   }
 
   useEffect(() => {
@@ -58,7 +65,7 @@ export function StudentDetails({ id }: GetStudentProps) {
           <CardHeader className="flex flex-row gap-2 items-center justify-between">
             <Image
               alt=""
-              src={`${handleUserImage(student?.photoPath)}`}
+              src={`${handleUserImage(student?.caminho_foto)}`}
               width={24}
               height={24}
               className="rounded-full aspect-square w-8"
@@ -82,11 +89,11 @@ export function StudentDetails({ id }: GetStudentProps) {
               </div>
               <div className="">
                 <span className="font-semibold">CPF:</span>{" "}
-                <span>{student?.cpf}</span>
+                <span>{formatCPF(student?.cpf)}</span>
               </div>
               <div className="">
                 <span className="font-semibold">Telefone:</span>{" "}
-                <span>{student?.telefone}</span>
+                <span>{formatPhoneNumber(student?.telefone)}</span>
               </div>
               <div className="">
                 <span className="font-semibold">Endereço:</span>{" "}
@@ -96,7 +103,7 @@ export function StudentDetails({ id }: GetStudentProps) {
               </div>
               <div className="">
                 <span className="font-semibold">Data de Nascimento:</span>{" "}
-                <span>{student?.dataNascimento?.toLocaleDateString()}</span>
+                <span>{student?.data_nascimento?.toLocaleDateString()}</span>
               </div>
               <Button>
                 <Link href={`/alunos/editar/${student?.id}`}>
@@ -122,11 +129,11 @@ export function StudentDetails({ id }: GetStudentProps) {
               </div>
               <div className="">
                 <span className="font-semibold">Data de Ingresso:</span>{" "}
-                <span>{student?.dataIngresso?.toLocaleDateString()}</span>
+                <span>{student?.data_ingresso?.toLocaleDateString()}</span>
               </div>
               <div className="">
                 <span className="font-semibold">Semestre Atual:</span>{" "}
-                <span>{student?.semestreAtual}</span>
+                <span>{student?.semestre_atual}</span>
               </div>
             </div>
           </CardContent>
@@ -135,22 +142,22 @@ export function StudentDetails({ id }: GetStudentProps) {
       <div className="flex flex-col gap-6">
         <Card className="">
           <CardHeader>
-            <CardTitle>Classes</CardTitle>
-            <CardDescription>Turmas que o aluno participa</CardDescription>
+            <CardTitle>Classe</CardTitle>
+            <CardDescription>Turma que o aluno participa</CardDescription>
           </CardHeader>
           <CardContent>
-            {student?.turmas && student?.turmas.length > 0 && (
-              <div className="flex flex-col gap-4">
-                {student?.turmas.map((turma) => (
-                  <Link href={`/${turma.id}`}>
-                    <Button className="p-0" variant="link" key={turma.id}>
-                      {turma.nome}
-                    </Button>
-                  </Link>
-                ))}
-              </div>
-            )}
-            {student?.turmas && student?.turmas.length === 0 && (
+
+            <div className="flex flex-col gap-4">
+
+              <Link href={`/${student?.turma_id}`}>
+                <Button className="p-0" variant="link" key={student?.turma_id}>
+                  {student?.turma_nome}
+                </Button>
+              </Link>
+
+            </div>
+
+            {student?.turma_id !== null && (
               <Fragment>
                 <p className="text-sm mb-2">
                   Nenhuma turma cadastrada para este aluno.
@@ -172,45 +179,45 @@ export function StudentDetails({ id }: GetStudentProps) {
               <div className="flex flex-col gap-2 text-sm">
                 <div className="">
                   <span className="font-semibold">Título:</span>{" "}
-                  <Link href={`/${student.tcc.tccId}`}>
+                  <Link href={`/${student.tcc.id}`}>
                     <Button
                       className="p-0 m-0 h-0"
                       variant="link"
-                      key={student.tcc.tccId}>
+                      key={student.tcc.id}>
                       {student.tcc.titulo}
                     </Button>
                   </Link>
                 </div>
                 <div className="">
                   <span className="font-semibold">Orientador:</span>{" "}
-                  <Link href={`/${student.tcc.orientadorId}`}>
+                  <Link href={`/${student.tcc.orientador.id}`}>
                     <Button
                       className="p-0 m-0 h-0"
                       variant="link"
-                      key={student.tcc.orientadorId}>
-                      {student.tcc.orientador}
+                      key={student.tcc.orientador.id}>
+                      {student.tcc.orientador.nome}
                     </Button>
                   </Link>
                 </div>
                 <div className="">
                   <span className="font-semibold">Tema:</span>{" "}
-                  <Link href={`/${student.tcc.temaId}`}>
+                  <Link href={`/${student.tcc.tema.id}`}>
                     <Button
                       className="p-0 m-0 h-0"
                       variant="link"
-                      key={student.tcc.temaId}>
-                      <span>{student.tcc.tema}</span>
+                      key={student.tcc.tema.id}>
+                      <span>{student.tcc.tema.descricao}</span>
                     </Button>
                   </Link>
                 </div>
                 <div className="">
                   <span className="font-semibold">Classificação:</span>{" "}
-                  <Link href={`/${student.tcc.classificacaoId}`}>
+                  <Link href={`/${student.tcc.classificacao.id}`}>
                     <Button
                       className="p-0 m-0 h-0"
                       variant="link"
-                      key={student.tcc.classificacaoId}>
-                      {student.tcc.classificacao}
+                      key={student.tcc.classificacao.id}>
+                      {student.tcc.classificacao.descricao}
                     </Button>
                   </Link>
                 </div>
@@ -220,35 +227,26 @@ export function StudentDetails({ id }: GetStudentProps) {
                 </div>
                 <div className="">
                   <span className="font-semibold">Estado Atual:</span>{" "}
-                  <span>{student.tcc.estadoAtual}</span>
+                  <span>{student.tcc.status}</span>
                 </div>
                 <div className="">
                   <span className="font-semibold">Número de Avaliações:</span>{" "}
-                  <span>{student.tcc.numeroAvaliacoes}</span>
-                </div>
-                <div className="">
-                  <span className="font-semibold">
-                    Data da Última Avaliação:
-                  </span>{" "}
-                  <span>
-                    {student.tcc.dataUltimaAvaliacao?.toLocaleDateString() ||
-                      "N/A"}
-                  </span>
+                  <span>{student.tcc.avaliacoes.length}</span>
                 </div>
                 <div className=" max-w-[500px] flex gap-1">
                   <span className="font-semibold text-wrap">
                     Palavras-chave:
                   </span>
                   <div className="flex gap-2">
-                    {student.tcc.palavrasChave.map((keyWord, i) => (
+                    {student.tcc.palavras_chave.map((keyWord, i) => (
                       <Link
-                        href={`/${keyWord.wordId}`}
-                        key={keyWord.wordId}
+                        href={`/${keyWord.id}`}
+                        key={keyWord.id}
                         className="">
                         <Button className="p-0 m-0 h-0" variant="link">
-                          {keyWord.word}
+                          {keyWord.descricao}
                           {student.tcc &&
-                          i < student.tcc.palavrasChave.length - 1
+                            i < student.tcc.palavras_chave.length - 1
                             ? ","
                             : ""}
                         </Button>

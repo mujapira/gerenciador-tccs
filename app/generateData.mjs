@@ -1,550 +1,277 @@
 import { faker } from "@faker-js/faker"
-import { PrismaClient } from "@prisma/client"
-import { subYears } from "date-fns"
 import SuperFakerBrasil from "faker-brasil"
+import { MongoClient, ObjectId, Double } from "mongodb"
 
-const prisma = new PrismaClient()
+const mongoUrl = "mongodb://localhost:27017"
+const dbName = "gerenciador"
+const fakerBrasil = new SuperFakerBrasil()
 
-async function seedDatabase() {
-  await clearDatabase()
-  await seedTccs()
-  await updateAllTccStates()
-  await clearComunidadesData()
-  await seedComunidades()
-  await updateCommunityFollowersCount()
-}
+async function populateDatabase() {
+  const client = new MongoClient(mongoUrl)
 
-seedDatabase()
-  .then(() => {
-    console.log("Database seeded successfully!")
-    prisma.$disconnect()
-  })
-  .catch((error) => {
-    console.error("Error seeding database:", error)
-    prisma.$disconnect()
-  })
-
-async function seedTccs() {
-  const fakerBrasil = new SuperFakerBrasil()
-
-  // CLASSIFICAÇÕES
-  const classificacoes = [
-    "Projeto de Pesquisa",
-    "Monografia",
-    "Artigo Científico",
-    "Relatório Técnico",
-    "Trabalho de Conclusão de Curso",
-  ]
-
-  for (const classificacao of classificacoes) {
-    await prisma.tcc_classificacao.create({
-      data: {
-        descricao: classificacao,
-      },
-    })
-  }
-
-  // PALAVRAS-CHAVE
-  const palavrasChaveT = [
-    "Inteligência Artificial",
-    "Machine Learning",
-    "Big Data",
-    "Computação em Nuvem",
-    "Internet das Coisas",
-    "Segurança Cibernética",
-    "Blockchain",
-    "Realidade Virtual",
-    "Realidade Aumentada",
-    "Processamento de Linguagem Natural",
-    "Computação Quântica",
-    "Redes Neurais",
-    "Visão Computacional",
-    "5G",
-    "Análise de Dados",
-    "Automação",
-    "Robótica",
-    "Ciência de Dados",
-    "DevOps",
-    "Engenharia de Software",
-  ]
-
-  for (const palavra of palavrasChaveT) {
-    await prisma.tcc_palavra_chave.create({
-      data: { palavra },
-    })
-  }
-
-  // ESTADO
-  const estados = [
-    "Em Avaliação",
-    "Aprovado",
-    "Reprovado",
-    "Pendente de Revisão",
-  ]
-  for (const descricao of estados) {
-    await prisma.tcc_estado.create({ data: { descricao } })
-  }
-
-  // TIPOS DE DOCUMENTO
-  const tiposDocumento = [
-    "Monografia",
-    "Artigo",
-    "Pôster",
-    "Apresentação",
-    "Relatório Parcial",
-    "Outro",
-  ]
-  for (const descricao of tiposDocumento) {
-    await prisma.tcc_tipo_documento.create({ data: { descricao } })
-  }
-
-  // ALUNOS
-  for (let i = 0; i < 500; i++) {
-    await prisma.aluno.create({
-      data: {
-        nome: faker.person.fullName(),
-        email: faker.internet.email(),
-        matricula: faker.number.int({ min: 1000000, max: 9999999 }).toString(),
-        cpf: fakerBrasil.cpf(),
-        telefone: fakerBrasil.cellPhone(),
-        endereco: faker.location.streetAddress(),
-        cidade: faker.location.city(),
-        estado: faker.location.state(),
-        data_ingresso: faker.date.past({ years: 4 }),
-        data_nascimento: subYears(
-          new Date(),
-          faker.number.int({ min: 18, max: 25 })
-        ),
-        semestre_atual: faker.number.int({ min: 1, max: 10 }),
-        caminho_foto: faker.image.avatar(),
-      },
-    })
-  }
-
-  // ORIENTADORES
-  for (let i = 0; i < 30; i++) {
-    await prisma.orientador.create({
-      data: {
-        nome: faker.person.fullName(),
-        email: faker.internet.email(),
-        cpf: fakerBrasil.cpf(),
-        telefone: fakerBrasil.cellPhone(),
-        departamento: faker.commerce.department(),
-        titulo_academico: faker.helpers.arrayElement([
-          "Doutor",
-          "Mestre",
-          "Especialista",
-        ]),
-      },
-    })
-  }
-
-  // TURMAS
-  for (let i = 0; i < 50; i++) {
-    await prisma.turma.create({
-      data: {
-        nome: `Turma ${faker.animal.dog()}`,
-      },
-    })
-  }
-
-  // ASSOCIAR ALUNOS A TURMAS
-  const alunos = await prisma.aluno.findMany()
-  const turmas = await prisma.turma.findMany()
-
-  for (const aluno of alunos) {
-    const turmaAleatoria = turmas[Math.floor(Math.random() * turmas.length)]
-    await prisma.aluno_turma.create({
-      data: {
-        aluno_id: aluno.id,
-        turma_id: turmaAleatoria.id,
-      },
-    })
-  }
-
-  // TEMAS
-  const temasTecnologia = [
-    "Inteligência Artificial e Robótica",
-    "Machine Learning e Deep Learning",
-    "Big Data e Análise de Dados",
-    "Computação em Nuvem e Virtualização",
-    "Blockchain e Criptomoedas",
-    "Cibersegurança e Privacidade de Dados",
-    "Realidade Aumentada e Realidade Virtual",
-    "Internet das Coisas (IoT)",
-    "Redes 5G e Conectividade Avançada",
-    "Ciência de Dados e Business Intelligence",
-    "Automação e Indústria 4.0",
-    "Computação Quântica",
-    "Desenvolvimento de Software e Engenharia de Software",
-    "Processamento de Linguagem Natural",
-    "Computação Gráfica e Visualização de Dados",
-    "Computação Verde e Sustentabilidade",
-    "Veículos Autônomos e Mobilidade Inteligente",
-    "Desenvolvimento de Aplicativos Móveis e IoT",
-    "Arquitetura de Redes e Telecomunicações",
-    "Segurança em Sistemas Distribuídos",
-  ]
-
-  for (const tema of temasTecnologia) {
-    await prisma.tcc_tema.create({
-      data: { descricao: tema },
-    })
-  }
-
-  // TCCS E METADATA
-  const temas = await prisma.tcc_tema.findMany()
-  const classificacoesDB = await prisma.tcc_classificacao.findMany()
-  const orientadores = await prisma.orientador.findMany()
-  const estadosT = await prisma.tcc_estado.findMany()
-
-  for (let i = 0; i < 300; i++) {
-    const aluno = alunos[Math.floor(Math.random() * alunos.length)]
-    const orientador =
-      orientadores[Math.floor(Math.random() * orientadores.length)]
-    const turma = turmas[Math.floor(Math.random() * turmas.length)]
-    const tema = temas[Math.floor(Math.random() * temas.length)]
-    const classificacao =
-      classificacoesDB[Math.floor(Math.random() * classificacoesDB.length)]
-    const estadoAleatorio =
-      estadosT[Math.floor(Math.random() * estadosT.length)]
-
-    const tccMetadata = await prisma.tcc_metadata.create({
-      data: {
-        aluno_id: aluno.id,
-        orientador_id: orientador.id,
-        turma_id: turma.id,
-        tema_id: tema.id,
-        classificacao_id: classificacao.id,
-      },
-    })
-
-    await prisma.tcc.create({
-      data: {
-        titulo: faker.lorem.sentence(),
-        tcc_metadata: { connect: { id: tccMetadata.id } },
-        tcc_estado: { connect: { id: estadoAleatorio.id } },
-      },
-    })
-  }
-
-  // TCC_DOCUMENTOS
-  const tiposDocumentoT = await prisma.tcc_tipo_documento.findMany()
-  const tipoDocumentoAleatorio =
-    tiposDocumentoT[Math.floor(Math.random() * tiposDocumentoT.length)]
-
-  const tccs = await prisma.tcc.findMany()
-  for (const tcc of tccs) {
-    await prisma.tcc_documento.create({
-      data: {
-        tcc_id: tcc.id,
-        tipo_documento_id: tipoDocumentoAleatorio.id,
-        nome_documento: `${tcc.titulo}.pdf`,
-        caminho_arquivo: `/documents/tcc-doc.pdf`,
-        formato_documento: "pdf",
-        data_envio: faker.date.past({ years: 1 }),
-        tamanho_arquivo: faker.number.int({ min: 500, max: 2000 }),
-      },
-    })
-  }
-
-  // TCC_PALAVRA_CHAVE_ASSOCIACAO
-  const palavrasChave = await prisma.tcc_palavra_chave.findMany()
-  for (const tcc of tccs) {
-    const numPalavrasChave = faker.number.int({ min: 1, max: 3 })
-    const palavrasAssociadas = faker.helpers.arrayElements(
-      palavrasChave,
-      numPalavrasChave
-    )
-    for (const palavra of palavrasAssociadas) {
-      await prisma.tcc_palavra_chave_associacao.create({
-        data: {
-          tcc_id: tcc.id,
-          palavra_id: palavra.id,
-        },
-      })
-    }
-  }
-
-  // TCC_TEMA_ASSOCIACAO
-  for (const tcc of tccs) {
-    const numTemas = faker.number.int({ min: 1, max: 2 })
-    const temasAssociados = faker.helpers.arrayElements(temas, numTemas)
-    for (const tema of temasAssociados) {
-      await prisma.tcc_tema_associacao.create({
-        data: {
-          tcc_id: tcc.id,
-          tema_id: tema.id,
-        },
-      })
-    }
-  }
-
-  // TCC_BIBLIOGRAFIA
-  for (const tcc of tccs) {
-    const numReferencias = faker.number.int({ min: 1, max: 5 })
-    for (let i = 0; i < numReferencias; i++) {
-      await prisma.tcc_bibliografia.create({
-        data: {
-          tcc_id: tcc.id,
-          referencia: faker.lorem.sentence(),
-        },
-      })
-    }
-  }
-
-  // TCC_RELATORIO_PROGRESSO E TCC_RELATORIO_PROGRESSO_ARQUIVO
-  for (const tcc of tccs) {
-    const numRelatorios = faker.number.int({ min: 1, max: 3 })
-    for (let i = 0; i < numRelatorios; i++) {
-      const relatorio = await prisma.tcc_relatorio_progresso.create({
-        data: {
-          tcc_id: tcc.id,
-          data_entrega: faker.date.past({ years: 1 }),
-          descricao: faker.lorem.paragraph(),
-        },
-      })
-
-      if (relatorio) {
-        await prisma.tcc_relatorio_progresso_arquivo.create({
-          data: {
-            relatorio_id: relatorio.id,
-            nome_arquivo: `${tcc.titulo}-relatorio-${i + 1}.pdf`,
-            caminho_arquivo: `/documents/${tcc.titulo}-relatorio-${i + 1}.pdf`,
-            formato_documento: "pdf",
-            tamanho_arquivo: faker.number.int({ min: 500, max: 2000 }),
-          },
-        })
-      }
-    }
-  }
-
-  for (const tcc of tccs) {
-    const numAvaliacoes = Math.floor(Math.random() * 4)
-
-    for (let i = 0; i < numAvaliacoes; i++) {
-      const orientadorAleatorio =
-        orientadores[Math.floor(Math.random() * orientadores.length)]
-
-      await prisma.tcc_avaliacao.create({
-        data: {
-          tcc_id: tcc.id,
-          orientador_id: orientadorAleatorio.id,
-          data_avaliacao: faker.date.past({ years: 1 }),
-          descricao: `Avaliação ${i + 1} do TCC sobre ${tcc.titulo}`,
-          nota: faker.number.float({ min: 5, max: 10, precision: 0.1 }),
-          numero_avaliacao: i + 1,
-        },
-      })
-    }
-  }
-}
-
-async function clearDatabase() {
-  // Limpeza de dados
-  // Limpeza das tabelas respeitando as restrições de chave estrangeira
-  await prisma.tcc_estado_historico.deleteMany()
-  await prisma.tcc_nota_final.deleteMany()
-  await prisma.tcc_avaliacao.deleteMany()
-  await prisma.tcc_bibliografia.deleteMany()
-  await prisma.tcc_documento.deleteMany()
-  await prisma.tcc_palavra_chave_associacao.deleteMany()
-  await prisma.tcc_tema_associacao.deleteMany()
-  await prisma.tcc_relatorio_progresso_arquivo.deleteMany()
-  await prisma.tcc_relatorio_progresso.deleteMany()
-
-  // Tabelas com dependência direta de `tcc_metadata`
-  await prisma.tcc.deleteMany()
-  await prisma.tcc_metadata.deleteMany()
-
-  await prisma.aluno_turma.deleteMany()
-  await prisma.aluno.deleteMany()
-  await prisma.orientador.deleteMany()
-  await prisma.turma.deleteMany()
-  await prisma.tcc_tema.deleteMany()
-  await prisma.tcc_classificacao.deleteMany()
-  await prisma.tcc_palavra_chave.deleteMany()
-  await prisma.tcc_estado.deleteMany()
-  await prisma.tcc_tipo_documento.deleteMany()
-}
-
-async function clearComunidadesData() {
-  await prisma.comunidade_post.deleteMany()
-  await prisma.comunidade_seguidor.deleteMany()
-  await prisma.comunidade.deleteMany()
-
-  console.log("Dados de comunidades, posts e seguidores apagados com sucesso!")
-}
-
-async function seedComunidades() {
-  const alunos = await prisma.aluno.findMany()
-  const orientadores = await prisma.orientador.findMany()
-
-  let imageCounter = 1
-
-  const comunidadesData = Array.from({ length: 50 }, () => {
-    const isAlunoCreator = Math.random() > 0.5
-
-    const imagemCapa =
-      imageCounter <= 15
-        ? `/community-images/community-${imageCounter++}.jpg`
-        : "/community-images/community-placeholder.png"
-
-    return {
-      nome: faker.company.name(),
-      descricao: faker.lorem.paragraph(),
-      imagem_capa: imagemCapa,
-      data_criacao: faker.date.past(),
-      criador_aluno_id: isAlunoCreator
-        ? alunos[Math.floor(Math.random() * alunos.length)].id
-        : null,
-      criador_orientador_id: !isAlunoCreator
-        ? orientadores[Math.floor(Math.random() * orientadores.length)].id
-        : null,
-    }
-  })
-
-  for (const comunidadeData of comunidadesData) {
-    const comunidade = await prisma.comunidade.create({
-      data: comunidadeData,
-    })
-
-    // Criar posts para cada comunidade
-    const numPosts = faker.number.int({ min: 3, max: 10 })
-    for (let i = 0; i < numPosts; i++) {
-      const autor = faker.helpers.arrayElement([...alunos, ...orientadores])
-      await prisma.comunidade_post.create({
-        data: {
-          comunidade_id: comunidade.id,
-          autor_aluno_id: autor.hasOwnProperty("matricula") ? autor.id : null,
-          autor_orientador_id: autor.hasOwnProperty("titulo_academico")
-            ? autor.id
-            : null,
-          conteudo: faker.lorem.paragraph(),
-          data_postagem: faker.date.past(),
-        },
-      })
-    }
-
-    // Criar seguidores para cada comunidade
-    const numSeguidores = faker.number.int({ min: 1, max: 400 })
-    for (let j = 0; j < numSeguidores; j++) {
-      const seguidor = faker.helpers.arrayElement([...alunos, ...orientadores])
-
-      await prisma.comunidade_seguidor.create({
-        data: {
-          comunidade_id: comunidade.id,
-          seguidor_aluno_id: seguidor.hasOwnProperty("matricula")
-            ? seguidor.id
-            : null,
-          seguidor_orientador_id: seguidor.hasOwnProperty("titulo_academico")
-            ? seguidor.id
-            : null,
-          data_seguimento: faker.date.past(),
-        },
-      })
-    }
-  }
-
-  console.log("Comunidades, posts e seguidores populados com sucesso!")
-}
-
-async function updateCommunityFollowersCount() {
-  const comunidades = await prisma.comunidade.findMany()
-
-  for (const comunidade of comunidades) {
-    const numSeguidores = await prisma.comunidade_seguidor.count({
-      where: { comunidade_id: comunidade.id },
-    })
-
-    await prisma.comunidade.update({
-      where: { id: comunidade.id },
-      data: { quantidade_seguidores: numSeguidores },
-    })
-  }
-
-  console.log("Contagem de seguidores das comunidades atualizada com sucesso!")
-}
-
-async function updateAllTccStates() {
   try {
-    const tccs = await prisma.tcc.findMany()
-    const orientadores = await prisma.orientador.findMany()
+    await client.connect()
+    console.log("Conectado ao MongoDB")
+    const db = client.db(dbName)
 
-    const estadosValidos = await prisma.tcc_estado.findMany()
-    const statusAprovado = estadosValidos.find(
-      (estado) => estado.descricao === "Aprovado"
-    )?.id
-    const statusReprovado = estadosValidos.find(
-      (estado) => estado.descricao === "Reprovado"
-    )?.id
-    const statusEmAvaliacao = estadosValidos.find(
-      (estado) => estado.descricao === "Em Avaliação"
-    )?.id
+    // 1. Coleção de Alunos e Orientadores
+    const alunos = Array.from({ length: 50 }, () => ({
+      nome: faker.person.fullName(),
+      email: faker.internet.email(),
+      matricula: faker.number.int({ min: 1000000, max: 9999999 }).toString(),
+      cpf: fakerBrasil.cpf(),
+      telefone: fakerBrasil.cellPhone(),
+      endereco: faker.location.streetAddress(),
+      cidade: faker.location.city(),
+      estado: faker.location.state(),
+      data_ingresso: faker.date.past(4),
+      data_nascimento: faker.date.birthdate({ min: 18, max: 25, mode: "age" }),
+      semestre_atual: faker.number.int({ min: 1, max: 10 }),
+      caminho_foto: faker.image.avatar(),
+    }))
 
-    for (const tcc of tccs) {
-      const orientadorAleatorio =
-        orientadores[Math.floor(Math.random() * orientadores.length)]
-      const qtdAvaliacoes = await prisma.tcc_avaliacao.count({
-        where: { tcc_id: tcc.id },
-      })
+    const orientadores = Array.from({ length: 10 }, () => ({
+      nome: faker.person.fullName(),
+      email: faker.internet.email(),
+      cpf: fakerBrasil.cpf(),
+      telefone: fakerBrasil.cellPhone(),
+      departamento: faker.commerce.department(),
+      titulo_academico: faker.helpers.arrayElement([
+        "Doutor",
+        "Mestre",
+        "Especialista",
+      ]),
+    }))
 
-      let novoEstado = statusEmAvaliacao
-      let notaFinal = null
+    const alunoIds = await db
+      .collection("aluno")
+      .insertMany(alunos)
+      .then((res) => Object.values(res.insertedIds))
+    const orientadorIds = await db
+      .collection("orientador")
+      .insertMany(orientadores)
+      .then((res) => Object.values(res.insertedIds))
 
-      if (qtdAvaliacoes === 3) {
-        const mediaNotas = await prisma.tcc_avaliacao.aggregate({
-          _avg: { nota: true },
-          where: { tcc_id: tcc.id },
-        })
+    console.log("Alunos e Orientadores criados.")
 
-        notaFinal = Number(mediaNotas._avg.nota) ?? 0
-        novoEstado = notaFinal >= 6.0 ? statusAprovado : statusReprovado
+    // 2. Coleção de Comunidades (com posts e seguidores)
+    const comunidades = Array.from({ length: 50 }, (_, i) => {
+      const isAlunoCreator = Math.random() > 0.5
+      const criador = isAlunoCreator
+        ? { tipo: "aluno", id: faker.helpers.arrayElement(alunoIds) }
+        : { tipo: "orientador", id: faker.helpers.arrayElement(orientadorIds) }
 
-        const from = new Date(new Date().getFullYear(), 0, 1)
-        const to = new Date()
-        const dataCalculo = faker.date.between({ from, to })
-
-        // Verifica a existência da nota final com findFirst
-        const notaExistente = await prisma.tcc_nota_final.findFirst({
-          where: { tcc_id: tcc.id },
-        })
-
-        if (notaExistente) {
-          await prisma.tcc_nota_final.update({
-            where: { id: notaExistente.id },
-            data: { nota_final: notaFinal, data_calculo: dataCalculo },
-          })
-        } else {
-          await prisma.tcc_nota_final.create({
-            data: {
-              tcc_id: tcc.id,
-              nota_final: notaFinal,
-              data_calculo: dataCalculo,
-            },
-          })
+      const posts = Array.from(
+        { length: faker.number.int({ min: 3, max: 10 }) },
+        () => {
+          const isAlunoAutor = Math.random() > 0.5
+          return {
+            autor: isAlunoAutor
+              ? { tipo: "aluno", id: faker.helpers.arrayElement(alunoIds) }
+              : {
+                  tipo: "orientador",
+                  id: faker.helpers.arrayElement(orientadorIds),
+                },
+            conteudo: faker.lorem.paragraph(),
+            data_postagem: faker.date.past(),
+          }
         }
+      )
+
+      const seguidores = Array.from(
+        { length: faker.number.int({ min: 1, max: 400 }) },
+        () => {
+          const isAlunoSeguidor = Math.random() > 0.5
+          return {
+            seguidor: isAlunoSeguidor
+              ? { tipo: "aluno", id: faker.helpers.arrayElement(alunoIds) }
+              : {
+                  tipo: "orientador",
+                  id: faker.helpers.arrayElement(orientadorIds),
+                },
+            data_seguimento: faker.date.past(),
+          }
+        }
+      )
+
+      return {
+        nome: faker.company.name(),
+        descricao: faker.lorem.paragraph(),
+        imagem_capa:
+          i < 15
+            ? `/community-images/community-${i + 1}.jpg`
+            : "/community-images/community-placeholder.png",
+        data_criacao: faker.date.past(),
+        criador,
+        posts,
+        seguidores,
       }
+    })
 
-      await prisma.tcc.update({
-        where: { id: tcc.id },
-        data: { status: novoEstado },
-      })
+    await db.collection("comunidade").insertMany(comunidades)
+    console.log("Comunidades com posts e seguidores embutidos criadas.")
 
-      await prisma.tcc_estado_historico.create({
-        data: {
-          tcc_id: tcc.id,
-          status: novoEstado,
-          data_status: new Date(),
-          responsavel_orientador_id: orientadorAleatorio.id,
+    // 3. Coleções Auxiliares (Classificações, Tipos de Documento, Temas, Estados, Palavras-Chave)
+    const classificacoes = [
+      "Projeto de Pesquisa",
+      "Monografia",
+      "Artigo Científico",
+      "Relatório Técnico",
+      "Trabalho de Conclusão de Curso",
+    ].map((descricao) => ({ descricao }))
+    await db.collection("tcc_classificacao").insertMany(classificacoes)
+
+    const tiposDocumento = [
+      "Monografia",
+      "Artigo",
+      "Pôster",
+      "Apresentação",
+      "Relatório Parcial",
+      "Outro",
+    ].map((descricao) => ({ descricao }))
+    await db.collection("tcc_tipo_documento").insertMany(tiposDocumento)
+
+    const temasTecnologia = [
+      "Inteligência Artificial e Robótica",
+      "Machine Learning e Deep Learning",
+      "Big Data e Análise de Dados",
+      "Computação em Nuvem e Virtualização",
+      "Blockchain e Criptomoedas",
+      "Cibersegurança e Privacidade de Dados",
+      "Realidade Aumentada e Realidade Virtual",
+      "Internet das Coisas (IoT)",
+      "Redes 5G e Conectividade Avançada",
+      "Ciência de Dados e Business Intelligence",
+      "Automação e Indústria 4.0",
+      "Computação Quântica",
+      "Desenvolvimento de Software e Engenharia de Software",
+      "Processamento de Linguagem Natural",
+      "Computação Gráfica e Visualização de Dados",
+      "Computação Verde e Sustentabilidade",
+      "Veículos Autônomos e Mobilidade Inteligente",
+      "Desenvolvimento de Aplicativos Móveis e IoT",
+      "Arquitetura de Redes e Telecomunicações",
+      "Segurança em Sistemas Distribuídos",
+    ].map((descricao) => ({ descricao }))
+    const temaIds = await db
+      .collection("tcc_tema")
+      .insertMany(temasTecnologia)
+      .then((res) => Object.values(res.insertedIds))
+
+    const estados = [
+      "Em Avaliação",
+      "Aprovado",
+      "Reprovado",
+      "Pendente de Revisão",
+    ].map((descricao) => ({ descricao }))
+    await db.collection("tcc_estado").insertMany(estados)
+
+    const palavrasChaveT = [
+      "Inteligência Artificial",
+      "Machine Learning",
+      "Big Data",
+      "Computação em Nuvem",
+      "Internet das Coisas",
+      "Segurança Cibernética",
+      "Blockchain",
+      "Realidade Virtual",
+      "Realidade Aumentada",
+      "Processamento de Linguagem Natural",
+      "Computação Quântica",
+      "Redes Neurais",
+      "Visão Computacional",
+      "5G",
+      "Análise de Dados",
+      "Automação",
+      "Robótica",
+      "Ciência de Dados",
+      "DevOps",
+      "Engenharia de Software",
+    ].map((palavra) => ({ palavra }))
+    await db.collection("tcc_palavra_chave").insertMany(palavrasChaveT)
+
+    console.log("Coleções auxiliares de TCC criadas e populadas.")
+
+    // 4. Coleção de TCCs (com metadata, status, relatórios, avaliações, bibliografias, tema, palavras-chave e nota final)
+    const tccs = Array.from({ length: 30 }, () => {
+      const aluno = faker.helpers.arrayElement(alunoIds)
+      const orientador = faker.helpers.arrayElement(orientadorIds)
+      const tema = faker.helpers.arrayElement(temaIds)
+
+      return {
+        titulo: faker.lorem.words(5),
+        status: faker.helpers.arrayElement(estados).descricao,
+        metadata: {
+          aluno_id: aluno,
+          orientador_id: orientador,
+          tema_id: tema,
+          classificacao: faker.helpers.arrayElement(classificacoes).descricao,
         },
-      })
-    }
+        documentos: Array.from({ length: 3 }, () => ({
+          tipo: faker.helpers.arrayElement(tiposDocumento).descricao,
+          nome: `${faker.lorem.word()}.pdf`,
+          caminho: "/path/to/document.pdf",
+          formato: "pdf",
+          data_envio: faker.date.past(),
+          tamanho: faker.number.int({ min: 500, max: 2000 }),
+        })),
+        palavras_chave: faker.helpers
+          .arrayElements(palavrasChaveT, faker.number.int({ min: 1, max: 5 }))
+          .map((pk) => pk.palavra),
+        avaliacoes: Array.from(
+          { length: faker.number.int({ min: 1, max: 4 }) },
+          (_, i) => ({
+            orientador_id: orientador,
+            data_avaliacao: faker.date.past(),
+            descricao: `Avaliação ${i + 1}`,
+            nota: new Double(
+              faker.number.float({ min: 5, max: 10, precision: 0.1 })
+            ),
+            numero_avaliacao: i + 1,
+          })
+        ),
+        historico_estado: [
+          {
+            status: faker.helpers.arrayElement(estados).descricao,
+            data_status: faker.date.past(),
+            responsavel_orientador_id: orientador,
+          },
+        ],
+        bibliografias: Array.from(
+          { length: faker.number.int({ min: 1, max: 5 }) },
+          () => ({
+            referencia: faker.lorem.sentence(),
+          })
+        ),
+        relatorios_progresso: Array.from(
+          { length: faker.number.int({ min: 1, max: 3 }) },
+          (_, i) => ({
+            data_entrega: faker.date.past(),
+            descricao: `Relatório ${i + 1}`,
+            arquivos: [
+              {
+                nome: `relatorio-${i + 1}.pdf`,
+                caminho: `/documents/relatorio-${i + 1}.pdf`,
+                formato: "pdf",
+                tamanho: faker.number.int({ min: 500, max: 2000 }),
+              },
+            ],
+          })
+        ),
+        nota_final: {
+          nota: new Double(
+            faker.number.float({ min: 5, max: 10, precision: 0.1 })
+          ),
+          data_calculo: faker.date.recent(),
+        },
+      }
+    })
 
-    console.log("Estados de todos os TCCs atualizados com sucesso.")
-  } catch (error) {
-    console.log("Erro ao atualizar os estados:", error)
+    await db.collection("tcc").insertMany(tccs)
+    console.log("Coleção de TCCs criada e populada com dados completos.")
+  } finally {
+    await client.close()
   }
 }
 
-
+populateDatabase().catch(console.error)

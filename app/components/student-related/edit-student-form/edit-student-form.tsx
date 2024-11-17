@@ -21,7 +21,6 @@ import { Calendar } from "@/components/ui/calendar"
 import { format, set } from "date-fns"
 import { cn } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { createStudent } from "@/app/server-actions/student/createStudent"
 import { z } from "zod"
 import {
   Card,
@@ -30,9 +29,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { IClass } from "@/app/models/classes/classModel"
 import { Fragment, use, useEffect, useState } from "react"
-import { GetClasses } from "@/app/server-actions/classes/getClasses"
 import { Separator } from "@/components/ui/separator"
 import {
   Select,
@@ -41,17 +38,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { INewStudentFormData } from "@/app/models/student/createStudentModel"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
 import { showErrorToast } from "@/app/utils/toast-utils"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { EmptyCard } from "../../empty-card"
 import Image from "next/image"
-import { GetStudentDetails } from "@/app/server-actions/student/getStudentDetails"
-import { IDetailedStudent } from "@/app/models/student/detailedStudentModel"
-import { IUpdateStudentFormData } from "@/app/models/student/updateStudentModel"
-import { updateStudent } from "@/app/server-actions/student/updateStudent"
+import { IClass, IStudent } from "@/app/models/mongoModels"
+import { getClasses, getStudent, IUpdateStudentFormData, updateStudent } from "@/app/server-actions/mongoActions"
+import { formatCPF, formatPhoneNumber } from "@/app/utils/formatters"
+
 
 const FormSchema = z.object({
   nome: z.string().min(2, "Nome é obrigatório"),
@@ -73,19 +69,7 @@ const FormSchema = z.object({
   turmaId: z.string().optional(),
 })
 
-function formatCPF(value: string) {
-  return value
-    .replace(/\D/g, "")
-    .replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")
-    .slice(0, 14)
-}
 
-function formatPhoneNumber(value: string) {
-  return value
-    .replace(/\D/g, "")
-    .replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3")
-    .slice(0, 15)
-}
 
 function generateMatricula(): string {
   const now = new Date()
@@ -100,10 +84,10 @@ function generateMatricula(): string {
   return matricula
 }
 
-export default function EditStudentForm({ id }: { id: number }) {
+export default function EditStudentForm({ id }: { id: string }) {
   const [availableClasses, setAvailableClasses] = useState<IClass[]>([])
-  const [studentClasses, setStudentClasses] = useState<IClass[]>([])
-  const [student, setStudent] = useState<IDetailedStudent>()
+  const [studentClass, setStudentClass] = useState<IClass | null>(null)
+  const [student, setStudent] = useState<IStudent>()
   const [file, setFile] = useState<File | null>(null)
   const [uploadedFile, setUploadedFile] = useState<{
     key: string
@@ -115,10 +99,9 @@ export default function EditStudentForm({ id }: { id: number }) {
 
   const handleGetStudent = async () => {
     try {
-      const response = await GetStudentDetails(id)
-
+      const response = await getStudent(id)
       if (response) {
-        setStudent(response as IDetailedStudent)
+        setStudent(response as IStudent)
 
         form.setValue("nome", response?.nome)
         form.setValue("email", response?.email)
@@ -127,27 +110,37 @@ export default function EditStudentForm({ id }: { id: number }) {
         form.setValue("endereco", response?.endereco || "")
         form.setValue("cidade", response?.cidade || "")
         form.setValue("estado", response?.estado || "")
-        form.setValue("data_nascimento", response?.dataNascimento)
+        form.setValue("data_nascimento", response?.data_nascimento)
 
-        if (response?.photoPath !== "/user-images/placeholder.png") {
+        const turma = {
+          id: response?.turma_id,
+          nome: response?.turma_nome,
+        }
+
+        setStudentClass(turma as IClass)
+
+        if (response?.caminho_foto !== "/user-images/placeholder.png") {
+
+          if (response.caminho_foto.includes("http")) {
+            return
+          }
+
           const responsePhoto = await fetch(
-            `/api/images?fileName=${encodeURIComponent(response?.photoPath)}`
+            `/api/images?fileName=${encodeURIComponent(response?.caminho_foto)}`
           )
 
           if (responsePhoto.ok) {
             const blob = await responsePhoto.blob()
             const url = URL.createObjectURL(blob)
             setUploadedFile({
-              key: response?.photoPath,
+              key: response?.caminho_foto,
               url: url,
-              name: response?.photoPath,
+              name: response?.caminho_foto,
             })
           } else {
             showErrorToast("Erro ao carregar a foto do aluno")
           }
         }
-
-        setStudentClasses(response?.turmas || [])
       }
     } catch (error) {
       showErrorToast(error)
@@ -184,7 +177,7 @@ export default function EditStudentForm({ id }: { id: number }) {
   })
 
   const fetchAvailableClasses = async () => {
-    const classes = await GetClasses()
+    const classes = await getClasses()
     setAvailableClasses(classes)
   }
 
@@ -209,32 +202,36 @@ export default function EditStudentForm({ id }: { id: number }) {
       caminho = result.path
     }
 
-    if (student?.photoPath && student?.photoPath !== caminho) {
-      caminho = student?.photoPath
+
+    if (student?.caminho_foto && student?.caminho_foto !== caminho) {
+      student.caminho_foto = caminho
     }
+
 
     if (!student) {
       return
     }
 
+
     const createStudentFormData: IUpdateStudentFormData = {
+      data: {
+        nome: data.nome,
+        email: data.email,
+        matricula: student.matricula,
+        cpf: data.cpf,
+        telefone: data.telefone,
+        endereco: data.endereco as string,
+        cidade: data.cidade as string,
+        estado: data.estado as string,
+        data_nascimento: new Date(data.data_nascimento),
+        semestre_atual: 1,
+        caminho_foto: caminho,
+      },
       id: student.id,
-      nome: data.nome,
-      email: data.email,
-      matricula: generateMatricula(),
-      cpf: data.cpf,
-      telefone: data.telefone,
-      endereco: data.endereco,
-      cidade: data.cidade,
-      estado: data.estado,
-      data_ingresso: new Date(Date.now()),
-      data_nascimento: new Date(data.data_nascimento),
-      semestre_atual: 1,
-      caminho_foto: caminho,
     }
 
     try {
-      await updateStudent(createStudentFormData, studentClasses)
+      await updateStudent(createStudentFormData)
 
       toast({
         title: "Sucesso",
@@ -249,14 +246,14 @@ export default function EditStudentForm({ id }: { id: number }) {
   }
 
   const handleAddClass = async (classId: string) => {
-    setStudentClasses([
-      ...studentClasses,
-      availableClasses.find((c) => c.id === parseInt(classId))!,
-    ])
+    setStudentClass(
+      availableClasses.find((c) => c.id === classId)!,
+    )
   }
 
-  const handleRemoveClass = async (classId: number) => {
-    setStudentClasses(studentClasses.filter((c) => c.id !== classId))
+  const handleRemoveClass = async (classId: string) => {
+    setStudentClass(null)
+    form.setValue("turmaId", "")
   }
 
   useEffect(() => {
@@ -507,56 +504,55 @@ export default function EditStudentForm({ id }: { id: number }) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel htmlFor="turma">Turmas</FormLabel>
-                    {studentClasses && studentClasses.length === 0 && (
+                    {!studentClass && (
                       <CardDescription>
                         Aluno não está matriculado em nenhuma turma
                       </CardDescription>
                     )}
-                    <div className="flex items-center justify-start gap-4">
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value || ""}>
-                        <SelectTrigger className="w-2/3">
-                          <SelectValue placeholder="Selecione uma nova Turma" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {availableClasses.map((c) => (
-                            <SelectItem key={c.id} value={c.id.toString()}>
-                              {c.nome}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Button
-                        className=""
-                        disabled={
-                          !field.value ||
-                          studentClasses.some(
-                            (c) => c.id === parseInt(field.value!)
-                          )
-                        }
-                        type="button"
-                        onClick={() => handleAddClass(field.value!)}>
-                        Adicionar
-                      </Button>
-                    </div>
+                    {studentClass === null &&
+                      <div className="flex items-center justify-start gap-4">
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value || ""}>
+                          <SelectTrigger className="w-2/3">
+                            <SelectValue placeholder="Selecione uma nova Turma" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {availableClasses.map((c) => (
+                              <SelectItem key={c.id} value={c.id.toString()}>
+                                {c.nome}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Button
+                          className=""
+                          disabled={
+                            !field.value || field.value === studentClass
+                          }
+                          type="button"
+                          onClick={() => handleAddClass(field.value!)}>
+                          Adicionar
+                        </Button>
+                      </div>
+                    }
                     <div className="flex items-start flex-col justify-start w-full">
-                      {studentClasses && studentClasses.length > 0 && (
+                      {studentClass && (
                         <Fragment>
-                          {studentClasses.map((turma) => (
-                            <div
-                              key={turma.id}
-                              className="flex items-center justify-start gap-4 mt-4 w-full">
-                              <span className="flex w-2/3 justify-between items-center p-2 border rounded text-sm">
-                                {turma.nome}
-                              </span>
-                              <Button
-                                variant="destructive"
-                                onClick={() => handleRemoveClass(turma.id)}>
-                                Remover
-                              </Button>
-                            </div>
-                          ))}
+
+                          <div
+                            key={studentClass.id}
+                            className="flex items-center justify-start gap-4 mt-4 w-full">
+                            <span className="flex w-2/3 justify-between items-center p-2 border rounded text-sm">
+                              {studentClass.nome}
+                            </span>
+                            <Button
+                              variant="destructive"
+                              onClick={() => handleRemoveClass(studentClass.id)}>
+                              Remover
+                            </Button>
+                          </div>
+
                         </Fragment>
                       )}
                     </div>

@@ -1,6 +1,6 @@
 import { StudentDetails } from "@/app/components/student-related/student-details"
 import { Button } from "@/components/ui/button"
-import { ArrowLeftIcon } from "lucide-react"
+import { ArrowLeftIcon, CrownIcon } from "lucide-react"
 import { Metadata } from "next"
 import Link from "next/link"
 
@@ -26,7 +26,7 @@ export default async function StudentPage({
           Aluno
         </span>
       </div>
-      <StudentDetails id={parseInt(params.id)} />
+      <StudentDetails id={params.id} />
     </main>
   )
 }

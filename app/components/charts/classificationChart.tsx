@@ -18,10 +18,9 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import {
-  getTccClassificationChartData,
-  ITccClassificationChart,
-} from "@/app/server-actions/tcc/getTccClassificationChartData"
+import { getTccClassificationChartData } from "@/app/server-actions/mongoActions"
+import { IOccurrencesChartData } from "@/app/models/mongoModels"
+
 
 export const description = "Quantidade de TCCs por Classificação"
 
@@ -33,11 +32,12 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export function ClassificationChart() {
-  const [chartData, setChartData] = useState<ITccClassificationChart[]>([])
+  const [chartData, setChartData] = useState<IOccurrencesChartData[]>([])
 
   async function fetchData() {
     const data = await getTccClassificationChartData()
-    setChartData(data || [])
+    setChartData(data)
+    console.log(data)
   }
 
   useEffect(() => {
@@ -58,7 +58,7 @@ export function ClassificationChart() {
           className="mx-auto aspect-square max-h-[260px]">
           <RadarChart className="overflow-visible" data={chartData}>
             <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-            <PolarAngleAxis dataKey="classification" width={100} />
+            <PolarAngleAxis dataKey="name" width={100} />
             <PolarGrid />
             <Radar
               dataKey="occurrences"

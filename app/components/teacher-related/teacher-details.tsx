@@ -1,8 +1,7 @@
 "use client"
 
 import { Fragment, useEffect, useState } from "react"
-import { GetStudentDetails } from "../../server-actions/student/getStudentDetails"
-import { IDetailedStudent } from "@/app/models/student/detailedStudentModel"
+
 import {
   Card,
   CardContent,
@@ -16,8 +15,7 @@ import { Button } from "@/components/ui/button"
 import { Plus, PlusCircleIcon, PlusIcon } from "lucide-react"
 import { showErrorToast } from "@/app/utils/toast-utils"
 import Image from "next/image"
-import { IDetailedTeacher, ITeacher } from "@/app/models/teacher/teacherModel"
-import { GetTeacherDetails } from "@/app/server-actions/teachers/getTeacherDetails"
+import { formatCPF, formatPhoneNumber } from "@/app/utils/formatters"
 interface GetTeacherProps {
   id: number
 }
@@ -35,19 +33,6 @@ export function TeacherDetails({ id }: GetTeacherProps) {
     } catch (error) {
       showErrorToast(error)
     }
-  }
-
-  function cpfParser(cpf: string | undefined | null) {
-    if (!cpf) return ""
-    return (
-      cpf.slice(0, 3) +
-      "." +
-      cpf.slice(3, 6) +
-      "." +
-      cpf.slice(6, 9) +
-      "-" +
-      cpf.slice(9, 11)
-    )
   }
 
   useEffect(() => {
@@ -85,11 +70,11 @@ export function TeacherDetails({ id }: GetTeacherProps) {
               </div>
               <div className="">
                 <span className="font-semibold">CPF:</span>{" "}
-                <span>{cpfParser(student?.cpf)}</span>
+                <span>{formatCPF(student?.cpf)}</span>
               </div>
               <div className="">
                 <span className="font-semibold">Telefone:</span>{" "}
-                <span>{student?.telefone}</span>
+                <span>{formatPhoneNumber(student?.telefone)}</span>
               </div>
               <Button>
                 <Link href={`/alunos/editar/${student?.id}`}>

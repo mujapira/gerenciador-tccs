@@ -15,9 +15,10 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import { GetKeyWords, IKeyWord } from "@/app/server-actions/tcc/getKeyWords"
 import { useEffect, useState } from "react"
-import { GetThemes, ITheme } from "@/app/server-actions/tcc/getThemes"
+import { IOccurrencesChartData } from "@/app/models/mongoModels"
+import { getTccThemesChartData } from "@/app/server-actions/mongoActions"
+
 
 export const description = "A horizontal bar chart"
 
@@ -29,28 +30,19 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export function ThemesChart() {
-  const [chart, setChart] = useState<ITheme[]>([
-    { id: 1, tema: "Carregando", ocorrencias: 1 },
-    { id: 2, tema: "Carregando", ocorrencias: 1 },
-    { id: 3, tema: "Carregando", ocorrencias: 1 },
-    { id: 4, tema: "Carregando", ocorrencias: 1 },
-    { id: 5, tema: "Carregando", ocorrencias: 1 },
-    { id: 6, tema: "Carregando", ocorrencias: 1 },
-  ])
-  const [chartData, setChartData] = useState<ITheme[]>([])
+  const [chart, setChart] = useState<IOccurrencesChartData[]>()
+  const [chartData, setChartData] = useState<IOccurrencesChartData[]>([])
+  const [domain, setDomain] = useState<number[]>([0, 1])
 
   const fetchChart = async () => {
-    const response: ITheme[] = await GetThemes()
+    const response: IOccurrencesChartData[] = await getTccThemesChartData()
 
     setChart(response)
-
+    console.log(response)
     if (!response) return
 
-    const data = response
-      .slice(0, 5)
-      .sort((a, b) => b.ocorrencias - a.ocorrencias)
-
-    setChartData(data)
+    setChartData(response)
+    setDomain([0, Math.max(...response.map((item) => item.occurrences))])
   }
 
   useEffect(() => {
@@ -69,12 +61,16 @@ export function ThemesChart() {
             accessibilityLayer
             data={chartData}
             layout="vertical"
+            barSize={64}
+            maxBarSize={128}
             margin={{
               right: 16,
-            }}>
+            }}
+          
+            >
             <CartesianGrid horizontal={false} />
             <YAxis
-              dataKey="descricao"
+              dataKey="name"
               type="category"
               tickLine={false}
               tickMargin={10}
@@ -82,19 +78,19 @@ export function ThemesChart() {
               tickFormatter={(value) => value.slice(0, 3)}
               hide
             />
-            <XAxis dataKey="ocorrencias" type="number" hide />
+            <XAxis dataKey="occurrences" type="number" hide domain={domain} />
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent indicator="line" />}
             />
             <Bar
-              dataKey="ocorrencias"
+              dataKey="occurrences"
               layout="vertical"
               fill="var(--color-desktop)"
               name="Ocorrências"
               radius={4}>
               <LabelList
-                dataKey="tema"
+                dataKey="name"
                 name="Ocorrências"
                 position="insideLeft"
                 offset={8}
@@ -102,7 +98,7 @@ export function ThemesChart() {
                 fontSize={12}
               />
               <LabelList
-                dataKey="ocorrencias"
+                dataKey="occurrences"
                 position="insideBottomRight"
                 offset={8}
                 className="fill-foreground"

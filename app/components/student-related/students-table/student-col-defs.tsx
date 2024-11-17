@@ -1,5 +1,4 @@
 import { ColumnDef } from "@tanstack/react-table"
-import { IStudent } from "../../../models/student/studentsModel"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -14,6 +13,7 @@ import { MoreHorizontal } from "lucide-react"
 import { ArrowUpDown } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import Image from "next/image"
+import { IStudent } from "@/app/models/mongoModels"
 
 const formatCPF = (cpf: string) => {
   return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")
