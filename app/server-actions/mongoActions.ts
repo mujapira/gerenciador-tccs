@@ -29,7 +29,7 @@ export async function getAllStudentsWithTcc() {
   const tccs = await prisma.tcc.findMany({})
 
   return alunos.map((aluno) => {
-    const tcc = tccs.find((tcc) => tcc.aluno.id.id === aluno.id)
+    const tcc = tccs.find((tcc) => tcc.aluno.id === aluno.id)
     return {
       ...aluno,
       tcc,
@@ -203,6 +203,12 @@ export async function getOrientador(orientadorId: string) {
   })
 }
 
+export async function getOrientadorTccs(orientadorId: string) {
+  const tccs = await prisma.tcc.findMany()
+  
+  return tccs.filter((tcc) => tcc.orientador.id === orientadorId)
+}
+
 export async function createOrientador(data: ICreateTeacherFormData) {
   try {
     await prisma.orientador.create({
@@ -248,7 +254,6 @@ export async function getAllComunidades({
   data: ICommunityFromBase[]
   total: number
 }> {
-  
   const comunidades = await prisma.comunidade.findMany()
   comunidades.forEach(async (comunidade, index) => {
     if (index < 15) {
@@ -321,7 +326,6 @@ export async function getCommunity(id: string) {
   const students = await prisma.aluno.findMany({})
   const teachers = await prisma.orientador.findMany({})
 
-  const criador = students.find((student) => student.id === request?.criador.id)
   const seguidores = request?.seguidores.map((seguidor) => {
     const student = students.find(
       (student) => student.id === seguidor.seguidor.id
@@ -354,6 +358,13 @@ export async function getCommunity(id: string) {
     return null
   })
 
+  let criador
+  if (request?.criador.tipo === "aluno") {
+    criador = students.find((student) => student.id === request.criador.id)
+  } else {
+    criador = teachers.find((teacher) => teacher.id === request?.criador.id)
+  }
+
   return {
     ...request,
     criador: {
@@ -365,6 +376,168 @@ export async function getCommunity(id: string) {
   } as unknown as ICommunity
 }
 
+export async function getAllKeyWords() {
+  return await prisma.tcc_palavra_chave.findMany()
+}
+
+export async function getAllThemes() {
+  return await prisma.tcc_tema.findMany()
+}
+
+export async function getAllClassifications() {
+  return await prisma.tcc_classificacao.findMany()
+}
+
+// export interface ITcc {
+//   id: string // ID único do TCC
+//   titulo: string // Título do TCC
+//   aluno: {
+//     id: string
+//     nome: string
+//   } // Aluno associado
+//   orientador: {
+//     id: string
+//     nome: string
+//   } // Orientador associado
+//   tema: {
+//     id: string
+//     descricao: string
+//   } // Tema associado
+//   classificacao: {
+//     id: string
+//     descricao: string
+//   } // Classificação do TCC
+//   documentos: {
+//     tipo: string
+//     nome: string
+//     caminho: string
+//     formato: string
+//     data_envio: Date
+//     tamanho: number
+//   }[] // Lista de documentos do TCC
+//   palavras_chave: {
+//     id: string
+//     descricao: string
+//   }[]
+//   avaliacoes: {
+//     numero: number
+//     orientador: {
+//       id: string
+//       nome: string
+//     }
+//     data_avaliacao: Date
+//     descricao: string
+//     nota: number
+//   }[] // Avaliações do TCC
+//   notaFinal: number | null // Nota final calculada
+//   status: string // Status do TCC
+// }
+
+export interface ICreateTccFormData {
+  titulo: string
+  aluno: {
+    id: string
+    nome: string
+  }
+  tema: {
+    id: string
+    descricao: string
+  }
+  classificacao: {
+    id: string
+    descricao: string
+  }
+  orientador: {
+    id: string
+    nome: string
+  }
+  palavras_chave: {
+    id: string
+    palavra: string
+  }[]
+}
+
+export async function createNewTcc(data: ICreateTccFormData) {
+  const notaFinal = 0
+
+  const statuses = await prisma.tcc_estado.findMany()
+  if (!statuses) return
+
+  const status = statuses.find((status) => status.descricao === "Em Avaliação")
+  if (!status) return
+
+  const aluno = await prisma.aluno.findUnique({
+    where: { id: data.aluno.id },
+  })
+  const orientador = await prisma.orientador.findUnique({
+    where: { id: data.orientador.id },
+  })
+
+  const palavrasChave = await prisma.tcc_palavra_chave.findMany()
+  if (!palavrasChave) return
+
+  // Verifica se as palavras-chave existem no banco de dados
+  // para cada palabra-chave enviada no formulário encontre no banco de dados
+  // a palavra-chave correspondente e adicione ao array odifical de palavras-chave
+
+  const palavrasChaveOficiais = await Promise.all(
+    data.palavras_chave.map(async (palavraChave) => {
+      const palavraChaveOficial = palavrasChave.find(
+        (pc) => pc.palavra === palavraChave.palavra
+      )
+      if (palavraChaveOficial) {
+        return {
+          id: palavraChaveOficial.id,
+          palavra: palavraChaveOficial.palavra,
+        }
+      } else {
+        const created = await prisma.tcc_palavra_chave.create({
+          data: {
+            palavra: palavraChave.palavra,
+          },
+        })
+
+        return {
+          id: created.id,
+          palavra: created.palavra,
+        }
+      }
+    })
+  )
+
+  if (!aluno || !orientador) return
+
+  try {
+    await prisma.tcc.create({
+      data: {
+        titulo: data.titulo,
+        aluno: {
+          ...aluno,
+        },
+        orientador: {
+          ...orientador,
+        },
+        tema: {
+          id: data.tema.id,
+          descricao: data.tema.descricao,
+        },
+        classificacao: {
+          id: data.classificacao.id,
+          descricao: data.classificacao.descricao,
+        },
+        palavras_chave: palavrasChaveOficiais,
+        notaFinal,
+        status: {
+          id: status.id,
+          descricao: status.descricao,
+        },
+      },
+    })
+  } catch (error) {
+    handlePrismaError(error)
+  }
+}
+
 export async function getAllTccs() {
   return await prisma.tcc.findMany({})
 }
@@ -372,14 +545,6 @@ export async function getAllTccs() {
 export async function getTccDetails(tccId: string) {
   return await prisma.tcc.findUnique({
     where: { id: tccId },
-    include: {
-      metadata: true,
-      avaliacoes: true,
-      documentos: true,
-      relatorios_progresso: true,
-      nota_final: true,
-      palavras_chave: true,
-    },
   })
 }
 

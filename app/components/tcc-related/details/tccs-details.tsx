@@ -16,42 +16,24 @@ import { Button } from "@/components/ui/button"
 import { showErrorToast } from "@/app/utils/toast-utils"
 
 import { TccTable } from "./tcc-table/tcc-table"
-import { ITccDetailed } from "@/app/models/tcc/tccModel"
+
 import { Separator } from "@/components/ui/separator"
 import { useSearchParams } from "next/navigation"
-import { GetTccsDetails } from "@/app/server-actions/tcc/getTccsDetails"
+
 import { formatDate } from "@/app/utils/date-parser"
+import { ITcc } from "@/app/models/mongoModels"
+import { getAllTccs, getTccDetails } from "@/app/server-actions/mongoActions"
 
 export function TccsDetails() {
-  const [tccs, setTccs] = useState<ITccDetailed[]>()
-  const [selectedTcc, setSelectedTcc] = useState<ITccDetailed | null>(null)
-  const [originalTcc, setOriginalTcc] = useState<ITccDetailed | null>(null)
+  const [tccs, setTccs] = useState<ITcc[]>()
+  const [selectedTcc, setSelectedTcc] = useState<ITcc | null>(null)
+  const [originalTcc, setOriginalTcc] = useState<ITcc | null>(null)
   const [isEditing, setIsEditing] = useState(false)
 
   const searchParams = useSearchParams()
   const paramId = searchParams.get("id")
 
-  const fetchTccs = async () => {
-    try {
-      console.log(searchParams, paramId)
-      const response = await GetTccsDetails()
 
-      if (response) {
-        setTccs(response as ITccDetailed[])
-      }
-
-      if (paramId) {
-        console.log("paramId", paramId)
-
-        const selected = response.find((tcc) => tcc.tccId === Number(paramId))
-        if (selected) {
-          setSelectedTcc(selected)
-        }
-      }
-    } catch (error) {
-      showErrorToast("Erro ao buscar TCCs.")
-    }
-  }
 
   const handleDownload = async () => {
     if (!selectedTcc?.documentos || selectedTcc?.documentos.length === 0) {
@@ -59,7 +41,7 @@ export function TccsDetails() {
       return
     }
 
-    const fileName = selectedTcc.documentos[0].caminhoArquivo.split("/").pop()
+    const fileName = selectedTcc.documentos[0].caminho.split("/").pop()
 
     if (!fileName) {
       showErrorToast("Nome do arquivo inválido.")
@@ -84,10 +66,7 @@ export function TccsDetails() {
     window.URL.revokeObjectURL(url)
   }
 
-  useEffect(() => {
-    fetchTccs()
-  }, [])
-
+  
   return (
     <div className="flex w-full gap-6 items-start justify-start">
       <div className="flex flex-col gap-2">
@@ -102,14 +81,14 @@ export function TccsDetails() {
           </CardHeader>
           <CardContent>
             <TccTable
-              selected={selectedTcc ? selectedTcc.tccId : null}
+              selected={selectedTcc ? selectedTcc.id : null}
               onSelect={(tcc) => setSelectedTcc(tcc)}
             />
             {selectedTcc && (
               <Card className="w-auto mt-4">
                 <CardHeader className="flex flex-row gap-2 items-center justify-between">
                   <div className="flex flex-col gap-2">
-                    <CardTitle>TCC: {selectedTcc.tituloTcc}</CardTitle>
+                    <CardTitle>TCC: {selectedTcc.titulo}</CardTitle>
 
                     <CardDescription>
                       {isEditing
@@ -134,43 +113,43 @@ export function TccsDetails() {
                       </span>
                       <div className="flex items-center">
                         <span>Aluno:&nbsp;</span>
-                        <Link href={`/alunos/${selectedTcc.alunoId}`}>
+                        <Link href={`/alunos/${selectedTcc.aluno.id}`}>
                           <Button variant="link" className="px-0 py-0 h-5">
-                            {selectedTcc.nomeAluno}
+                            {selectedTcc.aluno.nome}
                           </Button>
                         </Link>
                       </div>
                       <div className="flex items-center">
                         <span>Orientador:&nbsp;</span>
                         <Link
-                          href={`/orientadores/${selectedTcc.orientadorId}`}>
+                          href={`/orientadores/${selectedTcc.orientador.id}`}>
                           <Button variant="link" className="px-0 py-0 h-5">
-                            {selectedTcc.nomeOrientador}
+                            {selectedTcc.orientador.nome}
                           </Button>
                         </Link>
                       </div>
                       <div className="flex items-center">
                         <span>Turma:&nbsp;</span>
-                        <Link href={`/turmas/${selectedTcc.turmaId}`}>
+                        <Link href={`/turmas/${selectedTcc.aluno.turma_id}`}>
                           <Button variant="link" className="px-0 py-0 h-5">
-                            {selectedTcc.nomeTurma}
+                            {selectedTcc.aluno.turma_nome}
                           </Button>
                         </Link>
                       </div>
                       <div className="flex items-center">
                         <span>Tema:&nbsp;</span>
-                        <Link href={`/temas/${selectedTcc.temaId}`}>
+                        <Link href={`/temas/${selectedTcc.tema.id}`}>
                           <Button variant="link" className="px-0 py-0 h-5">
-                            {selectedTcc.tema}
+                            {selectedTcc.tema.descricao}
                           </Button>
                         </Link>
                       </div>
                       <div className="flex items-center">
                         <span>Classificação:&nbsp;</span>
                         <Link
-                          href={`/classificacoes/${selectedTcc.classificacaoId}`}>
+                          href={`/classificacoes/${selectedTcc.classificacao.id}`}>
                           <Button variant="link" className="px-0 py-0 h-5">
-                            {selectedTcc.classificacao}
+                            {selectedTcc.classificacao.descricao}
                           </Button>
                         </Link>
                       </div>
@@ -182,18 +161,20 @@ export function TccsDetails() {
                       <span className="font-semibold py-4">
                         Detalhes do TCC
                       </span>
-                      <div className="flex items-center gap-2">
-                        <span>Nota Final:</span>
-                        <Button
-                          variant="invisible"
-                          className="px-0 hover:bg-transparent cursor-default py-0 h-5">
-                          {selectedTcc.notaFinal}
-                        </Button>
-                      </div>
+                      {selectedTcc.avaliacoes.length > 2 && (
+                        <div className="flex items-center gap-2">
+                          <span>Nota Final:</span>
+                          <Button
+                            variant="invisible"
+                            className="px-0 hover:bg-transparent cursor-default py-0 h-5">
+                            {selectedTcc.notaFinal?.toFixed(2) || "Não avaliado"}
+                          </Button>
+                        </div>
+                      )}
                       <div className="flex items-start justify-center flex-col">
                         <span>
                           {selectedTcc.avaliacoes &&
-                          selectedTcc.avaliacoes.length > 0
+                            selectedTcc.avaliacoes.length > 0
                             ? "Avaliações"
                             : "Não há avaliações"}
                         </span>
@@ -203,19 +184,19 @@ export function TccsDetails() {
                               {selectedTcc.avaliacoes.map(
                                 (avaliacao, index) => (
                                   <li key={index}>
-                                    <Link href={`/avaliacoes/${avaliacao.id}`}>
+                                    <Link href={`/avaliacoes/${avaliacao.numero}`}>
                                       <Button
                                         variant="link"
                                         className="py-0 px-0 h-5">
                                         {avaliacao.nota &&
-                                          avaliacao.dataAvaliacao && (
+                                          avaliacao.data_avaliacao && (
                                             <div className="flex">
                                               <span>&#8226;&nbsp;</span>
-                                              {avaliacao.numeroAvaliacao ===
+                                              {avaliacao.numero ===
                                                 1 && "1ª Avaliação | "}
-                                              {avaliacao.numeroAvaliacao ===
+                                              {avaliacao.numero ===
                                                 2 && "2ª Avaliação | "}
-                                              {avaliacao.numeroAvaliacao ===
+                                              {avaliacao.numero ===
                                                 3 && "3ª Avaliação | "}
                                               <span>
                                                 &nbsp; Nota{" "}
@@ -226,7 +207,7 @@ export function TccsDetails() {
                                               <span>
                                                 &nbsp;
                                                 {formatDate(
-                                                  avaliacao.dataAvaliacao
+                                                  avaliacao.data_avaliacao
                                                 )}
                                               </span>
                                             </div>
@@ -239,11 +220,12 @@ export function TccsDetails() {
                               {[...Array(3)].map((_, index) => {
                                 const avaliacaoExistente =
                                   selectedTcc?.avaliacoes?.find(
-                                    (av) => av.numeroAvaliacao === index + 1
+                                    (av) => av.numero === index + 1
                                   )
                                 return avaliacaoExistente ? null : (
                                   <Link
-                                    href={`/avaliation/new?tccId=${selectedTcc.tccId}`}>
+                                    key={index}
+                                    href={`/avaliation/new?tccId=${selectedTcc.id}`}>
                                     <Button
                                       variant="link"
                                       className="px-0 py-0 h-5">
@@ -260,21 +242,21 @@ export function TccsDetails() {
 
                     <Separator />
 
-                    {selectedTcc.palavrasChave && (
+                    {selectedTcc.palavras_chave && (
                       <div className="flex flex-col gap-2">
                         <span className="font-semibold">Palavras-chave</span>
                         <div className="flex flex-wrap gap-1 items-center">
-                          {selectedTcc.palavrasChave.map(
+                          {selectedTcc.palavras_chave.map(
                             (palavraChave, index) => (
                               <Fragment key={index}>
                                 <Link
                                   href={`/palavras-chave/${palavraChave.id}`}>
                                   <Button variant="link" className="px-0">
                                     {palavraChave.palavra}
-                                    {selectedTcc.palavrasChave &&
+                                    {selectedTcc.palavras_chave &&
                                       index <
-                                        selectedTcc.palavrasChave.length -
-                                          1 && <span>,</span>}
+                                      selectedTcc.palavras_chave.length -
+                                      1 && <span>,</span>}
                                   </Button>
                                 </Link>
                               </Fragment>

@@ -16,21 +16,27 @@ import { Plus, PlusCircleIcon, PlusIcon } from "lucide-react"
 import { showErrorToast } from "@/app/utils/toast-utils"
 import Image from "next/image"
 import { formatCPF, formatPhoneNumber } from "@/app/utils/formatters"
-import { ITeacher } from "@/app/models/mongoModels"
-import { getOrientador } from "@/app/server-actions/mongoActions"
+import { ITcc, ITeacher } from "@/app/models/mongoModels"
+import { getOrientador, getOrientadorTccs } from "@/app/server-actions/mongoActions"
 interface GetTeacherProps {
   id: string
 }
 
 export function TeacherDetails({ id }: GetTeacherProps) {
   const [student, setStudent] = useState<ITeacher>()
+  const [tccs, setTccs] = useState<ITcc[]>([])
 
   const handleGetTeachers = async () => {
     try {
       const response = await getOrientador(id)
+      const responseTccs = await getOrientadorTccs(id)
 
       if (response) {
         setStudent(response as ITeacher)
+      }
+
+      if (responseTccs) {
+        setTccs(responseTccs as ITcc[])
       }
     } catch (error) {
       showErrorToast(error)
@@ -81,7 +87,7 @@ export function TeacherDetails({ id }: GetTeacherProps) {
                     <span>{formatPhoneNumber(student?.telefone)}</span>
                   </div>
                   <Button>
-                    <Link href={`/alunos/editar/${student?.id}`}>
+                    <Link href={`/orientadores/editar/${student?.id}`}>
                       Editar informações
                     </Link>
                   </Button>
@@ -115,57 +121,78 @@ export function TeacherDetails({ id }: GetTeacherProps) {
               <CardHeader>
                 <CardTitle>TCCs</CardTitle>
                 <CardDescription>
-                  TCCs que o que o orientador está participando
+                  TCCs que o que o orientador está envolvido
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {/* {student?.tcc && (
-                  <div className="flex flex-col gap-4">
-                    {student?.tcc.map((tcc) => (
-                      <Card>
-                        <CardHeader key={tcc.tccId}>
-                          <div className="">
-                            <Link href={`/${tcc.tccId}`}>
+                {tccs && (
+                  <div className="flex flex-col gap-2">
+                    {tccs.map((tcc) => (
+                      <Card key={tcc.id}>
+                        <CardContent className="px-4 py-2">
+                          <div className="flex flex-col gap-4 text-sm">
+                            <div className="">
+                              <Link href={`/${tcc.id}`} className="flex items-center justify-between gap-4">
+                                <Button
+                                  className="p-0 m-0 h-0"
+                                  variant="link"
+                                  key={tcc.id}>
+                                  <div className="">
+                                    <span className="font-semibold">
+                                      {tcc.titulo}
+                                    </span>
+                                  </div>
+                                </Button>
+                                <div className="">
+                                  {tcc.status.descricao === "Pendente de Revisão" && (
+                                    <span className="bg-yellow-700 px-2 py-1 font-bold">
+                                      {tcc.status.descricao}
+                                    </span>
+                                  )}
+                                  {tcc.status.descricao === "Aprovado" && (
+                                    <span className="bg-green-700 px-2 py-1 font-bold">
+                                      {tcc.status.descricao}
+                                    </span>
+                                  )}
+                                  {tcc.status.descricao === "Em Avaliação" && (
+                                    <span className="bg-blue-700 px-2 py-1 font-bold">
+                                      {tcc.status.descricao}
+                                    </span>
+                                  )}
+                                  {tcc.status.descricao === "Reprovado" && (
+                                    <span className="bg-red-700 px-2 py-1 font-bold">
+                                      {tcc.status.descricao}
+                                    </span>
+                                  )}
+
+                                </div>
+                              </Link>
+                            </div>
+                            <Link href={`/aluno/${tcc.aluno.id}`} className="flex items-center justify-between gap-4">
                               <Button
-                                className="p-0 m-0 h-0"
+                                className="px-0 m-0 h-0 w-full"
                                 variant="link"
-                                key={tcc.tccId}>
-                                {tcc.tituloTcc}
+                              >
+                                <div className="flex gap-2 w-full">
+                                  <Image src={tcc.aluno.caminho_foto || "/images/placeholder.png"} alt="" width={20} height={20} className="rounded-full object-cover min-w-3 min-h-3" />
+                                  <span className="font-semibold">
+                                    {tcc.aluno.nome}
+                                  </span>
+                                </div>
                               </Button>
                             </Link>
-                          </div>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="flex flex-col gap-2 text-sm">
-                            <div className="">
-                              <span>{tcc.estadoAtual}</span>
-                            </div>
-                            <div className="">
-                              <span className="font-semibold">
-                                Número de Avaliações:
-                              </span>{" "}
-                              <span>{tcc.numeroAvaliacoes}</span>
-                            </div>
-                            <div className="">
-                              <span className="font-semibold">
-                                Data da Última Avaliação:
-                              </span>{" "}
-                              <span>
-                                {tcc.dataUltimaAvaliacao?.toLocaleDateString() ||
-                                  "N/A"}
-                              </span>
-                            </div>
                           </div>
                         </CardContent>
                       </Card>
                     ))}
                   </div>
-                )} */}
+                )}
               </CardContent>
             </Card>
           </div>
         </>
-      )}
-    </div>
+      )
+      }
+    </div >
   )
 }

@@ -1,23 +1,16 @@
-
 export interface ITcc {
-  id: string // ID único do TCC
-  titulo: string // Título do TCC
-  aluno: {
-    id: string
-    nome: string
-  } // Aluno associado
-  orientador: {
-    id: string
-    nome: string
-  } // Orientador associado
+  id: string
+  titulo: string
+  aluno: IStudent
+  orientador: ITeacher
   tema: {
     id: string
     descricao: string
-  } // Tema associado
+  }
   classificacao: {
     id: string
     descricao: string
-  } // Classificação do TCC
+  }
   documentos: {
     tipo: string
     nome: string
@@ -25,10 +18,10 @@ export interface ITcc {
     formato: string
     data_envio: Date
     tamanho: number
-  }[] // Lista de documentos do TCC
+  }[]
   palavras_chave: {
     id: string
-    descricao: string
+    palavra: string
   }[]
   avaliacoes: {
     numero: number
@@ -39,9 +32,27 @@ export interface ITcc {
     data_avaliacao: Date
     descricao: string
     nota: number
-  }[] // Avaliações do TCC
-  notaFinal: number | null // Nota final calculada
-  status: string // Status do TCC
+  }[]
+  notaFinal: number | null
+  status: {
+    id: string
+    descricao: string
+  }
+}
+
+export interface ITheme {
+  id: string
+  descricao: string
+}
+
+export interface IClassification {
+  id: string
+  descricao: string
+}
+
+export interface IKeyword {
+  id: string
+  palavra: string
 }
 
 export interface ICommunityFromBase {
@@ -70,7 +81,7 @@ export interface ICommunityFromBase {
 }
 
 export interface ICommunity {
-  id: string 
+  id: string
   nome: string
   descricao: string
   imagem_capa: string

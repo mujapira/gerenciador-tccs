@@ -28,14 +28,13 @@ interface TccDataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   onRowClick: (row: TData) => void
-  selected: number | null
+  selected: string | null
 }
 
 export function TccDataTable<TData, TValue>({
   columns,
   data,
   onRowClick,
-  selected,
 }: TccDataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -62,7 +61,6 @@ export function TccDataTable<TData, TValue>({
 
   return (
     <div className="w-full">
-      <div>{}</div>
       <div className="flex items-center py-4 gap-4 w-2/3">
         <Input
           placeholder="Filtrar por titulo..."

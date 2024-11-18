@@ -34,11 +34,6 @@ type ComunidadeSeguidoresSeguidor {
 }
 
 type TccAluno {
-  id   TccAlunoId @map("_id")
-  nome String
-}
-
-type TccAlunoId {
   id              String   @map("_id") @db.ObjectId
   caminho_foto    String
   cidade          String
@@ -84,13 +79,24 @@ type TccDocumentos {
 }
 
 type TccOrientador {
-  id   String @map("_id") @db.ObjectId
-  nome String
+  id               String @map("_id") @db.ObjectId
+  caminho_foto     String
+  cpf              String
+  departamento     String
+  email            String
+  nome             String
+  telefone         String
+  titulo_academico String
 }
 
 type TccPalavrasChave {
   id      String @map("_id") @db.ObjectId
   palavra String
+}
+
+type TccStatus {
+  id        String @map("_id") @db.ObjectId
+  descricao String
 }
 
 type TccTema {
@@ -118,6 +124,10 @@ type TurmaAlunosAluno {
   telefone        String
   turma_id        String   @db.ObjectId
   turma_nome      String
+}
+
+model a {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
 }
 
 model aluno {
@@ -169,7 +179,7 @@ model tcc {
   notaFinal      Float
   orientador     TccOrientador
   palavras_chave TccPalavrasChave[]
-  status         String
+  status         TccStatus
   tema           TccTema
   titulo         String
 }

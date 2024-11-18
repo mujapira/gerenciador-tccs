@@ -9,7 +9,7 @@ export default function NewStudentPage() {
     <main className="flex w-full h-full justify-start flex-col gap-4 items-start p-4 min-h-[calc(100vh-68px)]">
       <div className="flex items-start w-full gap-4">
         <Button variant="ghost">
-          <Link href="/alunos">
+          <Link href="/orientadores">
             <ArrowLeftIcon />
           </Link>
         </Button>

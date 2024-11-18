@@ -10,10 +10,11 @@ import {
 } from "@/components/ui/dropdown-menu"
 import Link from "next/link"
 import { MoreHorizontal, ArrowUpDown } from "lucide-react"
-import { ITccDetailed } from "@/app/models/tcc/tccModel"
-import { Badge } from "@/components/ui/badge"
 
-export const tccTableColumns: ColumnDef<ITccDetailed>[] = [
+import { Badge } from "@/components/ui/badge"
+import { ITcc } from "@/app/models/mongoModels"
+
+export const tccTableColumns: ColumnDef<ITcc>[] = [
   {
     accessorKey: "tituloTcc",
     header: ({ column }) => {
@@ -28,48 +29,35 @@ export const tccTableColumns: ColumnDef<ITccDetailed>[] = [
     },
     cell: ({ row }) => {
       const tcc = row.original
-      return <span>{tcc.tituloTcc}</span>
+      return <span>{tcc.titulo}</span>
     },
   },
-  // {
-  //   accessorKey: "nomeAluno",
-  //   header: "Aluno",
-  //   cell: ({ row }) => {
-  //     const tcc = row.original
-  //     return (
-  //       <Link href={`/alunos/${tcc.alunoId}`}>
-  //         <Button className="px-0" variant={"link"}>
-  //           {tcc.nomeAluno}
-  //         </Button>
-  //       </Link>
-  //     )
-  //   },
-  // },
-  // {
-  //   accessorKey: "nomeOrientador",
-  //   header: "Orientador",
-  //   cell: ({ row }) => {
-  //     const tcc = row.original
-  //     return (
-  //       <Link href={`/orientadores/${tcc.orientadorId}`}>
-  //         <Button className="px-0" variant={"link"}>
-  //           {tcc.nomeOrientador}
-  //         </Button>
-  //       </Link>
-  //     )
-  //   },
-  // },
   {
-    accessorKey: "nomeTurma",
-    header: "Turma",
+    accessorKey: "nomeAluno",
+    header: "Aluno",
     cell: ({ row }) => {
       const tcc = row.original
-      return <span>{tcc.nomeTurma}</span>
+      return (
+        <span>
+          {tcc.aluno.nome}
+        </span>
+      )
+    },
+  },
+  {
+    accessorKey: "nomeOrientador",
+    header: "Orientador",
+    cell: ({ row }) => {
+      const tcc = row.original
+      return (
+        <span>
+          {tcc.orientador.nome}
+        </span>
+      )
     },
   },
   {
     accessorKey: "estadoAtual",
-
     header: ({ column }) => {
       return (
         <Button
@@ -84,31 +72,34 @@ export const tccTableColumns: ColumnDef<ITccDetailed>[] = [
     cell: ({ row }) => {
       const tcc = row.original
 
-      if (tcc.estadoAtual === "Em andamento") {
+      if (tcc.status.descricao === "Pendente de Revisão") {
         return (
           <Badge className="bg-yellow-500 w-full flex items-center justify-center">
-            {tcc.estadoAtual}
+            {tcc.status.descricao}
           </Badge>
         )
       }
-      if (tcc.estadoAtual === "Aprovado") {
+      if (tcc.status.descricao === "Aprovado") {
         return (
           <Badge className="bg-green-500 w-full flex items-center justify-center">
-            {tcc.estadoAtual}
+            {tcc.status.descricao}
+
           </Badge>
         )
       }
-      if (tcc.estadoAtual === "Em Avaliação") {
+      if (tcc.status.descricao === "Em Avaliação") {
         return (
           <Badge className="bg-blue-500 w-full flex items-center justify-center">
-            {tcc.estadoAtual}
+            {tcc.status.descricao}
+
           </Badge>
         )
       }
-      if (tcc.estadoAtual === "Reprovado") {
+      if (tcc.status.descricao === "Reprovado") {
         return (
           <Badge className="bg-red-500 w-full flex items-center justify-center">
-            {tcc.estadoAtual}
+            {tcc.status.descricao}
+
           </Badge>
         )
       }

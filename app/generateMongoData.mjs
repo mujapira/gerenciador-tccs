@@ -277,12 +277,12 @@ async function populateDatabase() {
 
     const alunoMap = alunos.map((aluno, index) => ({
       ...aluno,
-      _id: alunoIds[index], // Associa o ID gerado ao objeto original
+      _id: alunoIds[index]._id,
     }))
 
     const orientadorMap = orientadores.map((orientador, index) => ({
       ...orientador,
-      _id: orientadorIds[index], // Associa o ID gerado ao objeto original
+      _id: orientadorIds[index],
     }))
 
     const tccs = Array.from({ length: 30 }, () => {
@@ -308,25 +308,36 @@ async function populateDatabase() {
         })
       )
 
-      // Calcula a nota final como média das notas, ou deixa como `null` se não houver avaliações
+      // Calcula a nota final como média das notas, ou deixa como `0` se não houver avaliações
       const notaFinal =
         avaliacoes.length > 0
           ? new Double(
               avaliacoes.reduce((sum, { nota }) => sum + nota.valueOf(), 0) /
                 avaliacoes.length
             )
-          : null
+          : 0
+
+      // caso haja 3 avaliações e a média for maior que 7, o status é "Aprovado",
+      // caso haja 3 avaliações e a média for menor que 7, o status é "Reprovado",
+      // caso haja menos de 3 avaliações, o status é "Em Avaliação"
+
+      const status =
+        avaliacoes.length === 3
+          ? notaFinal.valueOf() >= 7
+            ? "Aprovado"
+            : "Reprovado"
+          : "Em Avaliação"
+
+      const statusObject = estados.find((estado) => estado.descricao === status)
 
       return {
         titulo: faker.lorem.words(5),
-        status: faker.helpers.arrayElement(estados).descricao,
+        status: statusObject,
         aluno: {
-          _id: aluno._id,
-          nome: aluno.nome,
+          ...aluno,
         },
         orientador: {
-          _id: orientador._id,
-          nome: orientador.nome,
+          ...orientador
         },
         tema: {
           _id: tema,

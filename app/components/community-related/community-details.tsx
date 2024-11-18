@@ -73,9 +73,15 @@ export function CommunityDetails({ id }: PageProps) {
             <CardContent>
               <CardDescription>
                 <div className="flex flex-col items-start">
-                  <Link href={`alunos/${data.criador.info.id}`} className="flex items-center gap-1">
-                    <Crown className="w-4" /> {data.criador.info.nome}
-                  </Link>
+                  {data.criador.tipo === "aluno" ? (
+                    <Link href={`/alunos/${data.criador.info.id}`} className="flex items-center gap-1">
+                      <Crown className="w-4" /> {data.criador.info.nome}
+                    </Link>
+                  ) : (
+                    <Link href={`/orientador/${data.criador.info.id}`} className="flex items-center gap-1">
+                      <Crown className="w-4" /> {data.criador.info.nome}
+                    </Link>
+                  )}
 
                   <span className="flex items-center gap-5">
                     <span className="flex items-center gap-1
@@ -91,9 +97,17 @@ export function CommunityDetails({ id }: PageProps) {
 
                   <div className="flex flex-col gap-3">
                     {topFollowers?.map((follower) => (
-                      <Link href={`alunos/${follower.info.id}`} key={follower.info.id} className="flex items-center gap-2">
-                        <Image src={follower.info.caminho_foto} width={24} height={24} className="rounded-full" alt="" /> {follower.info.nome}
-                      </Link>
+                      <>
+                        {follower.tipo === "aluno" ? (
+                          <Link href={`/alunos/${follower.info.id}`} key={follower.info.id} className="flex items-center gap-2">
+                            <Image src={follower.info.caminho_foto} width={24} height={24} className="rounded-full" alt="" /> {follower.info.nome}
+                          </Link>
+                        ) : (
+                          <Link href={`/orientador/${follower.info.id}`} key={follower.info.id} className="flex items-center gap-2">
+                            <Image src={follower.info.caminho_foto} width={24} height={24} className="rounded-full" alt="" /> {follower.info.nome}
+                          </Link>
+                        )}
+                      </>
                     ))}
                     <Button variant={"secondary"} className="mt-2">
                       <Link href={`comunidades/${id}/seguidores`}>Ver todos</Link>
@@ -117,9 +131,15 @@ export function CommunityDetails({ id }: PageProps) {
                     <div key={post.data_postagem.toLocaleTimeString()} className="flex flex-col gap-2">
                       <div className="flex flex-row gap-2 items-center justify-between">
                         <Button variant={'link'} className="m-0 p-0">
-                          <Link href={`alunos/${post.autor.info.id}`} className="flex items-center gap-2">
-                            <Image src={post.autor.info.caminho_foto} width={24} height={24} className="rounded-full" alt="" /> {post.autor.info.nome}
-                          </Link>
+                          {post.autor.tipo === "aluno" ? (
+                            <Link href={`/alunos/${post.autor.info.id}`} className="flex items-center gap-2">
+                              <Image src={post.autor.info.caminho_foto} width={24} height={24} className="rounded-full object-cover max-w-6 max-h-6" alt="" /> {post.autor.info.nome}
+                            </Link>
+                          ) : (
+                            <Link href={`/orientadores/${post.autor.info.id}`} className="flex items-center gap-2">
+                              <Image src={post.autor.info.caminho_foto} width={24} height={24} className="rounded-full" alt="" /> {post.autor.info.nome}
+                            </Link>
+                          )}
                         </Button>
                         <span className="text-muted-foreground">{parseDate(post.data_postagem)}</span>
                       </div>

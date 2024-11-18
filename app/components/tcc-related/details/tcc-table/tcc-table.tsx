@@ -5,23 +5,24 @@ import { useEffect, useState } from "react";
 import { tccTableColumns } from "./tcc-col-defs";
 import { showErrorToast } from "@/app/utils/toast-utils";
 
-import { ITccDetailed } from "@/app/models/tcc/tccModel"
+
 import { TccDataTable } from "./tcc-data-table"
-import { GetTccsDetails } from "@/app/server-actions/tcc/getTccsDetails"
+import { ITcc } from "@/app/models/mongoModels";
+import { getAllTccs } from "@/app/server-actions/mongoActions";
+
 
 export function TccTable({
   onSelect,
   selected,
 }: {
-  onSelect: (data: ITccDetailed) => void;
-  selected: number | null;
+  onSelect: (data: ITcc) => void;
+  selected: string | null;
 }) {
-  const [tccs, setTccs] = useState<ITccDetailed[]>([]);
+  const [tccs, setTccs] = useState<ITcc[]>([]);
 
   const handleGetTccs = async () => {
     try {
-      const response = await GetTccsDetails();
-
+      const response = await getAllTccs();
       if (response) {
         setTccs(response as any);
       }

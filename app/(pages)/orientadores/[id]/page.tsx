@@ -28,7 +28,7 @@ export default async function TeacherPage({
           Orientador
         </span>
       </div>
-      <TeacherDetails id={Number(params.id)} />
+      <TeacherDetails id={params.id} />
     </main>
   )
 }
